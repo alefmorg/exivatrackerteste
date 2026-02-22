@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Shield, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock } from 'lucide-react';
+import { Plus, Search, Shield, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import StatCard from '@/components/StatCard';
@@ -26,6 +26,15 @@ const activityColors: Record<string, string> = {
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function generateToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
 }
 
 function timeAgo(dateStr: string) {
@@ -186,7 +195,12 @@ export default function BonecosPage() {
               <Input placeholder="Nome" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-secondary" />
               <Input placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="bg-secondary" />
               <Input placeholder="Senha" type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Token" type="password" value={form.token} onChange={e => setForm({...form, token: e.target.value})} className="bg-secondary" />
+              <div className="flex gap-1">
+                <Input placeholder="Token" type="password" value={form.token} onChange={e => setForm({...form, token: e.target.value})} className="bg-secondary flex-1" />
+                <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={() => setForm({...form, token: generateToken()})} title="Gerar token">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </div>
               <Input placeholder="Mundo" value={form.world} onChange={e => setForm({...form, world: e.target.value})} className="bg-secondary" />
               <Input placeholder="Level" type="number" value={form.level || ''} onChange={e => setForm({...form, level: parseInt(e.target.value) || 0})} className="bg-secondary" />
               <select value={form.vocation} onChange={e => setForm({...form, vocation: e.target.value})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
