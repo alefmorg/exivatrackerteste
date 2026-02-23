@@ -1,13 +1,33 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Shield, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, RefreshCw } from 'lucide-react';
+import { Plus, Search, Shield, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import StatCard from '@/components/StatCard';
 import StatusDot from '@/components/StatusDot';
 import StatusBadge from '@/components/StatusBadge';
-import { Boneco, CharacterActivity, CharacterStatus } from '@/types/tibia';
-import { getBonecos, saveBonecos, addBoneco, updateBoneco, deleteBoneco } from '@/lib/storage';
+import TotpDisplay from '@/components/TotpDisplay';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+type CharacterStatus = 'online' | 'afk' | 'offline';
+type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
+
+interface BonecoRow {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  totp_secret: string;
+  world: string;
+  level: number;
+  vocation: string;
+  location: string;
+  used_by: string;
+  status: string;
+  activity: string;
+  observations: string;
+  last_access: string;
+}
 
 const ACTIVITIES: { value: CharacterActivity | ''; label: string }[] = [
   { value: '', label: 'Todos' },
@@ -24,19 +44,6 @@ const activityColors: Record<string, string> = {
   boss: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
 };
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
-function generateToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
-}
-
 function timeAgo(dateStr: string) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -50,81 +57,78 @@ function timeAgo(dateStr: string) {
 
 export default function BonecosPage() {
   const { toast } = useToast();
-  const [bonecos, setBonecos] = useState<Boneco[]>([]);
+  const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [searchFilter, setSearchFilter] = useState('');
   const [activityFilter, setActivityFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
-  const [form, setForm] = useState<Partial<Boneco>>({
-    name: '', email: '', password: '', token: '', world: '', level: 0,
-    vocation: '', location: '', usedBy: '', status: 'offline', activity: '', observations: '',
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
+    vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus, activity: '' as CharacterActivity, observations: '',
   });
 
-  useEffect(() => {
-    setBonecos(getBonecos());
-  }, []);
-
-  const save = (list: Boneco[]) => {
-    setBonecos(list);
-    saveBonecos(list);
+  const fetchBonecos = async () => {
+    const { data, error } = await supabase.from('bonecos').select('*').order('created_at', { ascending: false });
+    if (!error && data) setBonecos(data as unknown as BonecoRow[]);
+    setLoading(false);
   };
 
-  const handleSubmit = () => {
-    if (!form.name?.trim()) { toast({ title: 'Nome obrigatório', variant: 'destructive' }); return; }
+  useEffect(() => { fetchBonecos(); }, []);
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) { toast({ title: 'Nome obrigatório', variant: 'destructive' }); return; }
+
+    const payload = {
+      name: form.name, email: form.email, password: form.password, totp_secret: form.totp_secret,
+      world: form.world, level: form.level, vocation: form.vocation, location: form.location,
+      used_by: form.used_by, status: form.status, activity: form.activity, observations: form.observations,
+      last_access: new Date().toISOString(),
+    };
 
     if (editId) {
-      const updated = { ...form, id: editId, lastAccess: new Date().toISOString() } as Boneco;
-      const list = bonecos.map(b => b.id === editId ? updated : b);
-      save(list);
+      const { error } = await supabase.from('bonecos').update(payload).eq('id', editId);
+      if (error) { toast({ title: error.message, variant: 'destructive' }); return; }
       toast({ title: 'Boneco atualizado' });
     } else {
-      const newBoneco: Boneco = {
-        ...form as Boneco,
-        id: generateId(),
-        lastAccess: new Date().toISOString(),
-      };
-      const list = [...bonecos, newBoneco];
-      save(list);
+      const { error } = await supabase.from('bonecos').insert(payload);
+      if (error) { toast({ title: error.message, variant: 'destructive' }); return; }
       toast({ title: 'Boneco adicionado' });
     }
     resetForm();
+    fetchBonecos();
   };
 
   const resetForm = () => {
-    setForm({ name: '', email: '', password: '', token: '', world: '', level: 0, vocation: '', location: '', usedBy: '', status: 'offline', activity: '', observations: '' });
+    setForm({ name: '', email: '', password: '', totp_secret: '', world: '', level: 0, vocation: '', location: '', used_by: '', status: 'offline', activity: '', observations: '' });
     setShowForm(false);
     setEditId(null);
   };
 
-  const handleEdit = (b: Boneco) => {
-    setForm(b);
+  const handleEdit = (b: BonecoRow) => {
+    setForm({
+      name: b.name, email: b.email, password: b.password, totp_secret: b.totp_secret,
+      world: b.world, level: b.level, vocation: b.vocation, location: b.location,
+      used_by: b.used_by, status: b.status as CharacterStatus, activity: b.activity as CharacterActivity, observations: b.observations,
+    });
     setEditId(b.id);
     setShowForm(true);
   };
 
-  const handleDelete = (id: string) => {
-    save(bonecos.filter(b => b.id !== id));
+  const handleDelete = async (id: string) => {
+    await supabase.from('bonecos').delete().eq('id', id);
     toast({ title: 'Boneco removido' });
+    fetchBonecos();
   };
 
   const togglePassword = (id: string) => {
-    setVisiblePasswords(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setVisiblePasswords(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
-
   const toggleToken = (id: string) => {
-    setVisibleTokens(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    setVisibleTokens(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: 'Copiado!' });
@@ -139,6 +143,8 @@ export default function BonecosPage() {
     if (activityFilter && b.activity !== activityFilter) return false;
     return true;
   });
+
+  if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
     <div>
@@ -162,24 +168,12 @@ export default function BonecosPage() {
       <div className="flex gap-3 mb-6">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchFilter}
-            onChange={e => setSearchFilter(e.target.value)}
-            placeholder="Buscar boneco..."
-            className="pl-9 bg-secondary border-border"
-          />
+          <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Buscar boneco..." className="pl-9 bg-secondary border-border" />
         </div>
         <div className="flex gap-1">
           {ACTIVITIES.map(a => (
-            <button
-              key={a.value}
-              onClick={() => setActivityFilter(activityFilter === a.value ? '' : a.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                activityFilter === a.value
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
-              }`}
-            >
+            <button key={a.value} onClick={() => setActivityFilter(activityFilter === a.value ? '' : a.value)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${activityFilter === a.value ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border text-muted-foreground hover:text-foreground'}`}>
               {a.label || 'Todos'}
             </button>
           ))}
@@ -195,12 +189,7 @@ export default function BonecosPage() {
               <Input placeholder="Nome" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-secondary" />
               <Input placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="bg-secondary" />
               <Input placeholder="Senha" type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="bg-secondary" />
-              <div className="flex gap-1">
-                <Input placeholder="Token" type="password" value={form.token} onChange={e => setForm({...form, token: e.target.value})} className="bg-secondary flex-1" />
-                <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={() => setForm({...form, token: generateToken()})} title="Gerar token">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </div>
+              <Input placeholder="Chave 2FA (Base32)" value={form.totp_secret} onChange={e => setForm({...form, totp_secret: e.target.value.toUpperCase().replace(/[^A-Z2-7=]/g, '')})} className="bg-secondary font-mono text-xs" />
               <Input placeholder="Mundo" value={form.world} onChange={e => setForm({...form, world: e.target.value})} className="bg-secondary" />
               <Input placeholder="Level" type="number" value={form.level || ''} onChange={e => setForm({...form, level: parseInt(e.target.value) || 0})} className="bg-secondary" />
               <select value={form.vocation} onChange={e => setForm({...form, vocation: e.target.value})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
@@ -211,7 +200,7 @@ export default function BonecosPage() {
                 <option value="Master Sorcerer">Master Sorcerer</option>
               </select>
               <Input placeholder="Localização" value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Em uso por" value={form.usedBy} onChange={e => setForm({...form, usedBy: e.target.value})} className="bg-secondary" />
+              <Input placeholder="Em uso por" value={form.used_by} onChange={e => setForm({...form, used_by: e.target.value})} className="bg-secondary" />
               <select value={form.status} onChange={e => setForm({...form, status: e.target.value as CharacterStatus})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
                 <option value="online">Online</option>
                 <option value="afk">AFK</option>
@@ -244,14 +233,12 @@ export default function BonecosPage() {
                 <Shield className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-foreground">{b.name}</span>
-                </div>
+                <div className="flex items-center gap-2"><span className="font-bold text-foreground">{b.name}</span></div>
                 <span className="text-xs text-muted-foreground">{b.vocation}</span>
               </div>
-              <StatusDot status={b.status} />
+              <StatusDot status={b.status as any} />
               <span className="text-xs text-muted-foreground font-mono">Lv. {b.level}</span>
-              <StatusBadge status={b.status} />
+              <StatusBadge status={b.status as any} />
             </div>
 
             {/* Info rows */}
@@ -269,13 +256,21 @@ export default function BonecosPage() {
                 </button>
                 <button onClick={() => copyToClipboard(b.password)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
+              {/* TOTP 2FA */}
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Shield className="h-3.5 w-3.5" />
-                <span className="font-mono text-xs flex-1">{visibleTokens.has(b.id) ? b.token : '••••••••••••'}</span>
+                {visibleTokens.has(b.id) ? (
+                  <div className="flex-1 flex items-center gap-2">
+                    <span className="font-mono text-xs">{b.totp_secret}</span>
+                    <TotpDisplay secret={b.totp_secret} />
+                  </div>
+                ) : (
+                  <span className="font-mono text-xs flex-1">••••••••••••</span>
+                )}
                 <button onClick={() => toggleToken(b.id)} className="text-muted-foreground hover:text-primary">
                   {visibleTokens.has(b.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
-                <button onClick={() => copyToClipboard(b.token)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
+                <button onClick={() => copyToClipboard(b.totp_secret)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
             </div>
 
@@ -286,7 +281,7 @@ export default function BonecosPage() {
                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {b.location || '—'}</span>
               </div>
               <div className="flex items-center gap-2">
-                {b.usedBy && <span className="flex items-center gap-1"><User className="h-3 w-3" /> Em uso por <span className="text-primary font-medium">{b.usedBy}</span></span>}
+                {b.used_by && <span className="flex items-center gap-1"><User className="h-3 w-3" /> Em uso por <span className="text-primary font-medium">{b.used_by}</span></span>}
               </div>
             </div>
             <div className="flex items-center justify-between mt-2 text-xs">
@@ -298,9 +293,7 @@ export default function BonecosPage() {
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> Último acesso: {timeAgo(b.lastAccess)}
-                </span>
+                <span className="text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> Último acesso: {timeAgo(b.last_access)}</span>
                 <button onClick={() => handleEdit(b)} className="text-primary hover:underline">Editar</button>
                 <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
               </div>
