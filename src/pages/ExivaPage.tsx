@@ -84,8 +84,8 @@ export default function ExivaPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-primary neon-text mb-1">Exiva</h1>
-      <p className="text-muted-foreground mb-6">Monitoramento de membros da guild</p>
+      <h1 className="text-3xl font-extrabold text-primary neon-text mb-1" style={{ fontFamily: "'MedievalSharp', cursive" }}>🎯 Exiva</h1>
+      <p className="text-muted-foreground mb-6">Monitoramento de membros da guild inimiga</p>
 
       {/* Search */}
       <div className="flex gap-3 mb-6 p-4 rounded-lg border border-border bg-card">
