@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, LogIn } from 'lucide-react';
+import { Sword, LogIn } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,11 +24,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Shield className="h-8 w-8 text-primary" />
+          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center neon-box-sm">
+            <Sword className="h-10 w-10 text-primary" />
           </div>
-          <h1 className="text-2xl font-extrabold text-primary neon-text">EXIVA</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manager Pro</p>
+          <h1 className="text-3xl font-extrabold text-primary neon-text" style={{ fontFamily: "'MedievalSharp', cursive" }}>EXIVA</h1>
+          <p className="text-sm text-muted-foreground mt-1 tracking-widest uppercase">Manager Pro</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 bg-card border border-border rounded-xl p-6">
           <div>

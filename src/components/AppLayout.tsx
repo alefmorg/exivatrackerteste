@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Search, Users, Settings, ChevronLeft, ChevronRight, LogOut, Shield, UserPlus } from 'lucide-react';
+import { Search, Settings, ChevronLeft, ChevronRight, LogOut, Sword, Swords, Shield, Skull, UserPlus, ScrollText, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -10,9 +10,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, role, isAdmin, signOut } = useAuth();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
-    { path: '/exiva', label: 'Exiva', sublabel: 'Monitoramento de Guild', icon: Search, adminOnly: false },
-    { path: '/bonecos', label: 'Bonecos', sublabel: 'Gerenciar Personagens', icon: Users, adminOnly: true },
+    { path: '/', label: 'Dashboard', icon: ScrollText, adminOnly: false },
+    { path: '/exiva', label: 'Exiva', sublabel: 'Monitoramento de Guild', icon: Target, adminOnly: false },
+    { path: '/bonecos', label: 'Bonecos', sublabel: 'Gerenciar Personagens', icon: Swords, adminOnly: true },
     { path: '/admin/usuarios', label: 'Usuários', sublabel: 'Gerenciar Contas', icon: UserPlus, adminOnly: true },
     { path: '/configuracoes', label: 'Configurações', icon: Settings, adminOnly: false },
   ];
@@ -24,10 +24,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col border-r border-border bg-sidebar transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
         {/* Logo */}
         <div className="flex items-center gap-2 px-4 py-5 border-b border-border">
-          <Shield className="h-7 w-7 text-primary shrink-0" />
+          <Sword className="h-7 w-7 text-primary shrink-0" />
           {!collapsed && (
             <div>
-              <span className="text-lg font-extrabold text-primary neon-text tracking-tight">EXIVA</span>
+              <span className="text-lg font-extrabold text-primary neon-text tracking-tight" style={{ fontFamily: "'MedievalSharp', cursive" }}>EXIVA</span>
               <span className="block text-[10px] text-muted-foreground uppercase tracking-widest">Manager Pro</span>
             </div>
           )}
@@ -72,7 +72,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-border px-3 py-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary" />
+              <Skull className="h-4 w-4 text-primary" />
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Shield, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock } from 'lucide-react';
+import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Skull, Target, Hammer } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import StatCard from '@/components/StatCard';
@@ -37,11 +37,11 @@ const ACTIVITIES: { value: CharacterActivity | ''; label: string }[] = [
   { value: 'boss', label: 'Boss' },
 ];
 
-const activityColors: Record<string, string> = {
-  hunt: 'bg-primary/15 text-primary border-primary/30',
-  war: 'bg-offline/15 text-offline border-offline/30',
-  maker: 'bg-afk/15 text-afk border-afk/30',
-  boss: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+const activityConfig: Record<string, { emoji: string; color: string }> = {
+  hunt: { emoji: '⚔', color: 'bg-primary/15 text-primary border-primary/30' },
+  war: { emoji: '🔥', color: 'bg-offline/15 text-offline border-offline/30' },
+  maker: { emoji: '🔨', color: 'bg-afk/15 text-afk border-afk/30' },
+  boss: { emoji: '💀', color: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
 };
 
 function timeAgo(dateStr: string) {
@@ -149,7 +149,7 @@ export default function BonecosPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-3xl font-extrabold text-primary neon-text">Bloco de Bonecos</h1>
+        <h1 className="text-3xl font-extrabold text-primary neon-text" style={{ fontFamily: "'MedievalSharp', cursive" }}>⚔ Bloco de Bonecos</h1>
         <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
           <Plus className="h-4 w-4" /> Novo Boneco
         </Button>
@@ -158,7 +158,7 @@ export default function BonecosPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={<Shield className="h-5 w-5" />} value={bonecos.length} label="Total" color="primary" />
+        <StatCard icon={<Swords className="h-5 w-5" />} value={bonecos.length} label="Total" color="primary" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-online" />} value={onlineCount} label="Online" color="online" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-afk" />} value={afkCount} label="AFK" color="afk" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-offline" />} value={offlineCount} label="Offline" color="offline" />
@@ -229,8 +229,8 @@ export default function BonecosPage() {
           <div key={b.id} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
             {/* Header */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Sword className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2"><span className="font-bold text-foreground">{b.name}</span></div>
@@ -287,8 +287,8 @@ export default function BonecosPage() {
             <div className="flex items-center justify-between mt-2 text-xs">
               <div>
                 {b.activity && (
-                  <span className={`px-2 py-0.5 rounded border text-xs font-medium ${activityColors[b.activity] || ''}`}>
-                    {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
+                  <span className={`px-2 py-0.5 rounded border text-xs font-medium ${activityConfig[b.activity]?.color || ''}`}>
+                    {activityConfig[b.activity]?.emoji} {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
                   </span>
                 )}
               </div>
@@ -304,7 +304,7 @@ export default function BonecosPage() {
 
       {bonecos.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <Shield className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>Nenhum boneco cadastrado</p>
           <p className="text-sm">Clique em "Novo Boneco" para começar</p>
         </div>

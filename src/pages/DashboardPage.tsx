@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Users, UserCheck, UserX, Activity, Search, Clock } from 'lucide-react';
+import { Swords, Users, UserCheck, UserX, Activity, Target, Clock, Skull, ScrollText } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import { getBonecos, getMonitoredGuilds } from '@/lib/storage';
 import { Boneco, MonitoredGuild } from '@/types/tibia';
@@ -33,15 +33,15 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-primary neon-text mb-1">Dashboard</h1>
-      <p className="text-muted-foreground mb-6">Visão geral do sistema</p>
+      <h1 className="text-3xl font-extrabold text-primary neon-text mb-1" style={{ fontFamily: "'MedievalSharp', cursive" }}>⚔ Dashboard</h1>
+      <p className="text-muted-foreground mb-6">Visão geral do campo de batalha</p>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={<Shield className="h-5 w-5" />} value={bonecos.length} label="Bonecos" color="primary" />
+        <StatCard icon={<Swords className="h-5 w-5" />} value={bonecos.length} label="Bonecos" color="primary" />
         <StatCard icon={<UserCheck className="h-5 w-5" />} value={onlineBonecos} label="Online" color="online" />
-        <StatCard icon={<Activity className="h-5 w-5" />} value={afkBonecos} label="AFK" color="afk" />
-        <StatCard icon={<Search className="h-5 w-5" />} value={guilds.length} label="Guilds" color="primary" />
+        <StatCard icon={<Skull className="h-5 w-5" />} value={afkBonecos} label="AFK" color="afk" />
+        <StatCard icon={<Target className="h-5 w-5" />} value={guilds.length} label="Guilds" color="primary" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -84,7 +84,7 @@ export default function DashboardPage() {
         {/* Recent bonecos */}
         <div className="rounded-lg border border-border bg-card p-5 lg:col-span-2">
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" /> Bonecos Recentes
+            <ScrollText className="h-4 w-4 text-primary" /> Últimos Guerreiros
           </h3>
           {bonecos.length > 0 ? (
             <div className="divide-y divide-border">
