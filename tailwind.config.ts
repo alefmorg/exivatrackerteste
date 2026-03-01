@@ -126,7 +126,7 @@ export default {
   					opacity: '0.7'
   				}
   			},
-  			'glow': {
+  			glow: {
   				'0%, 100%': {
   					boxShadow: '0 0 10px hsl(142 76% 45% / 0.3)'
   				},
@@ -134,7 +134,7 @@ export default {
   					boxShadow: '0 0 20px hsl(142 76% 45% / 0.5), 0 0 40px hsl(142 76% 45% / 0.2)'
   				}
   			},
-  			'flicker': {
+  			flicker: {
   				'0%, 100%': {
   					opacity: '1'
   				},
@@ -157,8 +157,8 @@ export default {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
   			'pulse-neon': 'pulse-neon 2s ease-in-out infinite',
-  			'glow': 'glow 2s ease-in-out infinite',
-  			'flicker': 'flicker 3s ease-in-out infinite',
+  			glow: 'glow 2s ease-in-out infinite',
+  			flicker: 'flicker 3s ease-in-out infinite',
   			'slide-up': 'slide-up 0.3s ease-out'
   		}
   	}
