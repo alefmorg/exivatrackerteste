@@ -96,4 +96,55 @@
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+  
+  /* RPG-style decorative corners */
+  .rpg-frame {
+    position: relative;
+  }
+  .rpg-frame::before,
+  .rpg-frame::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: hsl(var(--primary) / 0.5);
+    pointer-events: none;
+  }
+  .rpg-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-color: inherit;
+  }
+  .rpg-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-color: inherit;
+  }
+
+  /* Scanline overlay for retro feel */
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(0 0% 0% / 0.03) 2px,
+      hsl(0 0% 0% / 0.03) 4px
+    );
+  }
+
+  /* Glowing divider */
+  .glow-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), transparent);
+  }
+
+  /* Vocation stripe accents */
+  .voc-stripe-ek { border-left: 3px solid hsl(0 72% 55%); }
+  .voc-stripe-rp { border-left: 3px solid hsl(45 93% 55%); }
+  .voc-stripe-ed { border-left: 3px solid hsl(142 76% 50%); }
+  .voc-stripe-ms { border-left: 3px solid hsl(220 80% 60%); }
 }
