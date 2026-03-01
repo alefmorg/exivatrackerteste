@@ -8,31 +8,28 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  primary: 'text-primary bg-primary/10',
-  online: 'text-online bg-online/10',
-  offline: 'text-offline bg-offline/10',
-  afk: 'text-afk bg-afk/10',
+  primary: 'text-primary',
+  online: 'text-online',
+  offline: 'text-offline',
+  afk: 'text-afk',
 };
 
-const dotMap = {
-  primary: 'bg-primary',
-  online: 'bg-online',
-  offline: 'bg-offline',
-  afk: 'bg-afk',
+const bgMap = {
+  primary: 'border-primary/20',
+  online: 'border-online/20',
+  offline: 'border-offline/20',
+  afk: 'border-afk/20',
 };
 
 export default function StatCard({ icon, value, label, color = 'primary' }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-border bg-card p-5 flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
+    <div className={`rpg-frame rounded-none border bg-card/50 backdrop-blur-sm p-4 flex items-center gap-3 ${bgMap[color]} scanlines`}>
+      <div className={`${colorMap[color]} opacity-70`}>
         {icon}
       </div>
       <div>
-        <p className="text-2xl font-bold text-foreground">{value}</p>
-        <p className="text-sm text-muted-foreground flex items-center gap-2">
-          {color !== 'primary' && <span className={`w-2 h-2 rounded-full ${dotMap[color]}`} />}
-          {label}
-        </p>
+        <p className={`text-2xl font-extrabold font-mono ${colorMap[color]}`}>{value}</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">{label}</p>
       </div>
     </div>
   );
