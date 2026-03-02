@@ -2,32 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Cinzel:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=MedievalSharp&display=swap');
+
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap");
 
 @layer base {
   :root {
-    /* Discord Dark base */
-    --background: 220 8% 12%;
-    --foreground: 210 9% 87%;
+    --background: 160 10% 6%;
+    --foreground: 150 20% 90%;
 
-    --card: 220 7% 18%;
-    --card-foreground: 210 9% 87%;
+    --card: 160 10% 9%;
+    --card-foreground: 150 20% 90%;
 
-    --popover: 220 7% 18%;
-    --popover-foreground: 210 9% 87%;
+    --popover: 160 10% 9%;
+    --popover-foreground: 150 20% 90%;
 
-    /* Tibia gold accent */
-    --primary: 38 92% 50%;
-    --primary-foreground: 220 8% 8%;
+    --primary: 142 70.5628% 45.2941%;
+    --primary-foreground: 160 10% 6%;
 
-    --secondary: 220 7% 22%;
-    --secondary-foreground: 210 9% 80%;
+    --secondary: 0 0% 9.0196%;
+    --secondary-foreground: 150 20% 90%;
 
-    --muted: 220 7% 25%;
-    --muted-foreground: 215 8% 50%;
+    --muted: 160 8% 15%;
+    --muted-foreground: 150 10% 55%;
 
-    --accent: 220 7% 28%;
-    --accent-foreground: 210 9% 87%;
+    --accent: 272 71.6667% 47.0588%;
+    --accent-foreground: 160 10% 6%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -35,30 +37,28 @@
     --warning: 45 93% 47%;
     --warning-foreground: 0 0% 10%;
 
-    --border: 220 6% 23%;
-    --input: 220 7% 20%;
-    --ring: 38 92% 50%;
+    --border: 160 10% 16%;
+    --input: 160 10% 14%;
+    --ring: 142 76% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 220 8% 14%;
-    --sidebar-foreground: 215 8% 50%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 220 8% 8%;
-    --sidebar-accent: 220 7% 22%;
-    --sidebar-accent-foreground: 210 9% 87%;
-    --sidebar-border: 220 6% 20%;
-    --sidebar-ring: 38 92% 50%;
+    --sidebar-background: 160 10% 7%;
+    --sidebar-foreground: 150 10% 55%;
+    --sidebar-primary: 142 76% 45%;
+    --sidebar-primary-foreground: 160 10% 6%;
+    --sidebar-accent: 160 10% 12%;
+    --sidebar-accent-foreground: 150 20% 90%;
+    --sidebar-border: 160 10% 14%;
+    --sidebar-ring: 142 76% 45%;
 
-    --online: 142 72% 42%;
+    --neon-glow: 0 0 20px hsl(142 76% 45% / 0.3), 0 0 40px hsl(142 76% 45% / 0.1);
+    --neon-glow-sm: 0 0 10px hsl(142 76% 45% / 0.2);
+    --neon-text: 0 0 10px hsl(142 76% 45% / 0.5), 0 0 20px hsl(142 76% 45% / 0.3);
+
+    --online: 142 76% 45%;
     --offline: 0 72% 51%;
     --afk: 45 93% 47%;
-
-    /* Tibia vocation colors */
-    --voc-ek: 0 72% 55%;
-    --voc-rp: 45 93% 55%;
-    --voc-ed: 142 72% 45%;
-    --voc-ms: 220 80% 60%;
   }
 }
 
@@ -88,72 +88,67 @@
 }
 
 @layer utilities {
-  .font-tibia {
-    font-family: 'Cinzel', serif;
-    letter-spacing: 0.02em;
+  .neon-text {
+    text-shadow: var(--neon-text);
   }
-
+  .neon-box {
+    box-shadow: var(--neon-glow);
+  }
+  .neon-box-sm {
+    box-shadow: var(--neon-glow-sm);
+  }
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Tibia-style gold glow */
-  .gold-glow {
-    text-shadow: 0 0 8px hsl(38 92% 50% / 0.4), 0 0 16px hsl(38 92% 50% / 0.15);
+  /* RPG-style decorative corners */
+  .rpg-frame {
+    position: relative;
   }
-
-  .gold-border-glow {
-    box-shadow: 0 0 0 1px hsl(38 92% 50% / 0.15), 0 1px 3px hsl(0 0% 0% / 0.3);
-  }
-
-  /* Skill badge style like ExevoPan */
-  .skill-badge {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold;
-    background: hsl(var(--secondary));
-    border: 1px solid hsl(var(--border));
-  }
-
-  .skill-badge-value {
-    @apply inline-flex items-center justify-center min-w-[24px] h-5 px-1 rounded text-xs font-bold;
-    background: hsl(var(--primary) / 0.15);
-    color: hsl(var(--primary));
-  }
-
-  /* Card hover effect */
-  .tibia-card {
-    @apply rounded-lg border bg-card transition-all duration-200;
-    border-color: hsl(var(--border));
-  }
-  .tibia-card:hover {
-    border-color: hsl(var(--primary) / 0.35);
-    box-shadow: 0 4px 12px hsl(0 0% 0% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.1);
-  }
-
-  /* Tag pills */
-  .tag-pill {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border;
-  }
-
-  /* Vocation accent stripe */
-  .voc-ek { border-left-color: hsl(var(--voc-ek)); }
-  .voc-rp { border-left-color: hsl(var(--voc-rp)); }
-  .voc-ed { border-left-color: hsl(var(--voc-ed)); }
-  .voc-ms { border-left-color: hsl(var(--voc-ms)); }
-
-  /* Section header with decorative line */
-  .section-header {
-    @apply flex items-center gap-3 text-xs uppercase tracking-widest font-semibold;
-    color: hsl(var(--muted-foreground));
-  }
-  .section-header::after {
+  .rpg-frame::before,
+  .rpg-frame::after {
     content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, hsl(var(--border)), transparent);
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: hsl(var(--primary) / 0.5);
+    pointer-events: none;
+  }
+  .rpg-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-color: inherit;
+  }
+  .rpg-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-color: inherit;
   }
 
-  /* Neon text legacy */
-  .neon-text {
-    text-shadow: 0 0 8px hsl(38 92% 50% / 0.4);
+  /* Scanline overlay for retro feel */
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(0 0% 0% / 0.03) 2px,
+      hsl(0 0% 0% / 0.03) 4px
+    );
   }
+
+  /* Glowing divider */
+  .glow-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.4), transparent);
+  }
+
+  /* Vocation stripe accents */
+  .voc-stripe-ek { border-left: 3px solid hsl(0 72% 55%); }
+  .voc-stripe-rp { border-left: 3px solid hsl(45 93% 55%); }
+  .voc-stripe-ed { border-left: 3px solid hsl(142 76% 50%); }
+  .voc-stripe-ms { border-left: 3px solid hsl(220 80% 60%); }
 }
