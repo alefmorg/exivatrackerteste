@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart } from 'lucide-react';
+import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import StatCard from '@/components/StatCard';
@@ -149,9 +150,16 @@ export default function BonecosPage() {
   };
 
   const copyAllCredentials = (b: BonecoRow) => {
-    const text = `Email: ${b.email}\nSenha: ${b.password}\n2FA Secret: ${b.totp_secret}`;
+    let totpCode = '';
+    if (b.totp_secret) {
+      try {
+        const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
+        totpCode = totp.generate();
+      } catch { totpCode = 'ERRO'; }
+    }
+    const text = `Email: ${b.email}\nSenha: ${b.password}${totpCode ? `\n2FA: ${totpCode}` : ''}`;
     navigator.clipboard.writeText(text);
-    toast({ title: '📋 Credenciais copiadas!', description: 'Email, senha e código 2FA copiados.' });
+    toast({ title: '📋 Credenciais copiadas!', description: `Email, senha${totpCode ? ' e código 2FA' : ''} copiados.` });
   };
 
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
