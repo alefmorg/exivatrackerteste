@@ -17,16 +17,26 @@ export type Database = {
       bonecos: {
         Row: {
           activity: string
+          axe: number
+          club: number
           created_at: string
+          distance: number
           email: string
+          fist: number
+          full_bless: boolean
           id: string
           last_access: string | null
           level: number
           location: string
+          magic_level: number
           name: string
           observations: string
           password: string
+          premium_active: boolean
+          shielding: number
           status: string
+          sword_skill: number
+          tibia_coins: number
           totp_secret: string
           used_by: string
           vocation: string
@@ -34,16 +44,26 @@ export type Database = {
         }
         Insert: {
           activity?: string
+          axe?: number
+          club?: number
           created_at?: string
+          distance?: number
           email?: string
+          fist?: number
+          full_bless?: boolean
           id?: string
           last_access?: string | null
           level?: number
           location?: string
+          magic_level?: number
           name: string
           observations?: string
           password?: string
+          premium_active?: boolean
+          shielding?: number
           status?: string
+          sword_skill?: number
+          tibia_coins?: number
           totp_secret?: string
           used_by?: string
           vocation?: string
@@ -51,16 +71,26 @@ export type Database = {
         }
         Update: {
           activity?: string
+          axe?: number
+          club?: number
           created_at?: string
+          distance?: number
           email?: string
+          fist?: number
+          full_bless?: boolean
           id?: string
           last_access?: string | null
           level?: number
           location?: string
+          magic_level?: number
           name?: string
           observations?: string
           password?: string
+          premium_active?: boolean
+          shielding?: number
           status?: string
+          sword_skill?: number
+          tibia_coins?: number
           totp_secret?: string
           used_by?: string
           vocation?: string

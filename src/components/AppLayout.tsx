@@ -23,10 +23,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-border bg-sidebar/95 backdrop-blur-sm">
         <div className="max-w-[1600px] mx-auto flex items-center h-14 px-4 gap-6">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <Sword className="h-6 w-6 text-primary" />
-            <span className="text-lg font-extrabold text-primary neon-text tracking-tight" style={{ fontFamily: "'MedievalSharp', cursive" }}>EXIVA</span>
-            <span className="text-[9px] text-muted-foreground uppercase tracking-widest hidden sm:block">Manager</span>
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+            <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-colors">
+              <Sword className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-sm font-extrabold text-primary tracking-tight" style={{ fontFamily: "'MedievalSharp', cursive" }}>EXIVA TRACKER</span>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-widest">Manager Pro</span>
+            </div>
           </Link>
 
           {/* Nav Links */}

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield } from 'lucide-react';
+import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import StatCard from '@/components/StatCard';
 import StatusDot from '@/components/StatusDot';
 import StatusBadge from '@/components/StatusBadge';
 import TotpDisplay from '@/components/TotpDisplay';
+import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
@@ -16,14 +18,17 @@ interface BonecoRow {
   id: string; name: string; email: string; password: string; totp_secret: string;
   world: string; level: number; vocation: string; location: string; used_by: string;
   status: string; activity: string; observations: string; last_access: string;
+  full_bless: boolean; tibia_coins: number; magic_level: number;
+  fist: number; club: number; sword_skill: number; axe: number; distance: number; shielding: number;
+  premium_active: boolean;
 }
 
-const ACTIVITIES: { value: CharacterActivity | ''; label: string }[] = [
-  { value: '', label: 'Todos' },
-  { value: 'hunt', label: 'Hunt' },
-  { value: 'war', label: 'War' },
-  { value: 'maker', label: 'Maker' },
-  { value: 'boss', label: 'Boss' },
+const ACTIVITIES: { value: CharacterActivity | ''; label: string; emoji: string }[] = [
+  { value: '', label: 'Todos', emoji: '📋' },
+  { value: 'hunt', label: 'Hunt', emoji: '⚔' },
+  { value: 'war', label: 'War', emoji: '🔥' },
+  { value: 'maker', label: 'Maker', emoji: '🔨' },
+  { value: 'boss', label: 'Boss', emoji: '💀' },
 ];
 
 const activityConfig: Record<string, { emoji: string; color: string }> = {
@@ -44,6 +49,23 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d atrás`;
 }
 
+function getVocShort(voc: string) {
+  if (voc.toLowerCase().includes('knight')) return 'EK';
+  if (voc.toLowerCase().includes('paladin')) return 'RP';
+  if (voc.toLowerCase().includes('druid')) return 'ED';
+  if (voc.toLowerCase().includes('sorcerer')) return 'MS';
+  return voc.slice(0, 2).toUpperCase();
+}
+
+function getVocBorderColor(voc: string) {
+  const v = voc.toLowerCase();
+  if (v.includes('knight')) return 'border-l-red-500';
+  if (v.includes('paladin')) return 'border-l-yellow-500';
+  if (v.includes('druid')) return 'border-l-emerald-500';
+  if (v.includes('sorcerer')) return 'border-l-blue-500';
+  return 'border-l-primary';
+}
+
 export default function BonecosPage() {
   const { toast } = useToast();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
@@ -56,7 +78,11 @@ export default function BonecosPage() {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
-    vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus, activity: '' as CharacterActivity, observations: '',
+    vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus,
+    activity: '' as CharacterActivity, observations: '',
+    full_bless: false, tibia_coins: 0, magic_level: 0,
+    fist: 0, club: 0, sword_skill: 0, axe: 0, distance: 0, shielding: 0,
+    premium_active: false,
   });
 
   const fetchBonecos = async () => {
@@ -74,6 +100,9 @@ export default function BonecosPage() {
       world: form.world, level: form.level, vocation: form.vocation, location: form.location,
       used_by: form.used_by, status: form.status, activity: form.activity, observations: form.observations,
       last_access: new Date().toISOString(),
+      full_bless: form.full_bless, tibia_coins: form.tibia_coins, magic_level: form.magic_level,
+      fist: form.fist, club: form.club, sword_skill: form.sword_skill, axe: form.axe,
+      distance: form.distance, shielding: form.shielding, premium_active: form.premium_active,
     };
     if (editId) {
       const { error } = await supabase.from('bonecos').update(payload).eq('id', editId);
@@ -88,7 +117,7 @@ export default function BonecosPage() {
   };
 
   const resetForm = () => {
-    setForm({ name: '', email: '', password: '', totp_secret: '', world: '', level: 0, vocation: '', location: '', used_by: '', status: 'offline', activity: '', observations: '' });
+    setForm({ name: '', email: '', password: '', totp_secret: '', world: '', level: 0, vocation: '', location: '', used_by: '', status: 'offline', activity: '', observations: '', full_bless: false, tibia_coins: 0, magic_level: 0, fist: 0, club: 0, sword_skill: 0, axe: 0, distance: 0, shielding: 0, premium_active: false });
     setShowForm(false); setEditId(null);
   };
 
@@ -96,7 +125,10 @@ export default function BonecosPage() {
     setForm({
       name: b.name, email: b.email, password: b.password, totp_secret: b.totp_secret,
       world: b.world, level: b.level, vocation: b.vocation, location: b.location,
-      used_by: b.used_by, status: b.status as CharacterStatus, activity: b.activity as CharacterActivity, observations: b.observations,
+      used_by: b.used_by, status: b.status as CharacterStatus, activity: b.activity as CharacterActivity,
+      observations: b.observations, full_bless: b.full_bless, tibia_coins: b.tibia_coins,
+      magic_level: b.magic_level, fist: b.fist, club: b.club, sword_skill: b.sword_skill,
+      axe: b.axe, distance: b.distance, shielding: b.shielding, premium_active: b.premium_active,
     });
     setEditId(b.id); setShowForm(true);
   };
@@ -116,6 +148,12 @@ export default function BonecosPage() {
     navigator.clipboard.writeText(text); toast({ title: 'Copiado!' });
   };
 
+  const copyAllCredentials = (b: BonecoRow) => {
+    const text = `Email: ${b.email}\nSenha: ${b.password}\n2FA Secret: ${b.totp_secret}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: '📋 Credenciais copiadas!', description: 'Email, senha e código 2FA copiados.' });
+  };
+
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
   const offlineCount = bonecos.filter(b => b.status === 'offline').length;
@@ -131,15 +169,22 @@ export default function BonecosPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-3xl font-extrabold text-primary neon-text" style={{ fontFamily: "'MedievalSharp', cursive" }}>⚔ Bloco de Bonecos</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Swords className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-foreground">Bloco de Bonecos</h1>
+            <p className="text-xs text-muted-foreground">Gerenciamento de personagens secundários</p>
+          </div>
+        </div>
         <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
           <Plus className="h-4 w-4" /> Novo Boneco
         </Button>
       </div>
-      <p className="text-muted-foreground mb-6">Gerenciamento de personagens secundários</p>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
         <StatCard icon={<Swords className="h-5 w-5" />} value={bonecos.length} label="Total" color="primary" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-online" />} value={onlineCount} label="Online" color="online" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-afk" />} value={afkCount} label="AFK" color="afk" />
@@ -156,7 +201,7 @@ export default function BonecosPage() {
           {ACTIVITIES.map(a => (
             <button key={a.value} onClick={() => setActivityFilter(activityFilter === a.value ? '' : a.value)}
               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${activityFilter === a.value ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border text-muted-foreground hover:text-foreground'}`}>
-              {a.label || 'Todos'}
+              {a.emoji} {a.label}
             </button>
           ))}
         </div>
@@ -165,15 +210,16 @@ export default function BonecosPage() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm" onClick={() => resetForm()}>
-          <div className="w-full max-w-lg bg-card border border-border rounded-xl p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-bold text-primary mb-4">{editId ? 'Editar' : 'Novo'} Boneco</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <Input placeholder="Nome" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Senha" type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Chave 2FA (Base32)" value={form.totp_secret} onChange={e => setForm({...form, totp_secret: e.target.value.toUpperCase().replace(/[^A-Z2-7=]/g, '')})} className="bg-secondary font-mono text-xs" />
-              <Input placeholder="Mundo" value={form.world} onChange={e => setForm({...form, world: e.target.value})} className="bg-secondary" />
-              <Input placeholder="Level" type="number" value={form.level || ''} onChange={e => setForm({...form, level: parseInt(e.target.value) || 0})} className="bg-secondary" />
+          <div className="w-full max-w-2xl bg-card border border-border rounded-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+              <Sword className="h-5 w-5" />
+              {editId ? 'Editar' : 'Novo'} Boneco
+            </h2>
+
+            {/* Basic Info */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Informações Básicas</p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Input placeholder="Nome do Char" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-secondary" />
               <select value={form.vocation} onChange={e => setForm({...form, vocation: e.target.value})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
                 <option value="">Vocação</option>
                 <option value="Elite Knight">Elite Knight</option>
@@ -181,23 +227,87 @@ export default function BonecosPage() {
                 <option value="Elder Druid">Elder Druid</option>
                 <option value="Master Sorcerer">Master Sorcerer</option>
               </select>
+              <Input placeholder="Mundo" value={form.world} onChange={e => setForm({...form, world: e.target.value})} className="bg-secondary" />
+              <Input placeholder="Level" type="number" value={form.level || ''} onChange={e => setForm({...form, level: parseInt(e.target.value) || 0})} className="bg-secondary" />
               <Input placeholder="Localização" value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="bg-secondary" />
               <Input placeholder="Em uso por" value={form.used_by} onChange={e => setForm({...form, used_by: e.target.value})} className="bg-secondary" />
+            </div>
+
+            {/* Credentials */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Credenciais</p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Input placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="bg-secondary" />
+              <Input placeholder="Senha" type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="bg-secondary" />
+              <Input placeholder="Chave 2FA (Base32)" value={form.totp_secret} onChange={e => setForm({...form, totp_secret: e.target.value.toUpperCase().replace(/[^A-Z2-7=]/g, '')})} className="col-span-2 bg-secondary font-mono text-xs" />
+            </div>
+
+            {/* Skills */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Skills</p>
+            <div className="grid grid-cols-4 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] text-muted-foreground">Magic Level</label>
+                <Input type="number" value={form.magic_level || ''} onChange={e => setForm({...form, magic_level: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Fist</label>
+                <Input type="number" value={form.fist || ''} onChange={e => setForm({...form, fist: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Club</label>
+                <Input type="number" value={form.club || ''} onChange={e => setForm({...form, club: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Sword</label>
+                <Input type="number" value={form.sword_skill || ''} onChange={e => setForm({...form, sword_skill: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Axe</label>
+                <Input type="number" value={form.axe || ''} onChange={e => setForm({...form, axe: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Distance</label>
+                <Input type="number" value={form.distance || ''} onChange={e => setForm({...form, distance: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div>
+                <label className="text-[10px] text-muted-foreground">Shielding</label>
+                <Input type="number" value={form.shielding || ''} onChange={e => setForm({...form, shielding: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+            </div>
+
+            {/* Status & Extras */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Status & Extras</p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
               <select value={form.status} onChange={e => setForm({...form, status: e.target.value as CharacterStatus})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
                 <option value="online">Online</option>
                 <option value="afk">AFK</option>
                 <option value="offline">Offline</option>
               </select>
-              <select value={form.activity} onChange={e => setForm({...form, activity: e.target.value as CharacterActivity})} className="col-span-2 px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
+              <select value={form.activity} onChange={e => setForm({...form, activity: e.target.value as CharacterActivity})} className="px-3 py-2 rounded-lg bg-secondary border border-border text-foreground text-sm">
                 <option value="">Sem atividade</option>
                 <option value="hunt">Hunt</option>
                 <option value="war">War</option>
                 <option value="maker">Maker</option>
                 <option value="boss">Boss</option>
               </select>
-              <Input placeholder="Observações" value={form.observations} onChange={e => setForm({...form, observations: e.target.value})} className="col-span-2 bg-secondary" />
+              <div>
+                <label className="text-[10px] text-muted-foreground">Tibia Coins</label>
+                <Input type="number" value={form.tibia_coins || ''} onChange={e => setForm({...form, tibia_coins: parseInt(e.target.value) || 0})} className="bg-secondary" />
+              </div>
+              <div className="flex items-center gap-6 py-2">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                  <Switch checked={form.full_bless} onCheckedChange={v => setForm({...form, full_bless: v})} />
+                  <Heart className="h-3.5 w-3.5 text-red-400" /> Full Bless
+                </label>
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                  <Switch checked={form.premium_active} onCheckedChange={v => setForm({...form, premium_active: v})} />
+                  <Crown className="h-3.5 w-3.5 text-yellow-400" /> Premium
+                </label>
+              </div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
+
+            <Input placeholder="Observações" value={form.observations} onChange={e => setForm({...form, observations: e.target.value})} className="bg-secondary mb-4" />
+
+            <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={resetForm}>Cancelar</Button>
               <Button onClick={handleSubmit}>{editId ? 'Salvar' : 'Adicionar'}</Button>
             </div>
@@ -208,39 +318,82 @@ export default function BonecosPage() {
       {/* Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {filtered.map(b => (
-          <div key={b.id} className="rounded-xl border border-border bg-card p-5 hover:border-primary/30 transition-colors">
+          <div key={b.id} className={`rounded-xl border border-border border-l-4 ${getVocBorderColor(b.vocation)} bg-card p-5 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5`}>
             {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Sword className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center ${getVocationColor(b.vocation)}`}>
+                <VocationIcon vocation={b.vocation} className="h-5 w-5" />
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2"><span className="font-bold text-foreground">{b.name}</span></div>
-                <span className="text-xs text-muted-foreground">{b.vocation}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-foreground truncate">{b.name}</span>
+                  <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{getVocShort(b.vocation)}</span>
+                  <span className="text-xs text-muted-foreground font-mono">Lv.{b.level}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <Globe className="h-3 w-3" /> {b.world || '—'}
+                  <span className="text-border">•</span>
+                  <MapPin className="h-3 w-3" /> {b.location || '—'}
+                </div>
               </div>
-              <StatusDot status={b.status as any} />
-              <span className="text-xs text-muted-foreground font-mono">Lv. {b.level}</span>
-              <StatusBadge status={b.status as any} />
+              <div className="flex items-center gap-2">
+                <StatusDot status={b.status as any} />
+                <StatusBadge status={b.status as any} />
+              </div>
             </div>
 
-            {/* Info rows */}
-            <div className="space-y-2 text-sm">
+            {/* Tags row */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+              {b.activity && (
+                <span className={`px-2 py-0.5 rounded border text-[11px] font-medium ${activityConfig[b.activity]?.color || ''}`}>
+                  {activityConfig[b.activity]?.emoji} {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
+                </span>
+              )}
+              {b.full_bless && (
+                <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-red-500/10 text-red-400 border-red-500/30 flex items-center gap-1">
+                  <Heart className="h-3 w-3" /> Full Bless
+                </span>
+              )}
+              {b.premium_active && (
+                <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-yellow-500/10 text-yellow-400 border-yellow-500/30 flex items-center gap-1">
+                  <Crown className="h-3 w-3" /> Premium
+                </span>
+              )}
+              {b.tibia_coins > 0 && (
+                <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-amber-500/10 text-amber-400 border-amber-500/30 flex items-center gap-1">
+                  <Gem className="h-3 w-3" /> {b.tibia_coins} TC
+                </span>
+              )}
+              {b.magic_level > 0 && (
+                <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" /> ML {b.magic_level}
+                </span>
+              )}
+            </div>
+
+            {/* Credentials */}
+            <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
+                <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-primary hover:text-primary" onClick={() => copyAllCredentials(b)}>
+                  <ClipboardCopy className="h-3.5 w-3.5" /> Copiar Tudo
+                </Button>
+              </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-3.5 w-3.5" />
-                <span className="font-mono text-xs flex-1">{b.email || '—'}</span>
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <span className="font-mono text-xs flex-1 truncate">{b.email || '—'}</span>
                 {b.email && <button onClick={() => copyToClipboard(b.email)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Key className="h-3.5 w-3.5" />
+                <Key className="h-3.5 w-3.5 shrink-0" />
                 <span className="font-mono text-xs flex-1">{visiblePasswords.has(b.id) ? b.password : '••••••••'}</span>
                 <button onClick={() => togglePassword(b.id)} className="text-muted-foreground hover:text-primary">
                   {visiblePasswords.has(b.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
                 <button onClick={() => copyToClipboard(b.password)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
-              {/* TOTP 2FA */}
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-3.5 w-3.5" />
+                <Shield className="h-3.5 w-3.5 shrink-0" />
                 {visibleTokens.has(b.id) ? (
                   <div className="flex-1 flex items-center gap-2">
                     <span className="font-mono text-xs">{b.totp_secret}</span>
@@ -256,30 +409,33 @@ export default function BonecosPage() {
               </div>
             </div>
 
+            {/* Skills bar (compact) */}
+            {(b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
+                {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
+                {b.axe > 0 && <span>🪓 Axe: {b.axe}</span>}
+                {b.club > 0 && <span>🔨 Club: {b.club}</span>}
+                {b.distance > 0 && <span>🎯 Dist: {b.distance}</span>}
+                {b.shielding > 0 && <span>🛡 Shield: {b.shielding}</span>}
+                {b.fist > 0 && <span>👊 Fist: {b.fist}</span>}
+              </div>
+            )}
+
             {/* Footer */}
-            <div className="flex items-center justify-between mt-4 pt-3 border-t border-border text-xs text-muted-foreground">
+            <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {b.world || '—'}</span>
-                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {b.location || '—'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {b.used_by && <span className="flex items-center gap-1"><User className="h-3 w-3" /> Em uso por <span className="text-primary font-medium">{b.used_by}</span></span>}
-              </div>
-            </div>
-            <div className="flex items-center justify-between mt-2 text-xs">
-              <div>
-                {b.activity && (
-                  <span className={`px-2 py-0.5 rounded border text-xs font-medium ${activityConfig[b.activity]?.color || ''}`}>
-                    {activityConfig[b.activity]?.emoji} {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
-                  </span>
-                )}
+                {b.used_by && <span className="flex items-center gap-1"><User className="h-3 w-3" /> <span className="text-primary font-medium">{b.used_by}</span></span>}
+                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(b.last_access)}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> Último acesso: {timeAgo(b.last_access)}</span>
-                <button onClick={() => handleEdit(b)} className="text-primary hover:underline">Editar</button>
+                <button onClick={() => handleEdit(b)} className="text-primary hover:underline font-medium">Editar</button>
                 <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
               </div>
             </div>
+
+            {b.observations && (
+              <p className="text-[11px] text-muted-foreground mt-2 italic">💬 {b.observations}</p>
+            )}
           </div>
         ))}
       </div>
