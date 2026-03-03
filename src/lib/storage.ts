@@ -5,7 +5,11 @@ const STORAGE_KEYS = {
   GUILDS: 'exiva_guilds',
   LOGS: 'exiva_logs',
   ANNOTATIONS: 'exiva_annotations',
+  CATEGORIES: 'exiva_categories',
+  LOGIN_HISTORY: 'exiva_login_history',
 } as const;
+
+export type MemberCategory = 'maker' | 'bomba' | 'main' | 'outros';
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -84,4 +88,45 @@ export function addLog(log: UsageLog) {
   logs.unshift(log);
   if (logs.length > 500) logs.length = 500;
   save(STORAGE_KEYS.LOGS, logs);
+}
+
+// Categories (Maker, Bomba, Main, Outros)
+export function getCategories(): Record<string, MemberCategory> {
+  return load(STORAGE_KEYS.CATEGORIES, {});
+}
+
+export function saveCategory(charName: string, category: MemberCategory) {
+  const cats = getCategories();
+  cats[charName] = category;
+  save(STORAGE_KEYS.CATEGORIES, cats);
+}
+
+// Login History
+export interface LoginEntry {
+  timestamp: string;
+  status: 'online' | 'offline';
+}
+
+export function getLoginHistory(): Record<string, LoginEntry[]> {
+  return load(STORAGE_KEYS.LOGIN_HISTORY, {});
+}
+
+export function recordLoginChange(charName: string, status: 'online' | 'offline') {
+  const history = getLoginHistory();
+  if (!history[charName]) history[charName] = [];
+  const last = history[charName][history[charName].length - 1];
+  // Only record if status changed
+  if (!last || last.status !== status) {
+    history[charName].push({ timestamp: new Date().toISOString(), status });
+    // Keep last 100 entries per char
+    if (history[charName].length > 100) history[charName] = history[charName].slice(-100);
+    save(STORAGE_KEYS.LOGIN_HISTORY, history);
+  }
+}
+
+export function getTodayLogins(charName: string): LoginEntry[] {
+  const history = getLoginHistory();
+  const entries = history[charName] || [];
+  const today = new Date().toDateString();
+  return entries.filter(e => new Date(e.timestamp).toDateString() === today);
 }
