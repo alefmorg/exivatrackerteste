@@ -80,16 +80,57 @@ export async function fetchGuildMembers(guildName: string): Promise<GuildMember[
 
 export async function fetchCharacter(name: string) {
   const cacheKey = `char_${name}`;
-  const cached = getCached<TibiaDataCharResponse['character']['character']>(cacheKey);
+  const cached = getCached<any>(cacheKey);
   if (cached) return cached;
 
   const res = await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`);
   if (!res.ok) throw new Error('Falha ao buscar personagem');
 
   const data: TibiaDataCharResponse = await res.json();
-  const char = data.character.character;
+  const char = data.character;
   setCache(cacheKey, char);
   return char;
+}
+
+export interface CharacterDeath {
+  name: string;
+  level: number;
+  killers: Array<{ name: string; player: boolean }>;
+  time: string;
+  reason: string;
+}
+
+export async function fetchCharacterDeaths(name: string): Promise<CharacterDeath[]> {
+  const cacheKey = `deaths_${name}`;
+  const cached = getCached<CharacterDeath[]>(cacheKey);
+  if (cached) return cached;
+
+  const res = await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`);
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  const deaths: CharacterDeath[] = (data.character?.deaths || []).map((d: any) => ({
+    name,
+    level: d.level || 0,
+    killers: d.killers || [],
+    time: d.time || '',
+    reason: d.reason || '',
+  }));
+  setCache(cacheKey, deaths);
+  return deaths;
+}
+
+export async function fetchGuildMemberDeaths(members: string[]): Promise<CharacterDeath[]> {
+  // Fetch deaths for up to 10 members at a time to avoid rate limiting
+  const batch = members.slice(0, 15);
+  const results = await Promise.allSettled(batch.map(name => fetchCharacterDeaths(name)));
+  const allDeaths: CharacterDeath[] = [];
+  results.forEach(r => {
+    if (r.status === 'fulfilled') allDeaths.push(...r.value);
+  });
+  // Sort by time descending
+  allDeaths.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  return allDeaths.slice(0, 20);
 }
 
 export function getGuildWorld(guildName: string): Promise<string> {
