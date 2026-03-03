@@ -113,7 +113,9 @@ export default function ExivaPage() {
     setCategories(prev => ({ ...prev, [charName]: cat }));
   };
 
+  // Only show online players in the columns
   const filtered = members.filter(m => {
+    if (m.status !== 'online') return false;
     if (searchFilter && !m.name.toLowerCase().includes(searchFilter.toLowerCase())) return false;
     return true;
   });
@@ -126,12 +128,9 @@ export default function ExivaPage() {
       const cat = categories[m.name] || 'outros';
       result[cat].push(m);
     });
-    // Sort each group: online first, then by level desc
+    // Sort by level desc
     Object.keys(result).forEach(k => {
-      result[k as MemberCategory].sort((a, b) => {
-        if (a.status !== b.status) return a.status === 'online' ? -1 : 1;
-        return b.level - a.level;
-      });
+      result[k as MemberCategory].sort((a, b) => b.level - a.level);
     });
     return result;
   }, [filtered, categories]);

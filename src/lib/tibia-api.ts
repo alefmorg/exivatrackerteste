@@ -101,10 +101,7 @@ export interface CharacterDeath {
 }
 
 export async function fetchCharacterDeaths(name: string): Promise<CharacterDeath[]> {
-  const cacheKey = `deaths_${name}`;
-  const cached = getCached<CharacterDeath[]>(cacheKey);
-  if (cached) return cached;
-
+  // No cache for deaths — always fetch fresh
   const res = await fetch(`https://api.tibiadata.com/v4/character/${encodeURIComponent(name)}`);
   if (!res.ok) return [];
 
@@ -116,21 +113,27 @@ export async function fetchCharacterDeaths(name: string): Promise<CharacterDeath
     time: d.time || '',
     reason: d.reason || '',
   }));
-  setCache(cacheKey, deaths);
   return deaths;
 }
 
 export async function fetchGuildMemberDeaths(members: string[]): Promise<CharacterDeath[]> {
-  // Fetch deaths for up to 10 members at a time to avoid rate limiting
-  const batch = members.slice(0, 15);
-  const results = await Promise.allSettled(batch.map(name => fetchCharacterDeaths(name)));
+  // Fetch in batches of 10 with a small delay to avoid rate limiting
   const allDeaths: CharacterDeath[] = [];
-  results.forEach(r => {
-    if (r.status === 'fulfilled') allDeaths.push(...r.value);
-  });
+  const batchSize = 10;
+  for (let i = 0; i < members.length; i += batchSize) {
+    const batch = members.slice(i, i + batchSize);
+    const results = await Promise.allSettled(batch.map(name => fetchCharacterDeaths(name)));
+    results.forEach(r => {
+      if (r.status === 'fulfilled') allDeaths.push(...r.value);
+    });
+    // Small delay between batches
+    if (i + batchSize < members.length) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
   // Sort by time descending
   allDeaths.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-  return allDeaths.slice(0, 20);
+  return allDeaths.slice(0, 30);
 }
 
 export function getGuildWorld(guildName: string): Promise<string> {
