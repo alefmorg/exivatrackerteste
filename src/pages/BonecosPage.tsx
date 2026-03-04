@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart } from 'lucide-react';
+import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart, X, Tag } from 'lucide-react';
 import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ interface BonecoRow {
   full_bless: boolean; tibia_coins: number; magic_level: number;
   fist: number; club: number; sword_skill: number; axe: number; distance: number; shielding: number;
   premium_active: boolean;
+  acessos: string[]; quests: string[];
 }
 
 const ACTIVITIES: { value: CharacterActivity | ''; label: string; emoji: string }[] = [
@@ -77,13 +78,15 @@ export default function BonecosPage() {
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [newAcesso, setNewAcesso] = useState('');
+  const [newQuest, setNewQuest] = useState('');
   const [form, setForm] = useState({
     name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
     vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus,
     activity: '' as CharacterActivity, observations: '',
     full_bless: false, tibia_coins: 0, magic_level: 0,
     fist: 0, club: 0, sword_skill: 0, axe: 0, distance: 0, shielding: 0,
-    premium_active: false,
+    premium_active: false, acessos: [] as string[], quests: [] as string[],
   });
 
   const fetchBonecos = async () => {
@@ -104,6 +107,7 @@ export default function BonecosPage() {
       full_bless: form.full_bless, tibia_coins: form.tibia_coins, magic_level: form.magic_level,
       fist: form.fist, club: form.club, sword_skill: form.sword_skill, axe: form.axe,
       distance: form.distance, shielding: form.shielding, premium_active: form.premium_active,
+      acessos: form.acessos, quests: form.quests,
     };
     if (editId) {
       const { error } = await supabase.from('bonecos').update(payload).eq('id', editId);
@@ -118,7 +122,8 @@ export default function BonecosPage() {
   };
 
   const resetForm = () => {
-    setForm({ name: '', email: '', password: '', totp_secret: '', world: '', level: 0, vocation: '', location: '', used_by: '', status: 'offline', activity: '', observations: '', full_bless: false, tibia_coins: 0, magic_level: 0, fist: 0, club: 0, sword_skill: 0, axe: 0, distance: 0, shielding: 0, premium_active: false });
+    setForm({ name: '', email: '', password: '', totp_secret: '', world: '', level: 0, vocation: '', location: '', used_by: '', status: 'offline', activity: '', observations: '', full_bless: false, tibia_coins: 0, magic_level: 0, fist: 0, club: 0, sword_skill: 0, axe: 0, distance: 0, shielding: 0, premium_active: false, acessos: [], quests: [] });
+    setNewAcesso(''); setNewQuest('');
     setShowForm(false); setEditId(null);
   };
 
@@ -130,6 +135,7 @@ export default function BonecosPage() {
       observations: b.observations, full_bless: b.full_bless, tibia_coins: b.tibia_coins,
       magic_level: b.magic_level, fist: b.fist, club: b.club, sword_skill: b.sword_skill,
       axe: b.axe, distance: b.distance, shielding: b.shielding, premium_active: b.premium_active,
+      acessos: b.acessos || [], quests: b.quests || [],
     });
     setEditId(b.id); setShowForm(true);
   };
@@ -315,6 +321,44 @@ export default function BonecosPage() {
 
             <Input placeholder="Observações" value={form.observations} onChange={e => setForm({...form, observations: e.target.value})} className="bg-secondary mb-4" />
 
+            {/* Acessos Tags */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Acessos</p>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {form.acessos.map((a, i) => (
+                <span key={i} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
+                  {a}
+                  <button type="button" onClick={() => setForm({...form, acessos: form.acessos.filter((_, j) => j !== i)})}><X className="h-3 w-3" /></button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2 mb-4">
+              <Input placeholder="Ex: Inqui, POI, Banuta..." value={newAcesso} onChange={e => setNewAcesso(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && newAcesso.trim()) { e.preventDefault(); setForm({...form, acessos: [...form.acessos, newAcesso.trim()]}); setNewAcesso(''); }}}
+                className="bg-secondary flex-1" />
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (newAcesso.trim()) { setForm({...form, acessos: [...form.acessos, newAcesso.trim()]}); setNewAcesso(''); }}}>
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            {/* Quests Tags */}
+            <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Quests Completas</p>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {form.quests.map((q, i) => (
+                <span key={i} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
+                  {q}
+                  <button type="button" onClick={() => setForm({...form, quests: form.quests.filter((_, j) => j !== i)})}><X className="h-3 w-3" /></button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2 mb-4">
+              <Input placeholder="Ex: Outfit Quest, Warzones..." value={newQuest} onChange={e => setNewQuest(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && newQuest.trim()) { e.preventDefault(); setForm({...form, quests: [...form.quests, newQuest.trim()]}); setNewQuest(''); }}}
+                className="bg-secondary flex-1" />
+              <Button type="button" variant="outline" size="sm" onClick={() => { if (newQuest.trim()) { setForm({...form, quests: [...form.quests, newQuest.trim()]}); setNewQuest(''); }}}>
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={resetForm}>Cancelar</Button>
               <Button onClick={handleSubmit}>{editId ? 'Salvar' : 'Adicionar'}</Button>
@@ -379,7 +423,22 @@ export default function BonecosPage() {
               )}
             </div>
 
-            {/* Credentials */}
+            {/* Acessos & Quests */}
+            {((b.acessos && b.acessos.length > 0) || (b.quests && b.quests.length > 0)) && (
+              <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                {b.acessos?.map((a, i) => (
+                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                    🔑 {a}
+                  </span>
+                ))}
+                {b.quests?.map((q, i) => (
+                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">
+                    📜 {q}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>

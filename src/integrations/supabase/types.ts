@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bonecos: {
         Row: {
+          acessos: string[]
           activity: string
           axe: number
           club: number
@@ -33,6 +34,7 @@ export type Database = {
           observations: string
           password: string
           premium_active: boolean
+          quests: string[]
           shielding: number
           status: string
           sword_skill: number
@@ -43,6 +45,7 @@ export type Database = {
           world: string
         }
         Insert: {
+          acessos?: string[]
           activity?: string
           axe?: number
           club?: number
@@ -60,6 +63,7 @@ export type Database = {
           observations?: string
           password?: string
           premium_active?: boolean
+          quests?: string[]
           shielding?: number
           status?: string
           sword_skill?: number
@@ -70,6 +74,7 @@ export type Database = {
           world?: string
         }
         Update: {
+          acessos?: string[]
           activity?: string
           axe?: number
           club?: number
@@ -87,6 +92,7 @@ export type Database = {
           observations?: string
           password?: string
           premium_active?: boolean
+          quests?: string[]
           shielding?: number
           status?: string
           sword_skill?: number
