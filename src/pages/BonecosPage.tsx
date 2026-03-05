@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart, X, Tag } from 'lucide-react';
+import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart, X, Tag, ArrowRightLeft, LogIn, LogOut, Filter } from 'lucide-react';
 import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import StatusBadge from '@/components/StatusBadge';
 import TotpDisplay from '@/components/TotpDisplay';
 import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 
@@ -32,6 +33,9 @@ const ACTIVITIES: { value: CharacterActivity | ''; label: string; emoji: string 
   { value: 'maker', label: 'Maker', emoji: '🔨' },
   { value: 'boss', label: 'Boss', emoji: '💀' },
 ];
+
+const VOCATIONS = ['', 'Elite Knight', 'Royal Paladin', 'Elder Druid', 'Master Sorcerer'];
+const STATUSES: CharacterStatus[] = ['online', 'afk', 'offline'];
 
 const activityConfig: Record<string, { emoji: string; color: string }> = {
   hunt: { emoji: '⚔', color: 'bg-primary/15 text-primary border-primary/30' },
@@ -70,16 +74,24 @@ function getVocBorderColor(voc: string) {
 
 export default function BonecosPage() {
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [searchFilter, setSearchFilter] = useState('');
   const [activityFilter, setActivityFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [vocationFilter, setVocationFilter] = useState('');
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [claimNotes, setClaimNotes] = useState('');
+  const [showClaimModal, setShowClaimModal] = useState<{ id: string; name: string; action: 'pegar' | 'devolver' } | null>(null);
   const [newAcesso, setNewAcesso] = useState('');
   const [newQuest, setNewQuest] = useState('');
+  const [username, setUsername] = useState('');
   const [form, setForm] = useState({
     name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
     vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus,
@@ -95,7 +107,23 @@ export default function BonecosPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchBonecos(); }, []);
+  useEffect(() => {
+    fetchBonecos();
+    // Fetch username for logging
+    if (user) {
+      supabase.from('profiles').select('username').eq('user_id', user.id).single().then(({ data }) => {
+        setUsername(data?.username || user.email || '');
+      });
+    }
+    // Realtime subscription
+    const channel = supabase
+      .channel('bonecos-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bonecos' }, () => {
+        fetchBonecos();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const handleSubmit = async () => {
     if (!form.name.trim()) { toast({ title: 'Nome obrigatório', variant: 'destructive' }); return; }
@@ -141,8 +169,59 @@ export default function BonecosPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este boneco?')) return;
     await supabase.from('bonecos').delete().eq('id', id);
     toast({ title: 'Boneco removido' }); fetchBonecos();
+  };
+
+  const handleClaim = async (boneco: BonecoRow) => {
+    if (boneco.used_by) {
+      // Return
+      setShowClaimModal({ id: boneco.id, name: boneco.name, action: 'devolver' });
+    } else {
+      // Take
+      setShowClaimModal({ id: boneco.id, name: boneco.name, action: 'pegar' });
+    }
+    setClaimNotes('');
+  };
+
+  const confirmClaim = async () => {
+    if (!showClaimModal || !user) return;
+    setClaimingId(showClaimModal.id);
+    const isPegar = showClaimModal.action === 'pegar';
+    
+    // Update boneco
+    const { error: updateError } = await supabase.from('bonecos').update({
+      used_by: isPegar ? username : '',
+      status: isPegar ? 'online' : 'offline',
+      last_access: new Date().toISOString(),
+    }).eq('id', showClaimModal.id);
+
+    if (updateError) {
+      toast({ title: updateError.message, variant: 'destructive' });
+      setClaimingId(null);
+      return;
+    }
+
+    // Log the action
+    await supabase.from('boneco_logs').insert({
+      boneco_id: showClaimModal.id,
+      boneco_name: showClaimModal.name,
+      user_id: user.id,
+      username: username,
+      action: showClaimModal.action,
+      notes: claimNotes,
+    });
+
+    toast({
+      title: isPegar ? '📥 Boneco pego!' : '📤 Boneco devolvido!',
+      description: `${showClaimModal.name} ${isPegar ? 'está com você agora' : 'foi liberado'}`,
+    });
+    
+    setClaimingId(null);
+    setShowClaimModal(null);
+    setClaimNotes('');
+    fetchBonecos();
   };
 
   const togglePassword = (id: string) => {
@@ -171,10 +250,15 @@ export default function BonecosPage() {
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
   const offlineCount = bonecos.filter(b => b.status === 'offline').length;
+  const inUseCount = bonecos.filter(b => b.used_by).length;
+  const availableCount = bonecos.filter(b => !b.used_by).length;
 
   const filtered = bonecos.filter(b => {
-    if (searchFilter && !b.name.toLowerCase().includes(searchFilter.toLowerCase())) return false;
+    if (searchFilter && !b.name.toLowerCase().includes(searchFilter.toLowerCase()) && !b.world.toLowerCase().includes(searchFilter.toLowerCase())) return false;
     if (activityFilter && b.activity !== activityFilter) return false;
+    if (statusFilter && b.status !== statusFilter) return false;
+    if (vocationFilter && b.vocation !== vocationFilter) return false;
+    if (showAvailableOnly && b.used_by) return false;
     return true;
   });
 
@@ -189,37 +273,98 @@ export default function BonecosPage() {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-foreground">Bloco de Bonecos</h1>
-            <p className="text-xs text-muted-foreground">Gerenciamento de personagens secundários</p>
+            <p className="text-xs text-muted-foreground">Gerenciamento e repasse de personagens</p>
           </div>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
-          <Plus className="h-4 w-4" /> Novo Boneco
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
+            <Plus className="h-4 w-4" /> Novo Boneco
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 my-6">
         <StatCard icon={<Swords className="h-5 w-5" />} value={bonecos.length} label="Total" color="primary" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-online" />} value={onlineCount} label="Online" color="online" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-afk" />} value={afkCount} label="AFK" color="afk" />
         <StatCard icon={<span className="w-3 h-3 rounded-full bg-offline" />} value={offlineCount} label="Offline" color="offline" />
+        <StatCard icon={<ArrowRightLeft className="h-5 w-5" />} value={inUseCount} label="Em Uso" color="primary" />
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-6">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Buscar boneco..." className="pl-9 bg-secondary border-border" />
+      <div className="space-y-3 mb-6">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Buscar por nome ou mundo..." className="pl-9 bg-secondary border-border" />
+          </div>
         </div>
-        <div className="flex gap-1">
-          {ACTIVITIES.map(a => (
-            <button key={a.value} onClick={() => setActivityFilter(activityFilter === a.value ? '' : a.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${activityFilter === a.value ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border text-muted-foreground hover:text-foreground'}`}>
-              {a.emoji} {a.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2 items-center">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          {/* Activity */}
+          <div className="flex gap-1">
+            {ACTIVITIES.map(a => (
+              <button key={a.value} onClick={() => setActivityFilter(activityFilter === a.value ? '' : a.value)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${activityFilter === a.value ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border text-muted-foreground hover:text-foreground'}`}>
+                {a.emoji} {a.label}
+              </button>
+            ))}
+          </div>
+          <span className="text-border">|</span>
+          {/* Status */}
+          <div className="flex gap-1">
+            {STATUSES.map(s => (
+              <button key={s} onClick={() => setStatusFilter(statusFilter === s ? '' : s)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1 ${statusFilter === s ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border text-muted-foreground hover:text-foreground'}`}>
+                <StatusDot status={s} size="sm" /> {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <span className="text-border">|</span>
+          {/* Vocation */}
+          <select value={vocationFilter} onChange={e => setVocationFilter(e.target.value)}
+            className="px-2.5 py-1.5 rounded-lg text-xs bg-secondary border border-border text-foreground">
+            <option value="">Todas Vocs</option>
+            {VOCATIONS.filter(Boolean).map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+          <span className="text-border">|</span>
+          {/* Available only */}
+          <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground">
+            <Switch checked={showAvailableOnly} onCheckedChange={setShowAvailableOnly} />
+            Disponíveis ({availableCount})
+          </label>
         </div>
       </div>
+
+      {/* Claim Modal */}
+      {showClaimModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm" onClick={() => setShowClaimModal(null)}>
+          <div className="w-full max-w-sm bg-card border border-border rounded-xl p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+              {showClaimModal.action === 'pegar' ? <LogIn className="h-5 w-5 text-primary" /> : <LogOut className="h-5 w-5 text-afk" />}
+              {showClaimModal.action === 'pegar' ? 'Pegar' : 'Devolver'} Boneco
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              {showClaimModal.action === 'pegar' ? 'Você vai pegar' : 'Você vai devolver'} <strong className="text-primary">{showClaimModal.name}</strong>
+            </p>
+            <Input
+              placeholder="Notas (opcional) — ex: vai huntar em Roshamuul"
+              value={claimNotes}
+              onChange={e => setClaimNotes(e.target.value)}
+              className="bg-secondary mb-4"
+              onKeyDown={e => e.key === 'Enter' && confirmClaim()}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button variant="ghost" onClick={() => setShowClaimModal(null)}>Cancelar</Button>
+              <Button onClick={confirmClaim} disabled={claimingId === showClaimModal.id}
+                className={showClaimModal.action === 'pegar' ? '' : 'bg-afk hover:bg-afk/90 text-afk-foreground'}>
+                {claimingId === showClaimModal.id ? 'Processando...' : showClaimModal.action === 'pegar' ? '📥 Pegar' : '📤 Devolver'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form Modal */}
       {showForm && (
@@ -258,34 +403,13 @@ export default function BonecosPage() {
             {/* Skills */}
             <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Skills</p>
             <div className="grid grid-cols-4 gap-3 mb-4">
-              <div>
-                <label className="text-[10px] text-muted-foreground">Magic Level</label>
-                <Input type="number" value={form.magic_level || ''} onChange={e => setForm({...form, magic_level: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Fist</label>
-                <Input type="number" value={form.fist || ''} onChange={e => setForm({...form, fist: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Club</label>
-                <Input type="number" value={form.club || ''} onChange={e => setForm({...form, club: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Sword</label>
-                <Input type="number" value={form.sword_skill || ''} onChange={e => setForm({...form, sword_skill: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Axe</label>
-                <Input type="number" value={form.axe || ''} onChange={e => setForm({...form, axe: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Distance</label>
-                <Input type="number" value={form.distance || ''} onChange={e => setForm({...form, distance: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
-              <div>
-                <label className="text-[10px] text-muted-foreground">Shielding</label>
-                <Input type="number" value={form.shielding || ''} onChange={e => setForm({...form, shielding: parseInt(e.target.value) || 0})} className="bg-secondary" />
-              </div>
+              <div><label className="text-[10px] text-muted-foreground">Magic Level</label><Input type="number" value={form.magic_level || ''} onChange={e => setForm({...form, magic_level: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Fist</label><Input type="number" value={form.fist || ''} onChange={e => setForm({...form, fist: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Club</label><Input type="number" value={form.club || ''} onChange={e => setForm({...form, club: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Sword</label><Input type="number" value={form.sword_skill || ''} onChange={e => setForm({...form, sword_skill: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Axe</label><Input type="number" value={form.axe || ''} onChange={e => setForm({...form, axe: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Distance</label><Input type="number" value={form.distance || ''} onChange={e => setForm({...form, distance: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
+              <div><label className="text-[10px] text-muted-foreground">Shielding</label><Input type="number" value={form.shielding || ''} onChange={e => setForm({...form, shielding: parseInt(e.target.value) || 0})} className="bg-secondary" /></div>
             </div>
 
             {/* Status & Extras */}
@@ -421,24 +545,26 @@ export default function BonecosPage() {
                   <Sparkles className="h-3 w-3" /> ML {b.magic_level}
                 </span>
               )}
+              {b.used_by && (
+                <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-primary/15 text-primary border-primary/30 flex items-center gap-1">
+                  <User className="h-3 w-3" /> {b.used_by}
+                </span>
+              )}
             </div>
 
             {/* Acessos & Quests */}
             {((b.acessos && b.acessos.length > 0) || (b.quests && b.quests.length > 0)) && (
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {b.acessos?.map((a, i) => (
-                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                    🔑 {a}
-                  </span>
+                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">🔑 {a}</span>
                 ))}
                 {b.quests?.map((q, i) => (
-                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">
-                    📜 {q}
-                  </span>
+                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">📜 {q}</span>
                 ))}
               </div>
             )}
 
+            {/* Credentials */}
             <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
@@ -476,7 +602,7 @@ export default function BonecosPage() {
               </div>
             </div>
 
-            {/* Skills bar (compact) */}
+            {/* Skills bar */}
             {(b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
                 {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
@@ -491,12 +617,24 @@ export default function BonecosPage() {
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                {b.used_by && <span className="flex items-center gap-1"><User className="h-3 w-3" /> <span className="text-primary font-medium">{b.used_by}</span></span>}
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(b.last_access)}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <button onClick={() => handleEdit(b)} className="text-primary hover:underline font-medium">Editar</button>
-                <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
+              <div className="flex items-center gap-2">
+                {/* Claim/Return button - available to all users */}
+                <Button
+                  variant={b.used_by ? 'outline' : 'default'}
+                  size="sm"
+                  className={`h-7 text-xs gap-1 ${b.used_by ? 'border-afk/30 text-afk hover:bg-afk/10' : ''}`}
+                  onClick={() => handleClaim(b)}
+                >
+                  {b.used_by ? <><LogOut className="h-3 w-3" /> Devolver</> : <><LogIn className="h-3 w-3" /> Pegar</>}
+                </Button>
+                {isAdmin && (
+                  <>
+                    <button onClick={() => handleEdit(b)} className="text-primary hover:underline font-medium">Editar</button>
+                    <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -507,11 +645,11 @@ export default function BonecosPage() {
         ))}
       </div>
 
-      {bonecos.length === 0 && (
+      {filtered.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhum boneco cadastrado</p>
-          <p className="text-sm">Clique em "Novo Boneco" para começar</p>
+          <p>Nenhum boneco encontrado</p>
+          {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
         </div>
       )}
     </div>

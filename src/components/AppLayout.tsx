@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Sword, Swords, Skull, UserPlus, ScrollText, Target } from 'lucide-react';
+import { Settings, LogOut, Sword, Swords, Skull, UserPlus, ScrollText, Target, ArrowRightLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +10,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: ScrollText, adminOnly: false },
     { path: '/exiva', label: 'Exiva', icon: Target, adminOnly: false },
-    { path: '/bonecos', label: 'Bonecos', icon: Swords, adminOnly: true },
+    { path: '/bonecos', label: 'Bonecos', icon: Swords, adminOnly: false },
+    { path: '/historico', label: 'Histórico', icon: ArrowRightLeft, adminOnly: false },
     { path: '/admin/usuarios', label: 'Usuários', icon: UserPlus, adminOnly: true },
     { path: '/configuracoes', label: 'Config', icon: Settings, adminOnly: false },
   ];
