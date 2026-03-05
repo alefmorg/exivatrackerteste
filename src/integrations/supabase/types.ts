@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      boneco_logs: {
+        Row: {
+          action: string
+          boneco_id: string
+          boneco_name: string
+          created_at: string
+          id: string
+          notes: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          action: string
+          boneco_id: string
+          boneco_name: string
+          created_at?: string
+          id?: string
+          notes?: string
+          user_id: string
+          username?: string
+        }
+        Update: {
+          action?: string
+          boneco_id?: string
+          boneco_name?: string
+          created_at?: string
+          id?: string
+          notes?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boneco_logs_boneco_id_fkey"
+            columns: ["boneco_id"]
+            isOneToOne: false
+            referencedRelation: "bonecos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bonecos: {
         Row: {
           acessos: string[]

@@ -8,6 +8,7 @@ import AppLayout from "./components/AppLayout";
 import DashboardPage from "./pages/DashboardPage";
 import ExivaPage from "./pages/ExivaPage";
 import BonecosPage from "./pages/BonecosPage";
+import HistoricoPage from "./pages/HistoricoPage";
 import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import LoginPage from "./pages/LoginPage";
@@ -31,7 +32,8 @@ function ProtectedRoutes() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/exiva" element={<ExivaPage />} />
-        <Route path="/bonecos" element={<AdminRoute><BonecosPage /></AdminRoute>} />
+        <Route path="/bonecos" element={<BonecosPage />} />
+        <Route path="/historico" element={<HistoricoPage />} />
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
         <Route path="/configuracoes" element={<ConfiguracoesPage />} />
         <Route path="*" element={<NotFound />} />
