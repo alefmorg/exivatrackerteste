@@ -4,10 +4,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=MedievalSharp&display=swap');
 
-@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
-
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap");
-
 @layer base {
   :root {
     --background: 160 10% 6%;
@@ -19,16 +15,16 @@
     --popover: 160 10% 9%;
     --popover-foreground: 150 20% 90%;
 
-    --primary: 142 70.5628% 45.2941%;
+    --primary: 142 70% 45%;
     --primary-foreground: 160 10% 6%;
 
-    --secondary: 0 0% 9.0196%;
+    --secondary: 0 0% 9%;
     --secondary-foreground: 150 20% 90%;
 
     --muted: 160 8% 15%;
     --muted-foreground: 150 10% 55%;
 
-    --accent: 272 71.6667% 47.0588%;
+    --accent: 272 72% 47%;
     --accent-foreground: 160 10% 6%;
 
     --destructive: 0 72% 51%;
@@ -59,6 +55,9 @@
     --online: 142 76% 45%;
     --offline: 0 72% 51%;
     --afk: 45 93% 47%;
+    
+    --glass: 160 10% 9% / 0.7;
+    --glass-border: 160 10% 20% / 0.5;
   }
 }
 
@@ -74,6 +73,7 @@
 
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: hsl(var(--background));
@@ -99,6 +99,23 @@
   }
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
+  }
+
+  .glass-card {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-card-hover {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+    transition: all 0.3s ease;
+  }
+  .glass-card-hover:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 4px 20px hsl(var(--primary) / 0.08), inset 0 1px 0 hsl(var(--primary) / 0.05);
   }
 
   /* RPG-style decorative corners */
@@ -151,4 +168,40 @@
   .voc-stripe-rp { border-left: 3px solid hsl(45 93% 55%); }
   .voc-stripe-ed { border-left: 3px solid hsl(142 76% 50%); }
   .voc-stripe-ms { border-left: 3px solid hsl(220 80% 60%); }
+
+  /* Live pulse indicator */
+  .live-pulse {
+    position: relative;
+  }
+  .live-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    animation: live-ring 2s ease-out infinite;
+    border: 2px solid currentColor;
+    opacity: 0;
+  }
+
+  @keyframes live-ring {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(142 80% 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Stat value animation */
+  .stat-glow {
+    text-shadow: 0 0 8px hsl(var(--primary) / 0.3);
+  }
 }
