@@ -241,7 +241,7 @@ export default function DashboardPage() {
           </div>
         </ChartPanel>
 
-        <ChartPanel title="MUNDOS" icon={<ItemSprite item="globe" className="h-4 w-4" />}>
+        <ChartPanel title="MUNDOS" icon={<ItemSprite item="globe" className="h-5 w-5" />}>
           <div className="space-y-1.5 max-h-44 overflow-y-auto">
             {worldData.map((w, i) => (
               <div key={w.name} className="flex items-center gap-2">
