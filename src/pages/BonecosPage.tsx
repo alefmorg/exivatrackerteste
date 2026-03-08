@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, ClipboardCopy, Sparkles, Swords, RefreshCw } from 'lucide-react';
+import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, Sparkles, Swords, RefreshCw } from 'lucide-react';
 import { timeAgo } from '@/lib/utils';
 import { fetchCharacter } from '@/lib/tibia-api';
 import * as OTPAuth from 'otpauth';
@@ -254,18 +254,6 @@ export default function BonecosPage() {
     navigator.clipboard.writeText(text); toast({ title: 'Copiado!' });
   };
 
-  const copyAllCredentials = (b: BonecoRow) => {
-    let totpCode = '';
-    if (b.totp_secret) {
-      try {
-        const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
-        totpCode = totp.generate();
-      } catch { totpCode = 'ERRO'; }
-    }
-    const text = `Email: ${b.email}\nSenha: ${b.password}${totpCode ? `\n2FA: ${totpCode}` : ''}`;
-    navigator.clipboard.writeText(text);
-    toast({ title: '📋 Credenciais copiadas!', description: `Email, senha${totpCode ? ' e código 2FA' : ''} copiados.` });
-  };
 
   const syncBoneco = async (b: BonecoRow) => {
     if (!b.name || syncing.has(b.id)) return;
@@ -669,25 +657,20 @@ export default function BonecosPage() {
             <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-primary hover:text-primary" onClick={() => copyAllCredentials(b)}>
-                    <ItemSprite item="copy" className="h-4 w-4" /> Copiar Tudo
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-afk hover:text-afk" onClick={() => {
-                    let totpCode = '';
-                    if (b.totp_secret) {
-                      try {
-                        const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
-                        totpCode = totp.generate();
-                      } catch { totpCode = ''; }
-                    }
-                    const ts3Text = `[b]${b.name}[/b] | ${b.email} | ${b.password}${totpCode ? ` | 2FA: ${totpCode}` : ''}`;
-                    navigator.clipboard.writeText(ts3Text);
-                    toast({ title: '📋 Copiado para TS3!', description: 'Cole no chat do TeamSpeak' });
-                  }}>
-                    🎧 TS3
-                  </Button>
-                </div>
+                <Button variant="outline" size="sm" className="h-6 text-[10px] gap-1 border-border text-muted-foreground hover:text-foreground" onClick={() => {
+                  let totpCode = '';
+                  if (b.totp_secret) {
+                    try {
+                      const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
+                      totpCode = totp.generate();
+                    } catch { totpCode = ''; }
+                  }
+                  const ts3Text = `[b]${b.name}[/b] | ${b.email} | ${b.password}${totpCode ? ` | 2FA: ${totpCode}` : ''}`;
+                  navigator.clipboard.writeText(ts3Text);
+                  toast({ title: '📋 Copiado para TS3!', description: 'Cole no chat do TeamSpeak' });
+                }}>
+                  🎧 TS3
+                </Button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <ItemSprite item="email" className="h-5 w-5 shrink-0" />
