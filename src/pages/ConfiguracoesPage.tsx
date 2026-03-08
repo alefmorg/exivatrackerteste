@@ -600,7 +600,7 @@ function IconCustomizer({ settings, onUpdate }: { settings: AppSettings; onUpdat
                           : 'border-border/40 bg-secondary/30 hover:border-border'
                     }`}
                   >
-                    <TibiaSprite src={path} alt={slot.label} className="h-8 w-8" />
+                    <TibiaSprite src={path} alt={slot.label} className="h-10 w-10" />
                     <span className="text-[10px] font-medium text-foreground truncate w-full text-center">{slot.label}</span>
                   </button>
                   {isCustom && (
