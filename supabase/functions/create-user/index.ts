@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Verify caller is admin
+    // Verify caller is admin or master_admin
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
     const { data: { user: caller } } = await supabaseAdmin.auth.getUser(token);
@@ -24,14 +24,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Não autenticado" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { data: roleData } = await supabaseAdmin
+    const { data: callerRoleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", caller.id)
-      .eq("role", "admin")
       .single();
 
-    if (!roleData) {
+    const callerRole = callerRoleData?.role || "user";
+    const isMasterAdmin = callerRole === "master_admin";
+    const isAdminOrAbove = callerRole === "admin" || callerRole === "master_admin";
+
+    if (!isAdminOrAbove) {
       return new Response(JSON.stringify({ error: "Sem permissão" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
@@ -39,6 +42,11 @@ Deno.serve(async (req) => {
 
     if (!email || !password) {
       return new Response(JSON.stringify({ error: "Email e senha obrigatórios" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Only master_admin can create admin or master_admin users
+    if ((role === "admin" || role === "master_admin") && !isMasterAdmin) {
+      return new Response(JSON.stringify({ error: "Apenas Master Admin pode criar admins" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Create user

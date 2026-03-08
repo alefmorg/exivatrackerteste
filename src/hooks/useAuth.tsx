@@ -2,14 +2,18 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
+export type AppRole = 'master_admin' | 'admin' | 'user';
+
 interface AuthContextType {
   user: User | null;
-  role: 'admin' | 'user' | null;
+  role: AppRole | null;
   username: string;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  isMasterAdmin: boolean;
+  isAdminOrAbove: boolean;
   refreshProfile: () => Promise<void>;
 }
 
@@ -17,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<'admin' | 'user' | null>(null);
+  const [role, setRole] = useState<AppRole | null>(null);
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('role')
       .eq('user_id', userId)
       .single();
-    setRole((data?.role as 'admin' | 'user') || 'user');
+    setRole((data?.role as AppRole) || 'user');
   };
 
   const fetchProfile = async (userId: string) => {
@@ -85,8 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsername('');
   };
 
+  const isMasterAdmin = role === 'master_admin';
+  const isAdmin = role === 'admin';
+  const isAdminOrAbove = role === 'admin' || role === 'master_admin';
+
   return (
-    <AuthContext.Provider value={{ user, role, username, loading, signIn, signOut, isAdmin: role === 'admin', refreshProfile }}>
+    <AuthContext.Provider value={{ user, role, username, loading, signIn, signOut, isAdmin, isMasterAdmin, isAdminOrAbove, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
