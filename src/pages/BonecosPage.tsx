@@ -541,7 +541,7 @@ export default function BonecosPage() {
               )}
               {b.full_bless && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-red-500/10 text-red-400 border-red-500/30 flex items-center gap-1">
-                  <ItemSprite item="bless" className="h-3.5 w-3.5" /> Full Bless
+                  <ItemSprite item="bless" className="h-4 w-4" /> Full Bless
                 </span>
               )}
               {b.premium_active && (
