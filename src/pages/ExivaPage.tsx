@@ -26,6 +26,7 @@ const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
 export default function ExivaPage() {
   const { toast } = useToast();
+  const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
@@ -37,7 +38,7 @@ export default function ExivaPage() {
   const [showDeaths, setShowDeaths] = useState(true);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [categories, setCategories] = useState<Record<string, MemberCategory>>({});
-  const [refreshCountdown, setRefreshCountdown] = useState(60);
+  const [refreshCountdown, setRefreshCountdown] = useState(settings.refreshInterval);
 
   const annotations = getAnnotations();
   const guildName = useMemo(() => {
