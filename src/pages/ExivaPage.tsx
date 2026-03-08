@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
 import { RefreshCw, MapPin, Pencil, Users, UserCheck, UserX, Skull, ChevronDown, ChevronUp, CalendarDays, Activity, Zap, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
