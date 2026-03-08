@@ -536,7 +536,7 @@ export default function BonecosPage() {
             <div className="flex flex-wrap items-center gap-1.5 mb-3">
               {b.activity && (
                 <span className={`px-2 py-0.5 rounded border text-[11px] font-medium ${activityConfig[b.activity]?.color || ''} flex items-center gap-1`}>
-                  <ActivityIcon activity={b.activity} className="h-3.5 w-3.5" /> {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
+                  <ActivityIcon activity={b.activity} className="h-4 w-4" /> {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
                 </span>
               )}
               {b.full_bless && (
