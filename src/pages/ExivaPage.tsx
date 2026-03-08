@@ -329,9 +329,10 @@ interface MemberRowProps {
   handleSaveAnnotation: (name: string) => void;
   expanded: boolean; onToggleExpand: () => void;
   getTodayLoginInfo: (name: string) => Promise<{ entries: LoginEntry[]; loginCount: number }>;
+  mapPin?: MapPinType;
 }
 
-function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo }: MemberRowProps) {
+function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo, mapPin }: MemberRowProps) {
   const [loginInfo, setLoginInfo] = useState<{ entries: LoginEntry[]; loginCount: number } | null>(null);
 
   useEffect(() => {
