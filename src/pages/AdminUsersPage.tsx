@@ -299,10 +299,7 @@ export default function AdminUsersPage() {
                       </button>
                     </>
                   )}
-                  <button onClick={() => handleDelete(u.id, u.email)}
-                    className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
-                    <ItemSprite item="delete" className="h-4 w-4" />
-                  </button>
+                </div>
                 </div>
               </div>
             </motion.div>
