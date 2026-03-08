@@ -121,25 +121,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="dashboard" className="h-6 w-6" /> COMMAND CENTER
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span>{bonecos.length} unidades</span>
-              <span>•</span>
-              <span className="text-primary">{lastRefresh}</span>
-            </div>
-          </div>
-        </div>
-        <button onClick={fetchData} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
+      <PageHeader
+        title="COMMAND CENTER"
+        icon="dashboard"
+        subtitle={<><span>{bonecos.length} unidades</span><span>•</span><span className="text-primary">{lastRefresh}</span></>}
+        actions={
+          <button onClick={fetchData} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
+            <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        }
+      />
 
       {/* Status Bar */}
       <div className="panel rounded-lg p-3">
