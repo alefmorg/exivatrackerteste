@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useLoginNotifications();
   useGuildMonitor();
   const location = useLocation();
-  const { user, role, username, isAdmin, signOut } = useAuth();
+  const { user, role, username, isAdminOrAbove, signOut } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: false },
