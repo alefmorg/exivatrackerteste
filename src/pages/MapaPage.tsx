@@ -307,11 +307,11 @@ export default function MapaPage() {
                 <div className="relative group cursor-pointer" data-pin>
                   <motion.div
                     className="absolute inset-0 rounded-full bg-primary"
-                    animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
+                    animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    style={{ width: 16, height: 16, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
+                    style={{ width: 14, height: 14, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
                   />
-                  <div className="w-4 h-4 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
                   <button
                     data-pin
                     onClick={(e) => handleRemovePin(e, pin.char_name)}
@@ -322,7 +322,7 @@ export default function MapaPage() {
                 </div>
 
                 {/* Name label */}
-                <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight">
+                <span className="text-[9px] font-mono font-medium text-foreground bg-background/80 px-1.5 py-0.5 rounded mt-0.5 whitespace-nowrap leading-tight shadow-sm">
                   {pin.char_name}
                 </span>
               </div>
