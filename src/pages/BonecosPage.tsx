@@ -608,7 +608,7 @@ export default function BonecosPage() {
             )}
 
             {/* Skills bar */}
-            {(b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
+            {settings.showSkills && (b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
                 {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
                 {b.axe > 0 && <span>🪓 Axe: {b.axe}</span>}
