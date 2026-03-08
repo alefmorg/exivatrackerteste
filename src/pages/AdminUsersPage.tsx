@@ -218,7 +218,9 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <ItemSprite item="search" className="h-4 w-4" />
+        </div>
         <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
           placeholder="Buscar por email ou username..." className="pl-9 bg-secondary border-border" />
       </div>
