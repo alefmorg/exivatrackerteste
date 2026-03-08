@@ -5,10 +5,12 @@ import type { User } from '@supabase/supabase-js';
 interface AuthContextType {
   user: User | null;
   role: 'admin' | 'user' | null;
+  username: string;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
