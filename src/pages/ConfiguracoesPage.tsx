@@ -600,7 +600,7 @@ function IconCustomizer({ settings, onUpdate }: { settings: AppSettings; onUpdat
                           : 'border-border/40 bg-secondary/30 hover:border-border'
                     }`}
                   >
-                    <TibiaSprite src={path} alt={slot.label} className="h-8 w-8" />
+                    <TibiaSprite src={path} alt={slot.label} className="h-10 w-10" />
                     <span className="text-[10px] font-medium text-foreground truncate w-full text-center">{slot.label}</span>
                   </button>
                   {isCustom && (
@@ -675,8 +675,8 @@ function IconCustomizer({ settings, onUpdate }: { settings: AppSettings; onUpdat
                                 : 'border-transparent hover:border-border hover:bg-secondary/50'
                             }`}
                           >
-                            <TibiaSprite src={sprite.path} alt={sprite.label} className="h-8 w-8" />
-                            <span className="text-[8px] text-muted-foreground truncate w-full text-center">{sprite.label}</span>
+                            <TibiaSprite src={sprite.path} alt={sprite.label} className="h-10 w-10" />
+                            <span className="text-[9px] text-muted-foreground truncate w-full text-center">{sprite.label}</span>
                           </button>
                         );
                       })}

@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0 group mr-3">
             <div className="w-8 h-8 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
-              <ItemSprite item="exiva" className="h-6 w-6" />
+              <ItemSprite item="exiva" className="h-7 w-7" />
             </div>
             <span className="font-display text-[11px] font-bold text-primary tracking-wider neon-text">
               EXIVA
@@ -59,7 +59,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <NavSprite spriteKey={item.sprite} className="h-4 w-4 relative z-10" />
+                  <NavSprite spriteKey={item.sprite} className="h-5 w-5 relative z-10" />
                   <span className="relative z-10 hidden sm:inline">{item.label}</span>
                 </Link>
               );
@@ -67,15 +67,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* Status */}
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/8 border border-primary/15 mr-2">
-            <ItemSprite item="live" className="h-3.5 w-3.5 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/8 border border-primary/15 mr-2">
+            <ItemSprite item="live" className="h-4 w-4 animate-pulse" />
             <span className="text-[9px] font-bold text-primary font-mono tracking-wider">LIVE</span>
           </div>
 
           {/* User */}
           <div className="flex items-center gap-1.5 shrink-0">
             <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/50">
-              <ItemSprite item="skull" className="h-4 w-4" />
+              <ItemSprite item="skull" className="h-5 w-5" />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-[10px] font-semibold text-foreground truncate max-w-[80px]">{username || user?.email}</span>
                 <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role || 'user'}</span>

@@ -261,6 +261,21 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   skill_distance: 'royal_crossbow',
   skill_shielding: 'mastermind_shield',
   skill_fist: 'pair_of_iron_fists',
+  // Actions & UI elements
+  action_globe: 'globe',
+  action_quest: 'old_parchment',
+  action_guild: 'war_horn',
+  action_scroll: 'parchment',
+  action_refresh: 'hourglass',
+  action_star: 'gold_ingot',
+  action_filter: 'small_sapphire',
+  action_add: 'small_emerald',
+  action_delete: 'sudden_death_rune',
+  action_edit: 'quill',
+  action_search: 'crystal_ball',
+  action_note: 'parchment',
+  action_location: 'compass',
+  action_clock: 'watch',
 };
 
 // Customizable icon slots with labels
@@ -297,6 +312,21 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'skill_distance', label: 'Distance', group: 'Skills' },
   { key: 'skill_shielding', label: 'Shielding', group: 'Skills' },
   { key: 'skill_fist', label: 'Fist', group: 'Skills' },
+  // Actions & UI elements
+  { key: 'action_globe', label: 'Globo / Mundo', group: 'Ações' },
+  { key: 'action_quest', label: 'Quest', group: 'Ações' },
+  { key: 'action_guild', label: 'Guild', group: 'Ações' },
+  { key: 'action_scroll', label: 'Scroll', group: 'Ações' },
+  { key: 'action_refresh', label: 'Refresh', group: 'Ações' },
+  { key: 'action_star', label: 'Estrela', group: 'Ações' },
+  { key: 'action_filter', label: 'Filtro', group: 'Ações' },
+  { key: 'action_add', label: 'Adicionar', group: 'Ações' },
+  { key: 'action_delete', label: 'Deletar', group: 'Ações' },
+  { key: 'action_edit', label: 'Editar', group: 'Ações' },
+  { key: 'action_search', label: 'Buscar', group: 'Ações' },
+  { key: 'action_note', label: 'Nota', group: 'Ações' },
+  { key: 'action_location', label: 'Localização', group: 'Ações' },
+  { key: 'action_clock', label: 'Relógio', group: 'Ações' },
 ];
 
 // ============================================================
@@ -404,31 +434,33 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
   };
   const slot = slotMap[item];
   if (slot) return <SlotSprite slot={slot} className={className} />;
-  // Fallback to direct sprite path
-  const directMap: Record<string, string> = {
-    globe: '/sprites/globe.gif',
-    quest: '/sprites/old_parchment.gif',
-    guild: '/sprites/war_horn.gif',
-    scroll: '/sprites/parchment.gif',
-    key: '/sprites/parchment.gif',
-    copy: '/sprites/parchment.gif',
-    refresh: '/sprites/hourglass.gif',
-    star: '/sprites/gold_ingot.gif',
-    filter: '/sprites/small_sapphire.gif',
-    add: '/sprites/small_emerald.gif',
-    delete: '/sprites/sudden_death_rune.gif',
-    edit: '/sprites/quill.gif',
-    search: '/sprites/crystal_ball.gif',
-    note: '/sprites/parchment.gif',
-    location: '/sprites/compass.gif',
-    clock: '/sprites/watch.gif',
-    dashboard: '/sprites/almanac_of_magic.gif',
-    history: '/sprites/parchment.gif',
-    settings: '/sprites/mechanical_fishing_rod.gif',
-    users: '/sprites/ring_of_ending.gif',
-    bonecos: '/sprites/golden_figurine.gif',
+  // Secondary slot map for action/misc icons
+  const actionSlotMap: Record<string, string> = {
+    globe: 'action_globe',
+    quest: 'action_quest',
+    guild: 'action_guild',
+    scroll: 'action_scroll',
+    key: 'action_scroll',
+    copy: 'action_scroll',
+    refresh: 'action_refresh',
+    star: 'action_star',
+    filter: 'action_filter',
+    add: 'action_add',
+    delete: 'action_delete',
+    edit: 'action_edit',
+    search: 'action_search',
+    note: 'action_note',
+    location: 'action_location',
+    clock: 'action_clock',
+    dashboard: 'nav_dashboard',
+    history: 'nav_history',
+    settings: 'nav_settings',
+    users: 'nav_users',
+    bonecos: 'nav_bonecos',
   };
-  return <TibiaSprite src={directMap[item] || '/sprites/parchment.gif'} alt={item} className={className} />;
+  const actionSlot = actionSlotMap[item];
+  if (actionSlot) return <SlotSprite slot={actionSlot} className={className} />;
+  return <TibiaSprite src="/sprites/parchment.gif" alt={item} className={className} />;
 }
 
 // Map Tibia vocations to icons
