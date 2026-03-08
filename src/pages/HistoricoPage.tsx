@@ -101,7 +101,7 @@ export default function HistoricoPage() {
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={exportCSV} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-            <ItemSprite item="scroll" className="h-4 w-4" />
+            <ItemSprite item="scroll" className="h-5 w-5" />
           </button>
           <button onClick={fetchLogs} disabled={loading} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
             <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
