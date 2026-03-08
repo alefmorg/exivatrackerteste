@@ -322,7 +322,7 @@ export default function MapaPage() {
                 </div>
 
                 {/* Name label */}
-                <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight">
+                <span className="text-[9px] font-mono font-medium text-foreground bg-background/80 px-1.5 py-0.5 rounded mt-0.5 whitespace-nowrap leading-tight shadow-sm">
                   {pin.char_name}
                 </span>
               </div>
