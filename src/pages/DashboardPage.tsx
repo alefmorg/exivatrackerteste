@@ -176,7 +176,7 @@ export default function DashboardPage() {
         ].map(m => (
           <div key={m.label} className="panel-inset rounded-md p-2 text-center">
             <div className="flex items-center justify-center gap-1 mb-0.5">
-              <ItemSprite item={m.sprite} className="h-4 w-4" />
+              <ItemSprite item={m.sprite} className="h-5 w-5" />
             </div>
             <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary stat-glow' : 'text-foreground'}`}>{m.value}</p>
             <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
