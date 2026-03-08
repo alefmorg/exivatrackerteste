@@ -144,6 +144,15 @@ export default function AdminUsersPage() {
 
   const adminCount = users.filter(u => u.role === 'admin' || u.role === 'master_admin').length;
 
+  // Pagination
+  const USERS_PER_PAGE = 10;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / USERS_PER_PAGE));
+  const paginatedUsers = filtered.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
+
+  // Reset page on filter change
+  useEffect(() => { setPage(1); }, [searchFilter]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
