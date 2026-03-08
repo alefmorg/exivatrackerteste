@@ -8,7 +8,7 @@ import { VocationIcon } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useMapPins } from '@/hooks/useMapPins';
-import { TIBIA_CITIES, CITY_CONNECTIONS, MAP_REGIONS } from '@/lib/tibia-cities';
+import { TIBIA_CITIES } from '@/lib/tibia-cities';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
