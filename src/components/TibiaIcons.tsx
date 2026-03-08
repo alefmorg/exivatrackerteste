@@ -434,31 +434,33 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
   };
   const slot = slotMap[item];
   if (slot) return <SlotSprite slot={slot} className={className} />;
-  // Fallback to direct sprite path
-  const directMap: Record<string, string> = {
-    globe: '/sprites/globe.gif',
-    quest: '/sprites/old_parchment.gif',
-    guild: '/sprites/war_horn.gif',
-    scroll: '/sprites/parchment.gif',
-    key: '/sprites/parchment.gif',
-    copy: '/sprites/parchment.gif',
-    refresh: '/sprites/hourglass.gif',
-    star: '/sprites/gold_ingot.gif',
-    filter: '/sprites/small_sapphire.gif',
-    add: '/sprites/small_emerald.gif',
-    delete: '/sprites/sudden_death_rune.gif',
-    edit: '/sprites/quill.gif',
-    search: '/sprites/crystal_ball.gif',
-    note: '/sprites/parchment.gif',
-    location: '/sprites/compass.gif',
-    clock: '/sprites/watch.gif',
-    dashboard: '/sprites/almanac_of_magic.gif',
-    history: '/sprites/parchment.gif',
-    settings: '/sprites/mechanical_fishing_rod.gif',
-    users: '/sprites/ring_of_ending.gif',
-    bonecos: '/sprites/golden_figurine.gif',
+  // Secondary slot map for action/misc icons
+  const actionSlotMap: Record<string, string> = {
+    globe: 'action_globe',
+    quest: 'action_quest',
+    guild: 'action_guild',
+    scroll: 'action_scroll',
+    key: 'action_scroll',
+    copy: 'action_scroll',
+    refresh: 'action_refresh',
+    star: 'action_star',
+    filter: 'action_filter',
+    add: 'action_add',
+    delete: 'action_delete',
+    edit: 'action_edit',
+    search: 'action_search',
+    note: 'action_note',
+    location: 'action_location',
+    clock: 'action_clock',
+    dashboard: 'nav_dashboard',
+    history: 'nav_history',
+    settings: 'nav_settings',
+    users: 'nav_users',
+    bonecos: 'nav_bonecos',
   };
-  return <TibiaSprite src={directMap[item] || '/sprites/parchment.gif'} alt={item} className={className} />;
+  const actionSlot = actionSlotMap[item];
+  if (actionSlot) return <SlotSprite slot={actionSlot} className={className} />;
+  return <TibiaSprite src="/sprites/parchment.gif" alt={item} className={className} />;
 }
 
 // Map Tibia vocations to icons
