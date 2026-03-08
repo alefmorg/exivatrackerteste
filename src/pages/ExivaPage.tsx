@@ -4,16 +4,20 @@ import { motion } from 'framer-motion';
 import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
 import {
-  getAnnotations, saveAnnotation, getMonitoredGuilds,
-  getCategories, saveCategory, MemberCategory,
-  recordLoginChange, getTodayLogins, LoginEntry,
+  loadAnnotations, saveAnnotationAsync,
+  getMonitoredGuildsAsync,
+  loadCategories, saveCategoryAsync, MemberCategory,
+  recordLoginChange, getTodayLoginsAsync, LoginEntry,
 } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
+import { SkeletonRow } from '@/components/SkeletonLoader';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
