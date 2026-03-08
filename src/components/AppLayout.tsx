@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0 group mr-3">
             <div className="w-8 h-8 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
-              <ItemSprite item="exiva" className="h-6 w-6" />
+              <ItemSprite item="exiva" className="h-7 w-7" />
             </div>
             <span className="font-display text-[11px] font-bold text-primary tracking-wider neon-text">
               EXIVA
