@@ -226,7 +226,7 @@ export default function RelatorioPage() {
       {/* Heatmap + Deaths */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <OnlineHeatmap loginHistory={loginHistory} />
-        <DeathsPanel deaths={deaths} loading={deathsLoading} />
+        <DeathsPanel deaths={deaths} loading={deathsLoading} progress={deathProgress} />
       </div>
 
       {/* Full member table */}
