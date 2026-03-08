@@ -306,12 +306,14 @@ export default function BonecosPage() {
       <div className="space-y-3 mb-6">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <ItemSprite item="search" className="h-4 w-4" />
+            </div>
             <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Buscar por nome ou mundo..." className="pl-9 bg-secondary border-border" />
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+          <ItemSprite item="filter" className="h-4 w-4" />
           {/* Activity */}
           <div className="flex gap-1">
             {ACTIVITIES.map(a => (
