@@ -111,18 +111,17 @@ export default function MapaPage() {
       />
 
       {/* Map Container */}
-      <div className="relative w-full aspect-[16/10] bg-card border border-border rounded-lg overflow-hidden select-none">
-        {/* Background grid */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
+      <div className="relative w-full aspect-[16/9] border border-border rounded-lg overflow-hidden select-none">
+        {/* Background map image */}
+        <img
+          src="/tibia-world-map.png"
+          alt="Tibia World Map"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ imageRendering: 'auto' }}
+          draggable={false}
         />
+        {/* Dark overlay for better pin visibility */}
+        <div className="absolute inset-0 bg-background/30" />
 
         {/* Region labels */}
         {MAP_REGIONS.map(region => {
