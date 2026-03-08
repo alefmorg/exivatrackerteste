@@ -57,6 +57,7 @@ export default function ConfiguracoesPage() {
 
   const handleSaveSettings = () => {
     saveSettings(settings);
+    applyTheme(settings.theme);
     setHasChanges(false);
     toast({ title: '✅ Configurações salvas!' });
   };
