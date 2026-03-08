@@ -99,16 +99,7 @@ export default function MapaPage() {
     };
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.3 : 0.3;
-    setZoom(prev => {
-      const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev + delta));
-      if (next <= 1) setPan({ x: 0, y: 0 });
-      else setPan(p => clampPan(p.x, p.y, next));
-      return next;
-    });
-  }, [clampPan]);
+  // Wheel zoom disabled per user request
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
