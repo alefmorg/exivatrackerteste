@@ -287,7 +287,7 @@ export default function AdminUsersPage() {
                   </select>
                   <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
                     className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
-                    <Key className="h-3.5 w-3.5" />
+                    <ItemSprite item="key" className="h-4 w-4" />
                   </button>
                   <button onClick={() => handleDelete(u.id, u.email)}
                     className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
