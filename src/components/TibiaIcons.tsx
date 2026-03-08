@@ -44,6 +44,7 @@ export const ALL_SPRITES: Record<string, { path: string; label: string; category
   wand_of_inferno: { path: '/sprites/wand_of_inferno.gif', label: 'Wand of Inferno', category: 'Varinhas' },
   hailstorm_rod: { path: '/sprites/hailstorm_rod.gif', label: 'Hailstorm Rod', category: 'Varinhas' },
   spellbook: { path: '/sprites/spellbook.gif', label: 'Spellbook', category: 'Varinhas' },
+  wand_of_cosmic_energy: { path: '/sprites/wand_of_cosmic_energy.gif', label: 'Wand of Cosmic Energy', category: 'Varinhas' },
   // Items
   tibia_coin: { path: '/sprites/tibia_coin.gif', label: 'Tibia Coin', category: 'Items' },
   gold_ingot: { path: '/sprites/gold_ingot.gif', label: 'Gold Ingot', category: 'Items' },
