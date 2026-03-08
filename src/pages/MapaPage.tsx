@@ -41,6 +41,16 @@ export default function MapaPage() {
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
 
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        setMapAspectRatio(img.naturalWidth / img.naturalHeight);
+      }
+    };
+    img.src = '/tibia-world-map.png';
+  }, []);
+
   // Fetch online guild members
   useEffect(() => {
     const load = async () => {
