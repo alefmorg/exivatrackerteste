@@ -312,6 +312,21 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'skill_distance', label: 'Distance', group: 'Skills' },
   { key: 'skill_shielding', label: 'Shielding', group: 'Skills' },
   { key: 'skill_fist', label: 'Fist', group: 'Skills' },
+  // Actions & UI elements
+  { key: 'action_globe', label: 'Globo / Mundo', group: 'Ações' },
+  { key: 'action_quest', label: 'Quest', group: 'Ações' },
+  { key: 'action_guild', label: 'Guild', group: 'Ações' },
+  { key: 'action_scroll', label: 'Scroll', group: 'Ações' },
+  { key: 'action_refresh', label: 'Refresh', group: 'Ações' },
+  { key: 'action_star', label: 'Estrela', group: 'Ações' },
+  { key: 'action_filter', label: 'Filtro', group: 'Ações' },
+  { key: 'action_add', label: 'Adicionar', group: 'Ações' },
+  { key: 'action_delete', label: 'Deletar', group: 'Ações' },
+  { key: 'action_edit', label: 'Editar', group: 'Ações' },
+  { key: 'action_search', label: 'Buscar', group: 'Ações' },
+  { key: 'action_note', label: 'Nota', group: 'Ações' },
+  { key: 'action_location', label: 'Localização', group: 'Ações' },
+  { key: 'action_clock', label: 'Relógio', group: 'Ações' },
 ];
 
 // ============================================================
