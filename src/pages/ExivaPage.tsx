@@ -71,8 +71,9 @@ export default function ExivaPage() {
     setLoading(true);
     try {
       const data = await fetchGuildMembers(name);
-      const savedCats = getCategories();
+      const [savedCats, savedAnnots] = await Promise.all([loadCategories(), loadAnnotations()]);
       setCategories(savedCats);
+      setAnnotationsState(savedAnnots);
       const prevMembers = members;
       data.forEach(m => {
         m.annotation = annotations[m.name] || '';
