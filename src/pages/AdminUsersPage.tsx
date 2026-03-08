@@ -76,7 +76,7 @@ export default function AdminUsersPage() {
     setCreating(false);
   };
 
-  const handleChangeRole = async (userId: string, newRole: 'admin' | 'user') => {
+  const handleChangeRole = async (userId: string, newRole: AppRole) => {
     try {
       const { data, error } = await supabase.functions.invoke('manage-users', {
         body: { action: 'update_role', user_id: userId, role: newRole },
