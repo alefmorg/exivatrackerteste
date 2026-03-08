@@ -388,6 +388,21 @@ const SPRITE = {
   },
 } as const;
 
+// Helper to get vocation/activity sprite from customIcons
+function getVocSpritePath(vocKey: string, customIcons?: Record<string, string>): string {
+  const slotKey = `voc_${vocKey}`;
+  const spriteKey = customIcons?.[slotKey] || DEFAULT_ICON_MAP[slotKey];
+  if (spriteKey && ALL_SPRITES[spriteKey]) return ALL_SPRITES[spriteKey].path;
+  return SPRITE.vocation[vocKey as keyof typeof SPRITE.vocation] || '/sprites/outfit_knight.gif';
+}
+
+function getActSpritePath(actKey: string, customIcons?: Record<string, string>): string {
+  const slotKey = `act_${actKey}`;
+  const spriteKey = customIcons?.[slotKey] || DEFAULT_ICON_MAP[slotKey];
+  if (spriteKey && ALL_SPRITES[spriteKey]) return ALL_SPRITES[spriteKey].path;
+  return SPRITE.activity[actKey as keyof typeof SPRITE.activity] || '/sprites/parchment.gif';
+}
+
 // Reusable sprite component
 export function TibiaSprite({ 
   src, 
