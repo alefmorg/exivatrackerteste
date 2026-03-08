@@ -76,6 +76,7 @@ function getVocBorderColor(voc: string) {
 export default function BonecosPage() {
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
+  const settings = useSettings();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [searchFilter, setSearchFilter] = useState('');
   const [activityFilter, setActivityFilter] = useState('');
