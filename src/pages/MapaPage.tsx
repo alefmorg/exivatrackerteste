@@ -76,7 +76,7 @@ export default function MapaPage() {
   const [loading, setLoading] = useState(true);
   const [loadingGuild, setLoadingGuild] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [showOnlineOnly, setShowOnlineOnly] = useState(true);
+  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
   // Fetch guild members + bonecos
   useEffect(() => {
