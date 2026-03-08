@@ -78,17 +78,13 @@ export default function MapaPage() {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
-  // Fetch guild members + bonecos
+  // Fetch guild members
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const [guilds, { data: bonecosData }] = await Promise.all([
-          getMonitoredGuildsAsync(),
-          supabase.from('bonecos').select('name, level, vocation, status, location'),
-        ]);
+        const guilds = await getMonitoredGuildsAsync();
 
-        // Guild members — fetch online ones' residence
         if (guilds.length > 0) {
           const guildMembers = await fetchGuildMembers(guilds[0].name);
           setMembers(guildMembers);
@@ -124,20 +120,6 @@ export default function MapaPage() {
             setGuildOnMap(results);
             setLoadingGuild(false);
           }
-        }
-
-        // Bonecos from DB
-        if (bonecosData) {
-          setBonecos(
-            bonecosData.map((b: any) => ({
-              name: b.name,
-              level: b.level,
-              vocation: b.vocation,
-              status: b.status as any,
-              location: b.location || '',
-              type: 'boneco' as const,
-            }))
-          );
         }
       } catch {
         // silent
