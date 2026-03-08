@@ -258,7 +258,7 @@ export default function ExivaPage() {
               ))}
               {deaths.length === 0 && !loadingDeaths && <div className="p-6 text-center text-[10px] text-muted-foreground/40">Sem mortes</div>}
               {loadingDeaths && deaths.length === 0 && (
-                <div className="p-6 text-center"><RefreshCw className="h-4 w-4 animate-spin mx-auto text-muted-foreground" /></div>
+                <div className="p-6 text-center"><ItemSprite item="refresh" className="h-4 w-4 animate-spin mx-auto" /></div>
               )}
             </div>
           )}
