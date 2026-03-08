@@ -10,7 +10,7 @@ export default function MobileNav() {
   const items = [
     { path: '/', label: 'Dashboard', sprite: 'dashboard' as const },
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const },
-    { path: '/relatorio', label: 'Relatório', sprite: 'history' as const },
+    { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const },
     { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const },
     { path: '/historico', label: 'Log', sprite: 'history' as const },
     ...(isAdmin ? [{ path: '/admin/usuarios', label: 'Users', sprite: 'users' as const }] : []),
