@@ -277,11 +277,16 @@ export default function AdminUsersPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
-                  <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as 'admin' | 'user')}
-                    className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
-                    <option value="user">Usuário</option>
-                    <option value="admin">Admin</option>
-                  </select>
+                  {isMasterAdmin ? (
+                    <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as AppRole)}
+                      className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
+                      <option value="user">Usuário</option>
+                      <option value="admin">Admin</option>
+                      <option value="master_admin">Master Admin</option>
+                    </select>
+                  ) : (
+                    <span className="text-[11px] px-2 py-1 text-muted-foreground">{u.role === 'master_admin' ? 'Master' : u.role === 'admin' ? 'Admin' : 'Usuário'}</span>
+                  )}
                   <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
                     className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
                     <ItemSprite item="key" className="h-4 w-4" />
