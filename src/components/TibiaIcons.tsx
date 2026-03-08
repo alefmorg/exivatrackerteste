@@ -347,6 +347,16 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'action_key', label: 'Chave', group: 'Ações' },
   { key: 'action_shield', label: 'Escudo', group: 'Ações' },
   { key: 'action_user', label: 'Pessoa', group: 'Ações' },
+  // Vocations
+  { key: 'voc_knight', label: 'Knight', group: 'Vocações' },
+  { key: 'voc_paladin', label: 'Paladin', group: 'Vocações' },
+  { key: 'voc_druid', label: 'Druid', group: 'Vocações' },
+  { key: 'voc_sorcerer', label: 'Sorcerer', group: 'Vocações' },
+  // Activities
+  { key: 'act_hunt', label: 'Hunt', group: 'Atividades' },
+  { key: 'act_war', label: 'War', group: 'Atividades' },
+  { key: 'act_maker', label: 'Maker', group: 'Atividades' },
+  { key: 'act_boss', label: 'Boss', group: 'Atividades' },
 ];
 
 // ============================================================
