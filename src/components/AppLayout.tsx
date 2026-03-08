@@ -67,8 +67,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* Status */}
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/8 border border-primary/15 mr-2">
-            <ItemSprite item="live" className="h-3.5 w-3.5 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/8 border border-primary/15 mr-2">
+            <ItemSprite item="live" className="h-4 w-4 animate-pulse" />
             <span className="text-[9px] font-bold text-primary font-mono tracking-wider">LIVE</span>
           </div>
 
