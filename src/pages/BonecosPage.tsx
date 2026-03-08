@@ -593,7 +593,6 @@ export default function BonecosPage() {
                 <ItemSprite item="token2fa" className="h-5 w-5 shrink-0" />
                 {visibleTokens.has(b.id) ? (
                   <div className="flex-1 flex items-center gap-2">
-                    <span className="font-mono text-xs">{b.totp_secret}</span>
                     <TotpDisplay secret={b.totp_secret} />
                   </div>
                 ) : (
@@ -602,7 +601,14 @@ export default function BonecosPage() {
                 <button onClick={() => toggleToken(b.id)} className="text-muted-foreground hover:text-primary">
                   {visibleTokens.has(b.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
-                <button onClick={() => copyToClipboard(b.totp_secret)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
+                <button onClick={() => {
+                  if (b.totp_secret) {
+                    try {
+                      const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
+                      copyToClipboard(totp.generate());
+                    } catch { copyToClipboard('ERRO'); }
+                  }
+                }} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
             </div>
             )}
