@@ -6,6 +6,8 @@ export interface MapPin {
   id: string;
   char_name: string;
   city_id: string;
+  pos_x: number;
+  pos_y: number;
   updated_at: string;
   updated_by: string | null;
 }
@@ -26,23 +28,21 @@ export function useMapPins() {
 
   useEffect(() => {
     fetchPins();
-
     const channel = supabase
       .channel('map_pins_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'map_pins' }, () => {
         fetchPins();
       })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [fetchPins]);
 
-  const addPin = useCallback(async (charName: string, cityId: string) => {
+  const addPin = useCallback(async (charName: string, posX: number, posY: number) => {
     if (!user) return;
     await supabase
       .from('map_pins')
       .upsert(
-        { char_name: charName, city_id: cityId, updated_by: user.id, updated_at: new Date().toISOString() },
+        { char_name: charName, city_id: '', pos_x: posX, pos_y: posY, updated_by: user.id, updated_at: new Date().toISOString() },
         { onConflict: 'char_name' }
       );
   }, [user]);
@@ -51,15 +51,6 @@ export function useMapPins() {
     await supabase.from('map_pins').delete().eq('char_name', charName);
   }, []);
 
-  const movePinToCity = useCallback(async (charName: string, newCityId: string) => {
-    if (!user) return;
-    await supabase
-      .from('map_pins')
-      .update({ city_id: newCityId, updated_at: new Date().toISOString(), updated_by: user.id })
-      .eq('char_name', charName);
-  }, [user]);
-
-  // Remove pins for offline members
   const cleanOfflinePins = useCallback(async (onlineNames: Set<string>) => {
     const toRemove = pins.filter(p => !onlineNames.has(p.char_name));
     if (toRemove.length > 0) {
@@ -70,5 +61,5 @@ export function useMapPins() {
     }
   }, [pins]);
 
-  return { pins, loading, addPin, removePin, movePinToCity, cleanOfflinePins, refetch: fetchPins };
+  return { pins, loading, addPin, removePin, cleanOfflinePins, refetch: fetchPins };
 }
