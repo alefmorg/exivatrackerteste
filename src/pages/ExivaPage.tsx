@@ -159,17 +159,17 @@ export default function ExivaPage() {
         <div className="panel rounded-lg p-3">
           <div className="flex items-center gap-4 mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-muted-foreground" />
+              <ItemSprite item="shield" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-foreground">{members.length}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">TOTAL</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-online" />
+              <ItemSprite item="online" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-online">{onlineCount}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">ONLINE</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-offline" />
+              <ItemSprite item="offline" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-offline">{offlineCount}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">OFFLINE</span>
             </div>
