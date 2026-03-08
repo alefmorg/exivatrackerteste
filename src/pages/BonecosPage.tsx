@@ -32,10 +32,6 @@ interface BonecoRow {
 
 const ACTIVITIES: { value: CharacterActivity | ''; label: string; emoji: string }[] = [
   { value: '', label: 'Todos', emoji: '📋' },
-  { value: 'hunt', label: 'Hunt', emoji: '⚔' },
-  { value: 'war', label: 'War', emoji: '🔥' },
-  { value: 'maker', label: 'Maker', emoji: '🔨' },
-  { value: 'boss', label: 'Boss', emoji: '💀' },
 ];
 
 const VOCATIONS = ['', 'Elite Knight', 'Royal Paladin', 'Elder Druid', 'Master Sorcerer'];
