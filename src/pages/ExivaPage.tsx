@@ -186,7 +186,7 @@ export default function ExivaPage() {
 
       {/* 4 Columns */}
       {members.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className={`grid grid-cols-1 ${settings.exivaColumns >= 3 ? 'md:grid-cols-2' : 'md:grid-cols-2'} ${settings.exivaColumns === 4 ? 'xl:grid-cols-4' : settings.exivaColumns === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-3`}>
           {CATEGORIES.map(cat => {
             const cfg = CATEGORY_CONFIG[cat];
             const list = grouped[cat];
