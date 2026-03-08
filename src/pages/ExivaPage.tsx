@@ -135,10 +135,10 @@ export default function ExivaPage() {
     return result;
   }, [filtered, categories]);
 
-  const getTodayLoginInfo = (name: string) => {
-    const entries = getTodayLogins(name);
+  const getTodayLoginInfo = useCallback(async (name: string) => {
+    const entries = await getTodayLoginsAsync(name);
     return { entries, loginCount: entries.filter(e => e.status === 'online').length };
-  };
+  }, []);
 
   if (!guildName) {
     return (
