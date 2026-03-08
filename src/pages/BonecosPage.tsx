@@ -281,7 +281,7 @@ export default function BonecosPage() {
         </div>
         {isAdmin && (
           <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
-            <ItemSprite item="add" className="h-3.5 w-3.5" /> Novo Char
+            <ItemSprite item="add" className="h-4 w-4" /> Novo Char
           </Button>
         )}
       </div>
