@@ -122,7 +122,7 @@ export default function ExivaPage() {
   if (!guildName) {
     return (
       <div className="text-center py-16">
-        <Globe className="h-12 w-12 mx-auto mb-3 text-muted-foreground/15" />
+        <ItemSprite item="globe" className="h-12 w-12 mx-auto mb-3 opacity-30" />
         <h2 className="text-sm font-display font-bold text-foreground mb-1">SEM GUILD CONFIGURADA</h2>
         <p className="text-xs text-muted-foreground">Vá em <strong className="text-primary">Config → Guilds</strong> e adicione uma guild.</p>
       </div>
