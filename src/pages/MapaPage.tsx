@@ -239,7 +239,7 @@ export default function MapaPage() {
         ref={mapRef}
         className={`relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
         onClick={handleMapClick}
-        onWheel={handleWheel}
+        
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
