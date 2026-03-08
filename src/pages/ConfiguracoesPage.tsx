@@ -27,7 +27,7 @@ type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perf
 
 export default function ConfiguracoesPage() {
   const { toast } = useToast();
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshProfile } = useAuth();
   const [tab, setTab] = useState<Tab>('bonecos');
   const [guilds, setGuilds] = useState<MonitoredGuild[]>([]);
   const [newGuildName, setNewGuildName] = useState('');
