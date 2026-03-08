@@ -8,6 +8,7 @@ export interface MapPin {
   city_id: string;
   pos_x: number;
   pos_y: number;
+  note: string;
   updated_at: string;
   updated_by: string | null;
 }
