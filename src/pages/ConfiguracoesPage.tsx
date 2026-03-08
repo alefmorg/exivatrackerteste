@@ -150,6 +150,35 @@ export default function ConfiguracoesPage() {
       {/* ===== VISUAL TAB ===== */}
       {tab === 'visual' && (
         <div className="space-y-4">
+          <SettingsSection title="Pacote de Ícones" icon={<Image className="h-4 w-4 text-primary" />}>
+            <div className="grid grid-cols-2 gap-3 p-1 max-w-md">
+              {([
+                { value: 'lucide' as IconPack, label: 'Lucide (Padrão)', desc: 'Ícones minimalistas e vetorizados' },
+                { value: 'tibia' as IconPack, label: 'Tibia Sprites', desc: 'Sprites pixelados do jogo' },
+              ]).map(opt => (
+                <button key={opt.value} onClick={() => updateSetting('iconPack', opt.value)}
+                  className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all text-left ${
+                    settings.iconPack === opt.value
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border/50 bg-secondary/30 hover:border-border'
+                  }`}>
+                  <span className="text-sm font-semibold text-foreground">{opt.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{opt.desc}</span>
+                  {settings.iconPack === opt.value && (
+                    <div className="self-end mt-1">
+                      <Check className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </SettingsSection>
+
+          <SettingsSection title="Personalizar Ícones" icon={<Paintbrush className="h-4 w-4 text-primary" />}>
+            <p className="text-[11px] text-muted-foreground px-1 pb-2">Clique em qualquer ícone para trocar pelo sprite que preferir. Use "Reset" para voltar ao padrão.</p>
+            <IconCustomizer settings={settings} onUpdate={(customIcons) => updateSetting('customIcons', customIcons)} />
+          </SettingsSection>
+
           <SettingsSection title="Animações" icon={<Zap className="h-4 w-4 text-primary" />}>
             <SettingToggle label="Animações" description="Habilitar transições e efeitos de movimento" checked={settings.animationsEnabled} onChange={v => updateSetting('animationsEnabled', v)} />
           </SettingsSection>
