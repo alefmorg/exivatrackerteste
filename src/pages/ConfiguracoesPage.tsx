@@ -23,7 +23,7 @@ function timeAgo(dateStr: string) {
   return `Há ${Math.floor(min / 60)}h`;
 }
 
-type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema';
+type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema' | 'visual';
 
 export default function ConfiguracoesPage() {
   const { toast } = useToast();
