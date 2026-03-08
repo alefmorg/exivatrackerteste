@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Shield className="h-5 w-5 text-primary" />
+            <ItemSprite item="shield" className="h-6 w-6" />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-foreground">Gerenciar Usuários</h1>
@@ -165,10 +165,10 @@ export default function AdminUsersPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading} className="gap-2">
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
           <Button size="sm" onClick={() => setShowCreate(!showCreate)} className="gap-2">
-            <UserPlus className="h-4 w-4" /> Novo Usuário
+            <ItemSprite item="add" className="h-4 w-4" /> Novo Usuário
           </Button>
         </div>
       </div>
