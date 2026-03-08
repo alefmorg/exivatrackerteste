@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, ClipboardCopy, Sparkles, Swords, RefreshCw } from 'lucide-react';
+import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, Sparkles, Swords, RefreshCw } from 'lucide-react';
 import { timeAgo } from '@/lib/utils';
 import { fetchCharacter } from '@/lib/tibia-api';
 import * as OTPAuth from 'otpauth';
