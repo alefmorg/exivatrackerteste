@@ -145,6 +145,27 @@ export type Database = {
         }
         Relationships: []
       }
+      level_history: {
+        Row: {
+          char_name: string
+          id: string
+          level: number
+          recorded_at: string
+        }
+        Insert: {
+          char_name: string
+          id?: string
+          level: number
+          recorded_at?: string
+        }
+        Update: {
+          char_name?: string
+          id?: string
+          level?: number
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       login_history: {
         Row: {
           char_name: string

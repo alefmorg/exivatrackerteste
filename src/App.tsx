@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import AppLayout from "./components/AppLayout";
 import DashboardPage from "./pages/DashboardPage";
 import ExivaPage from "./pages/ExivaPage";
+import RelatorioPage from "./pages/RelatorioPage";
 import BonecosPage from "./pages/BonecosPage";
 import HistoricoPage from "./pages/HistoricoPage";
 import ConfiguracoesPage from "./pages/ConfiguracoesPage";
@@ -32,6 +33,7 @@ function ProtectedRoutes() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/exiva" element={<ExivaPage />} />
+        <Route path="/relatorio" element={<RelatorioPage />} />
         <Route path="/bonecos" element={<BonecosPage />} />
         <Route path="/historico" element={<HistoricoPage />} />
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />

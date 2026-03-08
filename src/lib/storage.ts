@@ -155,6 +155,77 @@ export function getTodayLogins(charName: string): LoginEntry[] {
 }
 
 // ============================================================
+// ============================================================
+// Level History — backed by Supabase
+// ============================================================
+
+export async function recordLevelSnapshot(charName: string, level: number) {
+  // Only insert if the latest recorded level is different
+  const { data: latest } = await supabase
+    .from('level_history')
+    .select('level')
+    .eq('char_name', charName)
+    .order('recorded_at', { ascending: false })
+    .limit(1);
+
+  if (latest && latest.length > 0 && latest[0].level === level) return;
+
+  await supabase.from('level_history').insert({ char_name: charName, level });
+}
+
+export async function recordLevelSnapshots(members: Array<{ name: string; level: number }>) {
+  // Batch: get latest levels for all, then insert only changed ones
+  const { data: allLatest } = await supabase
+    .from('level_history')
+    .select('char_name, level, recorded_at')
+    .order('recorded_at', { ascending: false });
+
+  const latestMap: Record<string, number> = {};
+  (allLatest || []).forEach(r => {
+    if (!(r.char_name in latestMap)) latestMap[r.char_name] = r.level;
+  });
+
+  const toInsert = members
+    .filter(m => latestMap[m.name] !== m.level)
+    .map(m => ({ char_name: m.name, level: m.level }));
+
+  if (toInsert.length > 0) {
+    await supabase.from('level_history').insert(toInsert);
+  }
+}
+
+export interface LevelRecord {
+  char_name: string;
+  level: number;
+  recorded_at: string;
+}
+
+export async function getLevelHistory(charName: string, since?: Date): Promise<LevelRecord[]> {
+  let query = supabase
+    .from('level_history')
+    .select('char_name, level, recorded_at')
+    .eq('char_name', charName)
+    .order('recorded_at', { ascending: true });
+
+  if (since) query = query.gte('recorded_at', since.toISOString());
+
+  const { data } = await query;
+  return (data || []) as LevelRecord[];
+}
+
+export async function getAllLevelHistory(since?: Date): Promise<LevelRecord[]> {
+  let query = supabase
+    .from('level_history')
+    .select('char_name, level, recorded_at')
+    .order('recorded_at', { ascending: true });
+
+  if (since) query = query.gte('recorded_at', since.toISOString());
+
+  const { data } = await query;
+  return (data || []) as LevelRecord[];
+}
+
+// ============================================================
 // Legacy re-exports for backward compat
 // ============================================================
 

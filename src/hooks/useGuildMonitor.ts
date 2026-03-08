@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
-import { getMonitoredGuildsAsync, recordLoginChange } from '@/lib/storage';
+import { getMonitoredGuildsAsync, recordLoginChange, recordLevelSnapshots } from '@/lib/storage';
 import { useSettings } from '@/hooks/useSettings';
 import { GuildMember } from '@/types/tibia';
 
@@ -39,6 +39,9 @@ export function useGuildMonitor() {
           recordLoginChange(m.name, m.status);
         }
       }
+
+      // Record level snapshots
+      recordLevelSnapshots(members.map(m => ({ name: m.name, level: m.level })));
 
       prevMembersRef.current = newMap;
     } catch {
