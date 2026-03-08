@@ -577,7 +577,7 @@ export default function BonecosPage() {
                 </Button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <ItemSprite item="email" className="h-4 w-4 shrink-0" />
+                <ItemSprite item="email" className="h-5 w-5 shrink-0" />
                 <span className="font-mono text-xs flex-1 truncate">{b.email || '—'}</span>
                 {b.email && <button onClick={() => copyToClipboard(b.email)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>}
               </div>
