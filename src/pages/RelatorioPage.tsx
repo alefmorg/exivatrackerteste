@@ -25,6 +25,7 @@ export default function RelatorioPage() {
   const [loginHistory, setLoginHistory] = useState<Array<{ char_name: string; status: string; recorded_at: string }>>([]);
   const [deaths, setDeaths] = useState<CharacterDeath[]>([]);
   const [deathsLoading, setDeathsLoading] = useState(false);
+  const [deathProgress, setDeathProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<string>('levels_today');

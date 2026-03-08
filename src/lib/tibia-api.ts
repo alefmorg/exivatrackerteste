@@ -116,24 +116,27 @@ export async function fetchCharacterDeaths(name: string): Promise<CharacterDeath
   return deaths;
 }
 
-export async function fetchGuildMemberDeaths(members: string[]): Promise<CharacterDeath[]> {
-  // Fetch in batches of 10 with a small delay to avoid rate limiting
+export async function fetchGuildMemberDeaths(
+  members: string[],
+  onProgress?: (loaded: number, total: number) => void
+): Promise<CharacterDeath[]> {
   const allDeaths: CharacterDeath[] = [];
   const batchSize = 10;
-  for (let i = 0; i < members.length; i += batchSize) {
+  const total = members.length;
+
+  for (let i = 0; i < total; i += batchSize) {
     const batch = members.slice(i, i + batchSize);
     const results = await Promise.allSettled(batch.map(name => fetchCharacterDeaths(name)));
     results.forEach(r => {
       if (r.status === 'fulfilled') allDeaths.push(...r.value);
     });
-    // Small delay between batches
-    if (i + batchSize < members.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+    onProgress?.(Math.min(i + batchSize, total), total);
+    if (i + batchSize < total) {
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
   }
-  // Sort by time descending
   allDeaths.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-  return allDeaths.slice(0, 30);
+  return allDeaths;
 }
 
 export function getGuildWorld(guildName: string): Promise<string> {
