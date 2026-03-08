@@ -584,16 +584,16 @@ export default function BonecosPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-primary hover:text-primary" onClick={() => copyAllCredentials(b)}>
-                  <ClipboardCopy className="h-3.5 w-3.5" /> Copiar Tudo
+                  <ItemSprite item="copy" className="h-3.5 w-3.5" /> Copiar Tudo
                 </Button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="email" className="h-4 w-4 shrink-0" />
                 <span className="font-mono text-xs flex-1 truncate">{b.email || '—'}</span>
                 {b.email && <button onClick={() => copyToClipboard(b.email)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Key className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="password" className="h-4 w-4 shrink-0" />
                 <span className="font-mono text-xs flex-1">{visiblePasswords.has(b.id) ? b.password : '••••••••'}</span>
                 <button onClick={() => togglePassword(b.id)} className="text-muted-foreground hover:text-primary">
                   {visiblePasswords.has(b.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -601,7 +601,7 @@ export default function BonecosPage() {
                 <button onClick={() => copyToClipboard(b.password)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="token2fa" className="h-4 w-4 shrink-0" />
                 {visibleTokens.has(b.id) ? (
                   <div className="flex-1 flex items-center gap-2">
                     <span className="font-mono text-xs">{b.totp_secret}</span>
