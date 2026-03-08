@@ -148,6 +148,12 @@ export default function ExivaPage() {
     return result;
   }, [filtered, categories]);
 
+  const pinMap = useMemo(() => {
+    const map: Record<string, MapPinType> = {};
+    pins.forEach(p => { map[p.char_name] = p; });
+    return map;
+  }, [pins]);
+
   const getTodayLoginInfo = useCallback(async (name: string) => {
     const entries = await getTodayLoginsAsync(name);
     return { entries, loginCount: entries.filter(e => e.status === 'online').length };
