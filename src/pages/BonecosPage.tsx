@@ -350,11 +350,23 @@ export default function BonecosPage() {
             <div className="text-[10px] text-muted-foreground font-mono">{bonecos.length} personagens registrados</div>
           </div>
         </div>
-        {isAdmin && (
-          <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
-            <ItemSprite item="add" className="h-4 w-4" /> Novo Char
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={syncAllBonecos}
+            disabled={syncAllLoading}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${syncAllLoading ? 'animate-spin' : ''}`} />
+            {syncAllLoading && syncProgress ? `${syncProgress.done}/${syncProgress.total}` : 'Sync Todos'}
           </Button>
-        )}
+          {isAdmin && (
+            <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
+              <ItemSprite item="add" className="h-4 w-4" /> Novo Char
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Stats */}
