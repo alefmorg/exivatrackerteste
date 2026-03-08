@@ -393,7 +393,7 @@ export default function ConfiguracoesPage() {
             <p className="text-sm text-muted-foreground mb-4">Ações que podem afetar dados locais</p>
             <div className="flex flex-wrap gap-3">
               <Button variant="outline" size="sm" className="border-destructive/30 text-destructive hover:bg-destructive/10" onClick={() => {
-                localStorage.removeItem(SETTINGS_KEY);
+                localStorage.removeItem('exiva_settings');
                 setSettings(DEFAULT_SETTINGS);
                 toast({ title: 'Configurações resetadas!', description: 'Valores padrão restaurados.' });
               }}>
