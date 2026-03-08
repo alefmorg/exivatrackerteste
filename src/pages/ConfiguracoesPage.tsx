@@ -5,8 +5,8 @@ import { ALL_SPRITES, ICON_SLOTS, DEFAULT_ICON_MAP, TibiaSprite, getIconPath } f
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { getMonitoredGuilds, addMonitoredGuild, removeMonitoredGuild } from '@/lib/storage';
-import { MonitoredGuild } from '@/types/tibia';
+import { getMonitoredGuildsAsync, addMonitoredGuildAsync, removeMonitoredGuildAsync, MonitoredGuild } from '@/lib/storage';
+import { timeAgo } from '@/lib/utils';
 import { getGuildWorld } from '@/lib/tibia-api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
