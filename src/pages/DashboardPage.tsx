@@ -166,14 +166,8 @@ export default function DashboardPage() {
           { label: 'BLESS', value: `${blessCount}/${bonecos.length}`, sprite: 'bless' as const },
           { label: 'PREMIUM', value: `${premiumCount}/${bonecos.length}`, sprite: 'premiumScroll' as const },
           { label: 'LIVRES', value: `${bonecos.length - inUseCount}`, sprite: 'online' as const, highlight: true },
-        ].map(m => (
-          <div key={m.label} className="panel-inset rounded-md p-2 text-center">
-            <div className="flex items-center justify-center gap-1 mb-0.5">
-              <ItemSprite item={m.sprite} className="h-5 w-5" />
-            </div>
-            <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary stat-glow' : 'text-foreground'}`}>{m.value}</p>
-            <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
-          </div>
+        ].map((m, i) => (
+          <MetricCard key={m.label} label={m.label} value={m.value} sprite={m.sprite} highlight={m.highlight} delay={i * 0.04} />
         ))}
       </div>
 
