@@ -33,6 +33,7 @@ function ProtectedRoutes() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/exiva" element={<ExivaPage />} />
+        <Route path="/relatorio" element={<RelatorioPage />} />
         <Route path="/bonecos" element={<BonecosPage />} />
         <Route path="/historico" element={<HistoricoPage />} />
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
