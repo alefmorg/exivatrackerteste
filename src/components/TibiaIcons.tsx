@@ -528,24 +528,26 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
   return <TibiaSprite src="/sprites/parchment.gif" alt={item} className={className} />;
 }
 
-// Map Tibia vocations to icons
-export const VocationIcon = ({ vocation, className = "h-5 w-5" }: { vocation: string; className?: string }) => {
-  const settings = useSettings();
-  const voc = vocation.toLowerCase();
-  const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
+export const VocationIcon = forwardRef<HTMLSpanElement, { vocation: string; className?: string }>(
+  ({ vocation, className = "h-5 w-5" }, ref) => {
+    const settings = useSettings();
+    const voc = vocation.toLowerCase();
+    const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
 
-  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('voc_'))) {
-    if (key) {
-      return <TibiaSprite src={getVocSpritePath(key, settings.customIcons)} alt={vocation} className={className} />;
+    if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('voc_'))) {
+      if (key) {
+        return <span ref={ref}><TibiaSprite src={getVocSpritePath(key, settings.customIcons)} alt={vocation} className={className} /></span>;
+      }
     }
-  }
 
-  if (voc.includes('knight')) return <Sword className={className} />;
-  if (voc.includes('paladin')) return <Crosshair className={className} />;
-  if (voc.includes('druid')) return <Heart className={className} />;
-  if (voc.includes('sorcerer')) return <Wand2 className={className} />;
-  return <Shield className={className} />;
-};
+    if (voc.includes('knight')) return <span ref={ref}><Sword className={className} /></span>;
+    if (voc.includes('paladin')) return <span ref={ref}><Crosshair className={className} /></span>;
+    if (voc.includes('druid')) return <span ref={ref}><Heart className={className} /></span>;
+    if (voc.includes('sorcerer')) return <span ref={ref}><Wand2 className={className} /></span>;
+    return <span ref={ref}><Shield className={className} /></span>;
+  }
+);
+VocationIcon.displayName = 'VocationIcon';
 
 // Map activities to icons
 export const ActivityIcon = ({ activity, className = "h-5 w-5" }: { activity: string; className?: string }) => {
