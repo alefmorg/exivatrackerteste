@@ -275,7 +275,7 @@ export default function DashboardPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            {recentLogs.length === 0 && <p className="text-muted-foreground text-xs text-center py-10">Sem atividade</p>}
+            {recentLogs.length === 0 && <EmptyState icon="history" title="Sem atividade" description="Nenhum repasse registrado ainda." />}
           </div>
         </div>
 
