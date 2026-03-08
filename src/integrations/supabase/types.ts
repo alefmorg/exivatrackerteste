@@ -192,13 +192,17 @@ export type Database = {
           char_name: string
           city_id: string
           id: string
+          pos_x: number
+          pos_y: number
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           char_name: string
-          city_id: string
+          city_id?: string
           id?: string
+          pos_x?: number
+          pos_y?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -206,6 +210,8 @@ export type Database = {
           char_name?: string
           city_id?: string
           id?: string
+          pos_x?: number
+          pos_y?: number
           updated_at?: string
           updated_by?: string | null
         }
