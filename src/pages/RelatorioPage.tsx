@@ -142,15 +142,7 @@ export default function RelatorioPage() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 animate-pulse">
-          <div className="w-1 h-8 rounded-full bg-secondary" />
-          <div className="h-5 w-48 bg-secondary rounded" />
-        </div>
-        {Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)}
-      </div>
-    );
+    return <SkeletonPage />;
   }
 
   if (members.length === 0) {
