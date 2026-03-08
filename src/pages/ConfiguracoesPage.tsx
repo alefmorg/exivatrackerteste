@@ -258,7 +258,7 @@ export default function ConfiguracoesPage() {
             </SettingRow>
           </SettingsSection>
 
-          <SettingsSection title="Visual" icon={<Palette className="h-4 w-4 text-primary" />}>
+          <SettingsSection title="Visual" icon={<Zap className="h-4 w-4 text-primary" />}>
             <SettingToggle label="Animações" description="Habilitar animações e transições no dashboard" checked={settings.animationsEnabled} onChange={v => updateSetting('animationsEnabled', v)} />
           </SettingsSection>
         </div>
