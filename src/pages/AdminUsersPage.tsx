@@ -263,8 +263,8 @@ export default function AdminUsersPage() {
                     }`}>{u.role.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
-                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {u.email}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(u.last_sign_in_at)}</span>
+                    <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
+                    <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(u.last_sign_in_at)}</span>
                   </div>
                 </div>
 
