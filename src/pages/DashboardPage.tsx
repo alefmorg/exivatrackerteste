@@ -294,7 +294,7 @@ export default function DashboardPage() {
 
         {/* Sidebar panels */}
         <div className="space-y-3">
-          <SidePanel title="EM USO" count={inUseCount} icon={<ItemSprite item="scroll" className="h-4 w-4" />}>
+          <SidePanel title="EM USO" count={inUseCount} icon={<ItemSprite item="scroll" className="h-5 w-5" />}>
             {bonecos.filter(b => b.used_by).map(b => (
               <div key={b.id} className="flex items-center gap-2 py-1">
                 <StatusDot status={b.status as any} size="sm" />
