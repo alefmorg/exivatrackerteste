@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Verify caller is admin
+    // Verify caller is admin or master_admin
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
     const { data: { user: caller } } = await supabaseAdmin.auth.getUser(token);
@@ -24,14 +24,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Não autenticado" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { data: roleData } = await supabaseAdmin
+    const { data: callerRoleData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", caller.id)
-      .eq("role", "admin")
       .single();
 
-    if (!roleData) {
+    const callerRole = callerRoleData?.role || "user";
+    const isMasterAdmin = callerRole === "master_admin";
+    const isAdminOrAbove = callerRole === "admin" || callerRole === "master_admin";
+
+    if (!isAdminOrAbove) {
       return new Response(JSON.stringify({ error: "Sem permissão" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
@@ -42,7 +45,6 @@ Deno.serve(async (req) => {
       const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 100 });
       if (error) throw error;
 
-      // Get all profiles and roles
       const { data: profiles } = await supabaseAdmin.from("profiles").select("user_id, username");
       const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id, role");
 
@@ -69,7 +71,26 @@ Deno.serve(async (req) => {
       if (user_id === caller.id) {
         return new Response(JSON.stringify({ error: "Não pode alterar seu próprio papel" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      // Upsert role
+
+      // Get target user's current role
+      const { data: targetRoleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user_id)
+        .single();
+      const targetRole = targetRoleData?.role || "user";
+
+      // Only master_admin can promote/demote admins or create master_admins
+      if (role === "master_admin" && !isMasterAdmin) {
+        return new Response(JSON.stringify({ error: "Apenas Master Admin pode criar outros Master Admins" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if ((targetRole === "admin" || targetRole === "master_admin") && !isMasterAdmin) {
+        return new Response(JSON.stringify({ error: "Apenas Master Admin pode alterar papel de admins" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (role === "admin" && !isMasterAdmin) {
+        return new Response(JSON.stringify({ error: "Apenas Master Admin pode promover a Admin" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
       const { error } = await supabaseAdmin
         .from("user_roles")
         .upsert({ user_id, role }, { onConflict: "user_id" });
@@ -83,6 +104,20 @@ Deno.serve(async (req) => {
       if (user_id === caller.id) {
         return new Response(JSON.stringify({ error: "Não pode excluir a si mesmo" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
+
+      // Get target user's role
+      const { data: targetRoleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user_id)
+        .single();
+      const targetRole = targetRoleData?.role || "user";
+
+      // Only master_admin can delete admins/master_admins
+      if ((targetRole === "admin" || targetRole === "master_admin") && !isMasterAdmin) {
+        return new Response(JSON.stringify({ error: "Apenas Master Admin pode excluir admins" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
       const { error } = await supabaseAdmin.auth.admin.deleteUser(user_id);
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -91,6 +126,20 @@ Deno.serve(async (req) => {
     // RESET PASSWORD
     if (action === "reset_password") {
       const { user_id, new_password } = params;
+
+      // Get target user's role
+      const { data: targetRoleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user_id)
+        .single();
+      const targetRole = targetRoleData?.role || "user";
+
+      // Only master_admin can reset admin passwords
+      if ((targetRole === "admin" || targetRole === "master_admin") && !isMasterAdmin) {
+        return new Response(JSON.stringify({ error: "Apenas Master Admin pode resetar senha de admins" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
       const { error } = await supabaseAdmin.auth.admin.updateUserById(user_id, { password: new_password });
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });

@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useLoginNotifications();
   useGuildMonitor();
   const location = useLocation();
-  const { user, role, username, isAdmin, signOut } = useAuth();
+  const { user, role, username, isAdminOrAbove, signOut } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: false },
@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
   ];
 
-  const visibleItems = navItems.filter(item => !item.adminOnly || isAdmin);
+  const visibleItems = navItems.filter(item => !item.adminOnly || isAdminOrAbove);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -88,7 +88,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <ItemSprite item="skull" className="h-5 w-5" />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-[10px] font-semibold text-foreground truncate max-w-[80px]">{username || user?.email}</span>
-                <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role || 'user'}</span>
+                <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role === 'master_admin' ? 'MASTER' : (role || 'user')}</span>
               </div>
             </div>
             <button onClick={signOut} className="p-1 text-muted-foreground hover:text-destructive transition-colors" title="Sair">

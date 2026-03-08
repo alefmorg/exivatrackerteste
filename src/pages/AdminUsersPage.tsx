@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemSprite } from '@/components/TibiaIcons';
+import { useAuth, type AppRole } from '@/hooks/useAuth';
 import { timeAgo } from '@/lib/utils';
 
 interface UserRow {
   id: string;
   email: string;
   username: string;
-  role: 'admin' | 'user';
+  role: AppRole;
   created_at: string;
   last_sign_in_at: string | null;
 }
@@ -21,6 +22,7 @@ interface UserRow {
 
 export default function AdminUsersPage() {
   const { toast } = useToast();
+  const { isMasterAdmin } = useAuth();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchFilter, setSearchFilter] = useState('');
@@ -30,7 +32,7 @@ export default function AdminUsersPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [role, setRole] = useState<'admin' | 'user'>('user');
+  const [role, setRole] = useState<AppRole>('user');
   const [creating, setCreating] = useState(false);
 
   // Inline actions
@@ -74,7 +76,7 @@ export default function AdminUsersPage() {
     setCreating(false);
   };
 
-  const handleChangeRole = async (userId: string, newRole: 'admin' | 'user') => {
+  const handleChangeRole = async (userId: string, newRole: AppRole) => {
     try {
       const { data, error } = await supabase.functions.invoke('manage-users', {
         body: { action: 'update_role', user_id: userId, role: newRole },
@@ -140,7 +142,7 @@ export default function AdminUsersPage() {
     return u.email.toLowerCase().includes(q) || u.username.toLowerCase().includes(q);
   });
 
-  const adminCount = users.filter(u => u.role === 'admin').length;
+  const adminCount = users.filter(u => u.role === 'admin' || u.role === 'master_admin').length;
 
   return (
     <div className="space-y-6">
@@ -189,10 +191,11 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Papel</label>
-                  <select value={role} onChange={e => setRole(e.target.value as 'admin' | 'user')}
+                   <select value={role} onChange={e => setRole(e.target.value as AppRole)}
                     className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm">
                     <option value="user">Usuário</option>
-                    <option value="admin">Admin</option>
+                    {isMasterAdmin && <option value="admin">Admin</option>}
+                    {isMasterAdmin && <option value="master_admin">Master Admin</option>}
                   </select>
                 </div>
               </div>
@@ -228,9 +231,10 @@ export default function AdminUsersPage() {
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                  u.role === 'master_admin' ? 'bg-amber-500/20 border border-amber-500/30' :
                   u.role === 'admin' ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
                 }`}>
-                {u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
+                {u.role === 'master_admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
                 </div>
 
                 {/* Info */}
@@ -251,8 +255,9 @@ export default function AdminUsersPage() {
                       </>
                     )}
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                      u.role === 'master_admin' ? 'bg-amber-500/20 text-amber-400' :
                       u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
-                    }`}>{u.role.toUpperCase()}</span>
+                    }`}>{u.role === 'master_admin' ? 'MASTER' : u.role.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                     <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
@@ -272,19 +277,28 @@ export default function AdminUsersPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0">
-                  <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as 'admin' | 'user')}
-                    className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
-                    <option value="user">Usuário</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
-                    className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
-                    <ItemSprite item="key" className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => handleDelete(u.id, u.email)}
-                    className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
-                    <ItemSprite item="delete" className="h-4 w-4" />
-                  </button>
+                  {isMasterAdmin ? (
+                    <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as AppRole)}
+                      className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
+                      <option value="user">Usuário</option>
+                      <option value="admin">Admin</option>
+                      <option value="master_admin">Master Admin</option>
+                    </select>
+                  ) : (
+                    <span className="text-[11px] px-2 py-1 text-muted-foreground">{u.role === 'master_admin' ? 'Master' : u.role === 'admin' ? 'Admin' : 'Usuário'}</span>
+                  )}
+                  {(isMasterAdmin || (u.role !== 'admin' && u.role !== 'master_admin')) && (
+                    <>
+                      <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
+                        className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
+                        <ItemSprite item="key" className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(u.id, u.email)}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
+                        <ItemSprite item="delete" className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
