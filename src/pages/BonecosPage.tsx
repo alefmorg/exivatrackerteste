@@ -647,7 +647,7 @@ export default function BonecosPage() {
                   className={`h-7 text-xs gap-1 ${b.used_by ? 'border-afk/30 text-afk hover:bg-afk/10' : ''}`}
                   onClick={() => handleClaim(b)}
                 >
-                  {b.used_by ? <><ItemSprite item="logout" className="h-3.5 w-3.5" /> Devolver</> : <><ItemSprite item="login" className="h-3.5 w-3.5" /> Pegar</>}
+                  {b.used_by ? <><ItemSprite item="logout" className="h-4 w-4" /> Devolver</> : <><ItemSprite item="login" className="h-4 w-4" /> Pegar</>}
                 </Button>
                 {isAdmin && (
                   <>
