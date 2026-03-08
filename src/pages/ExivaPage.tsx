@@ -229,7 +229,7 @@ export default function ExivaPage() {
           <button onClick={() => { setShowDeaths(!showDeaths); if (!showDeaths && deaths.length === 0) fetchDeaths(); }}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-2">
-              <ItemSprite item="skull" className="h-4 w-4" />
+              <ItemSprite item="skull" className="h-5 w-5" />
               <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">DEATH LOG</span>
               <span className="text-[9px] font-mono text-muted-foreground">{deaths.length}</span>
             </div>
