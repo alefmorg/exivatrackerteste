@@ -22,6 +22,7 @@ interface UserRow {
 
 export default function AdminUsersPage() {
   const { toast } = useToast();
+  const { isMasterAdmin } = useAuth();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchFilter, setSearchFilter] = useState('');
