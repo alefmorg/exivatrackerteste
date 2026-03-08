@@ -83,6 +83,7 @@ export default function BonecosPage() {
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [claimNotes, setClaimNotes] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showClaimModal, setShowClaimModal] = useState<{ id: string; name: string; action: 'pegar' | 'devolver' } | null>(null);
   const [newAcesso, setNewAcesso] = useState('');
   const [newQuest, setNewQuest] = useState('');
