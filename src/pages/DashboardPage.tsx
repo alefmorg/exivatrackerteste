@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Swords, Users, UserCheck, UserX, Target, Skull, ScrollText, ArrowRightLeft, Clock, Globe, TrendingUp, Activity, Zap, RefreshCw } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { getMonitoredGuilds } from '@/lib/storage';
 import { MonitoredGuild } from '@/types/tibia';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import StatusDot from '@/components/StatusDot';
 import { useSettings } from '@/hooks/useSettings';
-import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
+import { VocationIcon, getVocationColor, ItemSprite, SPRITE } from '@/components/TibiaIcons';
 
+// ============================================================
+// Data fetching & management
+// ============================================================
 interface BonecoRow {
   id: string; name: string; level: number; vocation: string; world: string;
   status: string; activity: string; used_by: string; last_access: string;
@@ -121,7 +124,9 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">COMMAND CENTER</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="dashboard" className="h-5 w-5" /> COMMAND CENTER
+            </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span>{bonecos.length} unidades</span>
               <span>•</span>
@@ -130,27 +135,26 @@ export default function DashboardPage() {
           </div>
         </div>
         <button onClick={fetchData} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <RefreshCw className="h-3.5 w-3.5" />
+          <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* Status Bar - unique horizontal meter */}
+      {/* Status Bar */}
       <div className="panel rounded-lg p-3">
         <div className="flex items-center gap-4 mb-2">
           {[
-            { label: 'ONLINE', value: onlineCount, color: 'bg-online', textColor: 'text-online' },
-            { label: 'AFK', value: afkCount, color: 'bg-afk', textColor: 'text-afk' },
-            { label: 'OFFLINE', value: offlineCount, color: 'bg-offline', textColor: 'text-offline' },
-            { label: 'EM USO', value: inUseCount, color: 'bg-primary', textColor: 'text-primary' },
+            { label: 'ONLINE', value: onlineCount, sprite: 'online' as const },
+            { label: 'AFK', value: afkCount, sprite: 'afk' as const },
+            { label: 'OFFLINE', value: offlineCount, sprite: 'offline' as const },
+            { label: 'EM USO', value: inUseCount, sprite: 'login' as const },
           ].map(s => (
             <div key={s.label} className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-sm ${s.color}`} />
-              <span className={`text-xs font-bold font-mono ${s.textColor}`}>{s.value}</span>
+              <ItemSprite item={s.sprite} className="h-3.5 w-3.5" />
+              <span className={`text-xs font-bold font-mono text-foreground`}>{s.value}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.label}</span>
             </div>
           ))}
         </div>
-        {/* Progress bar */}
         {bonecos.length > 0 && (
           <div className="h-1.5 rounded-full bg-secondary overflow-hidden flex">
             <div className="bg-online transition-all" style={{ width: `${(onlineCount / bonecos.length) * 100}%` }} />
@@ -163,14 +167,17 @@ export default function DashboardPage() {
       {/* Metrics Grid */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {[
-          { label: 'LV MÉD', value: avgLevel.toString(), highlight: false },
-          { label: 'LV MAX', value: maxLevel.toString(), highlight: false },
-          { label: 'TC TOTAL', value: totalTC.toLocaleString(), highlight: true },
-          { label: 'BLESS', value: `${blessCount}/${bonecos.length}`, highlight: false },
-          { label: 'PREMIUM', value: `${premiumCount}/${bonecos.length}`, highlight: false },
-          { label: 'LIVRES', value: `${bonecos.length - inUseCount}`, highlight: true },
+          { label: 'LV MÉD', value: avgLevel.toString(), sprite: 'level' as const },
+          { label: 'LV MAX', value: maxLevel.toString(), sprite: 'level' as const },
+          { label: 'TC TOTAL', value: totalTC.toLocaleString(), sprite: 'tibiaCoin' as const, highlight: true },
+          { label: 'BLESS', value: `${blessCount}/${bonecos.length}`, sprite: 'bless' as const },
+          { label: 'PREMIUM', value: `${premiumCount}/${bonecos.length}`, sprite: 'premiumScroll' as const },
+          { label: 'LIVRES', value: `${bonecos.length - inUseCount}`, sprite: 'online' as const, highlight: true },
         ].map(m => (
           <div key={m.label} className="panel-inset rounded-md p-2 text-center">
+            <div className="flex items-center justify-center gap-1 mb-0.5">
+              <ItemSprite item={m.sprite} className="h-4 w-4" />
+            </div>
             <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary stat-glow' : 'text-foreground'}`}>{m.value}</p>
             <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
           </div>
@@ -180,7 +187,7 @@ export default function DashboardPage() {
       {/* Today */}
       {todayLogs.length > 0 && (
         <div className="panel rounded-lg p-3 flex items-center gap-3 stripe-left">
-          <Clock className="h-4 w-4 text-primary shrink-0" />
+          <ItemSprite item="clock" className="h-4 w-4" />
           <span className="text-xs text-foreground font-medium">Hoje:</span>
           <span className="text-xs text-muted-foreground font-mono">
             {todayLogs.length} ações — {todayLogs.filter(l => l.action === 'pegar').length} pegaram, {todayLogs.filter(l => l.action === 'devolver').length} devolveram
@@ -190,7 +197,7 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <ChartPanel title="STATUS" icon={<Activity className="h-3.5 w-3.5" />}>
+        <ChartPanel title="STATUS" icon={<ItemSprite item="online" className="h-4 w-4" />}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -204,7 +211,7 @@ export default function DashboardPage() {
           </div>
         </ChartPanel>
 
-        <ChartPanel title="ATIVIDADES" icon={<Zap className="h-3.5 w-3.5" />}>
+        <ChartPanel title="ATIVIDADES" icon={<ItemSprite item="hunt" className="h-4 w-4" />}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={activityData}>
@@ -219,7 +226,7 @@ export default function DashboardPage() {
           </div>
         </ChartPanel>
 
-        <ChartPanel title="VOCAÇÕES" icon={<Swords className="h-3.5 w-3.5" />}>
+        <ChartPanel title="VOCAÇÕES" icon={<ItemSprite item="sword" className="h-4 w-4" />}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vocData} layout="vertical">
@@ -234,7 +241,7 @@ export default function DashboardPage() {
           </div>
         </ChartPanel>
 
-        <ChartPanel title="MUNDOS" icon={<Globe className="h-3.5 w-3.5" />}>
+        <ChartPanel title="MUNDOS" icon={<ItemSprite item="globe" className="h-4 w-4" />}>
           <div className="space-y-1.5 max-h-44 overflow-y-auto">
             {worldData.map((w, i) => (
               <div key={w.name} className="flex items-center gap-2">
@@ -257,10 +264,10 @@ export default function DashboardPage() {
         {/* Feed */}
         <div className="panel rounded-lg lg:col-span-2 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
-            <ArrowRightLeft className="h-3.5 w-3.5 text-primary" />
+            <ItemSprite item="history" className="h-4 w-4" />
             <span className="text-[11px] font-display font-semibold text-foreground uppercase tracking-wider">Feed</span>
             <span className="ml-auto flex items-center gap-1 text-[9px] text-primary font-mono">
-              <span className="w-1 h-1 rounded-full bg-primary animate-pulse" /> REALTIME
+              <ItemSprite item="live" className="h-3 w-3 animate-pulse" /> REALTIME
             </span>
           </div>
           <div className="max-h-[320px] overflow-y-auto">
@@ -268,7 +275,7 @@ export default function DashboardPage() {
               {recentLogs.map(log => (
                 <motion.div key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} layout
                   className="flex items-center py-2 px-4 gap-3 border-b border-border/50 hover:bg-secondary/30 transition-colors">
-                  <div className={`w-1 h-6 rounded-full shrink-0 ${log.action === 'pegar' ? 'bg-primary' : 'bg-afk'}`} />
+                  <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-4 w-4 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1 text-xs">
                       <span className="font-semibold text-foreground">{log.username}</span>
@@ -287,7 +294,7 @@ export default function DashboardPage() {
 
         {/* Sidebar panels */}
         <div className="space-y-3">
-          <SidePanel title="EM USO" count={inUseCount} icon={<ScrollText className="h-3.5 w-3.5" />}>
+          <SidePanel title="EM USO" count={inUseCount} icon={<ItemSprite item="scroll" className="h-4 w-4" />}>
             {bonecos.filter(b => b.used_by).map(b => (
               <div key={b.id} className="flex items-center gap-2 py-1">
                 <StatusDot status={b.status as any} size="sm" />
@@ -299,7 +306,7 @@ export default function DashboardPage() {
             {inUseCount === 0 && <p className="text-[10px] text-muted-foreground text-center py-2">—</p>}
           </SidePanel>
 
-          <SidePanel title="TOP USERS" count={topUsers.length} icon={<Users className="h-3.5 w-3.5" />}>
+          <SidePanel title="TOP USERS" count={topUsers.length} icon={<ItemSprite item="crown" className="h-4 w-4" />}>
             {topUsers.map(([name, count], i) => (
               <div key={name} className="flex items-center gap-2 py-0.5">
                 <span className={`text-[10px] font-mono font-bold w-4 ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}>
@@ -311,10 +318,10 @@ export default function DashboardPage() {
             ))}
           </SidePanel>
 
-          <SidePanel title="GUILDS" count={guilds.length} icon={<Target className="h-3.5 w-3.5" />}>
+          <SidePanel title="GUILDS" count={guilds.length} icon={<ItemSprite item="guild" className="h-4 w-4" />}>
             {guilds.map((g, i) => (
               <div key={g.id} className="flex items-center gap-2 py-0.5">
-                <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
+                <ItemSprite item="globe" className="h-3.5 w-3.5" />
                 <span className="text-xs font-medium flex-1 truncate">{g.name}</span>
                 <span className="text-[10px] text-muted-foreground font-mono">{g.world}</span>
                 {i === 0 && <span className="tag tag-primary">EXIVA</span>}
@@ -345,10 +352,10 @@ function SidePanel({ title, count, icon, children }: { title: string; count: num
     <div className="panel rounded-lg overflow-hidden">
       <div className="px-3 py-2 border-b border-border flex items-center gap-2">
         <span className="text-primary">{icon}</span>
-        <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider flex-1">{title}</span>
-        <span className="text-[9px] font-mono text-muted-foreground">{count}</span>
+        <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">{title}</span>
+        <span className="ml-auto text-[9px] font-mono text-muted-foreground">{count}</span>
       </div>
-      <div className="p-3 space-y-0.5 max-h-36 overflow-y-auto">{children}</div>
+      <div className="px-3 py-2 space-y-0.5">{children}</div>
     </div>
   );
 }

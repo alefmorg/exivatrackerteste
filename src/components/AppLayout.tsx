@@ -1,19 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Sword, Swords, Skull, UserPlus, ScrollText, Target, ArrowRightLeft } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { user, role, username, isAdmin, signOut } = useAuth();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: ScrollText, adminOnly: false },
-    { path: '/exiva', label: 'Exiva', icon: Target, adminOnly: false },
-    { path: '/bonecos', label: 'Bonecos', icon: Swords, adminOnly: false },
-    { path: '/historico', label: 'Histórico', icon: ArrowRightLeft, adminOnly: false },
-    { path: '/admin/usuarios', label: 'Usuários', icon: UserPlus, adminOnly: true },
-    { path: '/configuracoes', label: 'Config', icon: Settings, adminOnly: false },
+    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: false },
+    { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const, adminOnly: false },
+    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: false },
+    { path: '/historico', label: 'Histórico', sprite: 'history' as const, adminOnly: false },
+    { path: '/admin/usuarios', label: 'Usuários', sprite: 'users' as const, adminOnly: true },
+    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
   ];
 
   const visibleItems = navItems.filter(item => !item.adminOnly || isAdmin);
@@ -25,8 +26,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="max-w-[1600px] mx-auto flex items-center h-11 px-3 gap-1">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 shrink-0 group mr-3">
-            <div className="w-6 h-6 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
-              <Sword className="h-3 w-3 text-primary" />
+            <div className="w-7 h-7 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
+              <ItemSprite item="exiva" className="h-5 w-5" />
             </div>
             <span className="font-display text-[11px] font-bold text-primary tracking-wider neon-text">
               EXIVA
@@ -58,7 +59,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <item.icon className={`h-3 w-3 relative z-10 ${active ? 'text-primary' : ''}`} />
+                  <NavSprite spriteKey={item.sprite} className="h-4 w-4 relative z-10" />
                   <span className="relative z-10 hidden sm:inline">{item.label}</span>
                 </Link>
               );
@@ -67,14 +68,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Status */}
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/8 border border-primary/15 mr-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <ItemSprite item="live" className="h-3.5 w-3.5 animate-pulse" />
             <span className="text-[9px] font-bold text-primary font-mono tracking-wider">LIVE</span>
           </div>
 
           {/* User */}
           <div className="flex items-center gap-1.5 shrink-0">
             <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/50">
-              <Skull className="h-3 w-3 text-muted-foreground" />
+              <ItemSprite item="skull" className="h-4 w-4" />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-[10px] font-semibold text-foreground truncate max-w-[80px]">{username || user?.email}</span>
                 <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role || 'user'}</span>
