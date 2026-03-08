@@ -294,6 +294,8 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   // Login/Logout actions (separate from status)
   action_login: 'green_gem',
   action_logout: 'red_gem',
+  // Menu
+  action_signout: 'death_ring',
 };
 
 // Customizable icon slots with labels
