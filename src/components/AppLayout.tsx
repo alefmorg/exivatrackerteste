@@ -59,7 +59,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <NavSprite spriteKey={item.sprite} className="h-4 w-4 relative z-10" />
+                  <NavSprite spriteKey={item.sprite} className="h-5 w-5 relative z-10" />
                   <span className="relative z-10 hidden sm:inline">{item.label}</span>
                 </Link>
               );
