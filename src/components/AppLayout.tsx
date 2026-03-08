@@ -91,7 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <button onClick={signOut} className="p-1 text-muted-foreground hover:text-destructive transition-colors" title="Sair">
-              <LogOut className="h-3 w-3" />
+              <ItemSprite item="signout" className="h-4 w-4" />
             </button>
           </div>
         </div>
