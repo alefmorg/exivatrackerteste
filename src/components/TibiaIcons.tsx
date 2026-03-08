@@ -305,6 +305,7 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'nav_dashboard', label: 'Dashboard', group: 'Navegação' },
   { key: 'nav_exiva', label: 'Exiva', group: 'Navegação' },
   { key: 'nav_bonecos', label: 'Bonecos', group: 'Navegação' },
+  { key: 'nav_relatorio', label: 'Relatório', group: 'Navegação' },
   { key: 'nav_history', label: 'Histórico', group: 'Navegação' },
   { key: 'nav_users', label: 'Usuários', group: 'Navegação' },
   { key: 'nav_settings', label: 'Config', group: 'Navegação' },
