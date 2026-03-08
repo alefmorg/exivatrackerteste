@@ -142,7 +142,7 @@ export default function AdminUsersPage() {
     return u.email.toLowerCase().includes(q) || u.username.toLowerCase().includes(q);
   });
 
-  const adminCount = users.filter(u => u.role === 'admin').length;
+  const adminCount = users.filter(u => u.role === 'admin' || u.role === 'master_admin').length;
 
   return (
     <div className="space-y-6">
