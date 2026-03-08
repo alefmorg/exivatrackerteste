@@ -556,7 +556,7 @@ export default function BonecosPage() {
               )}
               {b.magic_level > 0 && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
-                  <ItemSprite item="magicLevel" className="h-3.5 w-3.5" /> ML {b.magic_level}
+                  <ItemSprite item="magicLevel" className="h-4 w-4" /> ML {b.magic_level}
                 </span>
               )}
               {b.used_by && (
