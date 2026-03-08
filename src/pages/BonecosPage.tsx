@@ -273,13 +273,15 @@ export default function BonecosPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">CHAR ROSTER</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="bonecos" className="h-5 w-5" /> CHAR ROSTER
+            </h1>
             <div className="text-[10px] text-muted-foreground font-mono">{bonecos.length} personagens registrados</div>
           </div>
         </div>
         {isAdmin && (
           <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
-            <Plus className="h-3.5 w-3.5" /> Novo Char
+            <ItemSprite item="add" className="h-3.5 w-3.5" /> Novo Char
           </Button>
         )}
       </div>
