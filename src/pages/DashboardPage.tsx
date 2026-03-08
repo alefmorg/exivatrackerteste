@@ -306,7 +306,7 @@ export default function DashboardPage() {
             {inUseCount === 0 && <p className="text-[10px] text-muted-foreground text-center py-2">—</p>}
           </SidePanel>
 
-          <SidePanel title="TOP USERS" count={topUsers.length} icon={<ItemSprite item="crown" className="h-4 w-4" />}>
+          <SidePanel title="TOP USERS" count={topUsers.length} icon={<ItemSprite item="crown" className="h-5 w-5" />}>
             {topUsers.map(([name, count], i) => (
               <div key={name} className="flex items-center gap-2 py-0.5">
                 <span className={`text-[10px] font-mono font-bold w-4 ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}>
