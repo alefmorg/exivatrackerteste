@@ -32,7 +32,7 @@ export default function AdminUsersPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [role, setRole] = useState<'admin' | 'user'>('user');
+  const [role, setRole] = useState<AppRole>('user');
   const [creating, setCreating] = useState(false);
 
   // Inline actions
