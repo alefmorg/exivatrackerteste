@@ -10,64 +10,9 @@ import { getGuildWorld } from '@/lib/tibia-api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { loadSettings, saveSettings, type AppSettings, DEFAULT_SETTINGS } from '@/hooks/useSettings';
 
 const WORLDS = ['Antica', 'Secura', 'Gentebra', 'Belobra', 'Lobera', 'Pacera', 'Quintera', 'Solidera', 'Celebra', 'Firmera', 'Gladera', 'Menera', 'Peloria', 'Refugia', 'Talera', 'Venebra', 'Yonabra', 'Zuna'];
-
-const SETTINGS_KEY = 'exiva_settings';
-
-interface AppSettings {
-  refreshInterval: number;
-  maxDeaths: number;
-  defaultWorld: string;
-  showOfflineBonecos: boolean;
-  compactMode: boolean;
-  autoFetchDeaths: boolean;
-  // New settings
-  cardLayout: 'grid' | 'list';
-  exivaColumns: 2 | 3 | 4;
-  soundNotifications: boolean;
-  toastNotifications: boolean;
-  autoClaimReturn: boolean;
-  showCredentials: boolean;
-  showSkills: boolean;
-  showQuests: boolean;
-  showAcessos: boolean;
-  dashboardRefresh: number;
-  logLimit: number;
-  animationsEnabled: boolean;
-}
-
-const DEFAULT_SETTINGS: AppSettings = {
-  refreshInterval: 60,
-  maxDeaths: 30,
-  defaultWorld: '',
-  showOfflineBonecos: true,
-  compactMode: false,
-  autoFetchDeaths: true,
-  cardLayout: 'grid',
-  exivaColumns: 4,
-  soundNotifications: true,
-  toastNotifications: true,
-  autoClaimReturn: false,
-  showCredentials: true,
-  showSkills: true,
-  showQuests: true,
-  showAcessos: true,
-  dashboardRefresh: 30,
-  logLimit: 50,
-  animationsEnabled: true,
-};
-
-function loadSettings(): AppSettings {
-  try {
-    const data = localStorage.getItem(SETTINGS_KEY);
-    return data ? { ...DEFAULT_SETTINGS, ...JSON.parse(data) } : DEFAULT_SETTINGS;
-  } catch { return DEFAULT_SETTINGS; }
-}
-
-function saveSettingsToStorage(s: AppSettings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-}
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return '';
