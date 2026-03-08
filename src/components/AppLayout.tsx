@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { user, role, isAdmin, signOut } = useAuth();
+  const { user, role, username, isAdmin, signOut } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: ScrollText, adminOnly: false },
