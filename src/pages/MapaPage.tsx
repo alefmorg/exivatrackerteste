@@ -4,11 +4,10 @@ import { X } from 'lucide-react';
 import { fetchGuildMembers, fetchCharacter } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
-import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
+import { VocationIcon } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useSettings } from '@/hooks/useSettings';
-import { supabase } from '@/integrations/supabase/client';
 
 // ============================================================
 // Tibia City definitions with approximate grid positions
@@ -71,24 +70,19 @@ interface BonecoOnMap {
 export default function MapaPage() {
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
-  const [bonecos, setBonecos] = useState<BonecoOnMap[]>([]);
   const [guildOnMap, setGuildOnMap] = useState<BonecoOnMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingGuild, setLoadingGuild] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [showOnlineOnly, setShowOnlineOnly] = useState(true);
+  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
-  // Fetch guild members + bonecos
+  // Fetch guild members
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const [guilds, { data: bonecosData }] = await Promise.all([
-          getMonitoredGuildsAsync(),
-          supabase.from('bonecos').select('name, level, vocation, status, location'),
-        ]);
+        const guilds = await getMonitoredGuildsAsync();
 
-        // Guild members — fetch online ones' residence
         if (guilds.length > 0) {
           const guildMembers = await fetchGuildMembers(guilds[0].name);
           setMembers(guildMembers);
@@ -125,20 +119,6 @@ export default function MapaPage() {
             setLoadingGuild(false);
           }
         }
-
-        // Bonecos from DB
-        if (bonecosData) {
-          setBonecos(
-            bonecosData.map((b: any) => ({
-              name: b.name,
-              level: b.level,
-              vocation: b.vocation,
-              status: b.status as any,
-              location: b.location || '',
-              type: 'boneco' as const,
-            }))
-          );
-        }
       } catch {
         // silent
       } finally {
@@ -148,33 +128,20 @@ export default function MapaPage() {
     load();
   }, []);
 
-  // Group all characters by city
+  // Group guild members by city
   const cityGroups = useMemo(() => {
     const groups: Record<string, BonecoOnMap[]> = {};
     TIBIA_CITIES.forEach(c => (groups[c.id] = []));
     groups['unknown'] = [];
 
-    // Combine bonecos + guild members
-    const allChars = [...bonecos, ...guildOnMap];
-    // Deduplicate by name (boneco takes priority)
-    const seen = new Set<string>();
-    const deduped: BonecoOnMap[] = [];
-    for (const c of allChars) {
-      if (!seen.has(c.name)) {
-        seen.add(c.name);
-        deduped.push(c);
-      }
-    }
-
-    for (const b of deduped) {
-      if (showOnlineOnly && b.status === 'offline') continue;
-      const cityId = matchCity(b.location);
-      if (cityId) groups[cityId]?.push(b);
-      else if (b.location) groups['unknown']?.push(b);
+    for (const m of guildOnMap) {
+      const cityId = matchCity(m.location);
+      if (cityId) groups[cityId]?.push(m);
+      else if (m.location) groups['unknown']?.push(m);
     }
 
     return groups;
-  }, [bonecos, guildOnMap, showOnlineOnly]);
+  }, [guildOnMap]);
 
   const totalOnMap = useMemo(() => {
     return Object.values(cityGroups).reduce((sum, arr) => sum + arr.length, 0);
@@ -198,17 +165,8 @@ export default function MapaPage() {
 
       {/* Controls */}
       <div className="flex items-center gap-3 flex-wrap">
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={showOnlineOnly}
-            onChange={e => setShowOnlineOnly(e.target.checked)}
-            className="rounded border-border"
-          />
-          Apenas online
-        </label>
         <span className="text-[10px] text-muted-foreground font-mono">
-          {bonecos.length} bonecos · {guildOnMap.length} guild online
+          {guildOnMap.length} membros online no mapa
         </span>
       </div>
 
@@ -277,9 +235,36 @@ export default function MapaPage() {
               className={`absolute flex flex-col items-center gap-0.5 group cursor-pointer z-10`}
               style={{ left: `${city.x}%`, top: `${city.y}%`, transform: 'translate(-50%, -50%)' }}
               onClick={() => setSelectedCity(isSelected ? null : city.id)}
+              onMouseEnter={() => setHoveredCity(city.id)}
+              onMouseLeave={() => setHoveredCity(null)}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.95 }}
             >
+              {/* Hover tooltip with member names */}
+              <AnimatePresence>
+                {hoveredCity === city.id && count > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 bg-popover border border-border rounded px-2 py-1.5 shadow-lg min-w-[100px] max-w-[180px] pointer-events-none"
+                  >
+                    <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-wider mb-1">{city.name}</div>
+                    <div className="space-y-0.5">
+                      {(cityGroups[city.id] || []).slice(0, 10).map(m => (
+                        <div key={m.name} className="text-[10px] text-foreground truncate flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {m.name}
+                        </div>
+                      ))}
+                      {count > 10 && (
+                        <div className="text-[9px] text-muted-foreground">+{count - 10} mais</div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Pulse ring for cities with members */}
               {count > 0 && (
                 <motion.div
