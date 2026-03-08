@@ -118,20 +118,16 @@ export default function ConfiguracoesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Settings className="h-5 w-5 text-primary" />
-          </div>
+          <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-2xl font-extrabold text-foreground">Configurações</h1>
-            <p className="text-xs text-muted-foreground">Personalize cada aspecto do sistema</p>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">SETTINGS</h1>
+            <div className="text-[10px] text-muted-foreground font-mono">Configuração do sistema</div>
           </div>
         </div>
         {hasChanges && (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-            <Button onClick={handleSaveSettings} className="gap-2">
-              <Save className="h-4 w-4" /> Salvar Alterações
-            </Button>
-          </motion.div>
+          <Button onClick={handleSaveSettings} size="sm" className="gap-1.5 text-xs">
+            <Save className="h-3.5 w-3.5" /> Salvar
+          </Button>
         )}
       </div>
 
