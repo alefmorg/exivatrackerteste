@@ -287,10 +287,18 @@ export default function AdminUsersPage() {
                   ) : (
                     <span className="text-[11px] px-2 py-1 text-muted-foreground">{u.role === 'master_admin' ? 'Master' : u.role === 'admin' ? 'Admin' : 'Usuário'}</span>
                   )}
-                  <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
-                    className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
-                    <ItemSprite item="key" className="h-4 w-4" />
-                  </button>
+                  {(isMasterAdmin || (u.role !== 'admin' && u.role !== 'master_admin')) && (
+                    <>
+                      <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
+                        className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
+                        <ItemSprite item="key" className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(u.id, u.email)}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
+                        <ItemSprite item="delete" className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                   <button onClick={() => handleDelete(u.id, u.email)}
                     className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
                     <ItemSprite item="delete" className="h-4 w-4" />
