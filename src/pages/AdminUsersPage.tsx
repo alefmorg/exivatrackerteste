@@ -255,8 +255,9 @@ export default function AdminUsersPage() {
                       </>
                     )}
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                      u.role === 'master_admin' ? 'bg-amber-500/20 text-amber-400' :
                       u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
-                    }`}>{u.role.toUpperCase()}</span>
+                    }`}>{u.role === 'master_admin' ? 'MASTER' : u.role.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                     <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
