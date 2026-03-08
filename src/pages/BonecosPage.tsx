@@ -638,7 +638,7 @@ export default function BonecosPage() {
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-3.5 w-3.5" /> {timeAgo(b.last_access)}</span>
+                <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(b.last_access)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
