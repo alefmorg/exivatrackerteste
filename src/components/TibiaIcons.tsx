@@ -281,6 +281,16 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   action_key: 'parchment',
   action_shield: 'mastermind_shield',
   action_user: 'skull',
+  // Vocations
+  voc_knight: 'outfit_knight',
+  voc_paladin: 'outfit_paladin',
+  voc_druid: 'outfit_druid',
+  voc_sorcerer: 'outfit_sorcerer',
+  // Activities
+  act_hunt: 'enchanted_spear',
+  act_war: 'war_axe',
+  act_maker: 'wand_of_vortex',
+  act_boss: 'demon_helmet',
 };
 
 // Customizable icon slots with labels
@@ -337,6 +347,16 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'action_key', label: 'Chave', group: 'Ações' },
   { key: 'action_shield', label: 'Escudo', group: 'Ações' },
   { key: 'action_user', label: 'Pessoa', group: 'Ações' },
+  // Vocations
+  { key: 'voc_knight', label: 'Knight', group: 'Vocações' },
+  { key: 'voc_paladin', label: 'Paladin', group: 'Vocações' },
+  { key: 'voc_druid', label: 'Druid', group: 'Vocações' },
+  { key: 'voc_sorcerer', label: 'Sorcerer', group: 'Vocações' },
+  // Activities
+  { key: 'act_hunt', label: 'Hunt', group: 'Atividades' },
+  { key: 'act_war', label: 'War', group: 'Atividades' },
+  { key: 'act_maker', label: 'Maker', group: 'Atividades' },
+  { key: 'act_boss', label: 'Boss', group: 'Atividades' },
 ];
 
 // ============================================================
@@ -367,6 +387,21 @@ const SPRITE = {
     boss: '/sprites/demon_helmet.gif',
   },
 } as const;
+
+// Helper to get vocation/activity sprite from customIcons
+function getVocSpritePath(vocKey: string, customIcons?: Record<string, string>): string {
+  const slotKey = `voc_${vocKey}`;
+  const spriteKey = customIcons?.[slotKey] || DEFAULT_ICON_MAP[slotKey];
+  if (spriteKey && ALL_SPRITES[spriteKey]) return ALL_SPRITES[spriteKey].path;
+  return SPRITE.vocation[vocKey as keyof typeof SPRITE.vocation] || '/sprites/outfit_knight.gif';
+}
+
+function getActSpritePath(actKey: string, customIcons?: Record<string, string>): string {
+  const slotKey = `act_${actKey}`;
+  const spriteKey = customIcons?.[slotKey] || DEFAULT_ICON_MAP[slotKey];
+  if (spriteKey && ALL_SPRITES[spriteKey]) return ALL_SPRITES[spriteKey].path;
+  return SPRITE.activity[actKey as keyof typeof SPRITE.activity] || '/sprites/parchment.gif';
+}
 
 // Reusable sprite component
 export function TibiaSprite({ 
@@ -480,11 +515,11 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
 export const VocationIcon = ({ vocation, className = "h-5 w-5" }: { vocation: string; className?: string }) => {
   const settings = useSettings();
   const voc = vocation.toLowerCase();
+  const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
 
-  if (settings.iconPack === 'tibia') {
-    const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
+  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('voc_'))) {
     if (key) {
-      return <TibiaSprite src={SPRITE.vocation[key]} alt={vocation} className={className} />;
+      return <TibiaSprite src={getVocSpritePath(key, settings.customIcons)} alt={vocation} className={className} />;
     }
   }
 
@@ -499,8 +534,10 @@ export const VocationIcon = ({ vocation, className = "h-5 w-5" }: { vocation: st
 export const ActivityIcon = ({ activity, className = "h-5 w-5" }: { activity: string; className?: string }) => {
   const settings = useSettings();
 
-  if (settings.iconPack === 'tibia' && SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
-    return <TibiaSprite src={SPRITE.activity[activity as keyof typeof SPRITE.activity]} alt={activity} className={className} />;
+  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('act_'))) {
+    if (SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
+      return <TibiaSprite src={getActSpritePath(activity, settings.customIcons)} alt={activity} className={className} />;
+    }
   }
 
   switch (activity) {
