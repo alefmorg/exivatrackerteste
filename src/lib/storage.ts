@@ -237,13 +237,3 @@ export function addMonitoredGuild(guild: any) {
 export function removeMonitoredGuild(id: string) {
   removeMonitoredGuildAsync(id).catch(console.error);
 }
-// ============================================================
-
-// These were used before but are no longer needed since bonecos are in Supabase
-export function addMonitoredGuild(guild: any) {
-  addMonitoredGuildAsync(guild).catch(console.error);
-}
-
-export function removeMonitoredGuild(id: string) {
-  removeMonitoredGuildAsync(id).catch(console.error);
-}
