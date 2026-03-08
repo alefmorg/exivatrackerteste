@@ -259,13 +259,13 @@ export default function ExivaPage() {
                   <span className="text-[9px] font-mono text-muted-foreground">{list.length}</span>
                 </div>
                 <div className="divide-y divide-border/30 max-h-[500px] overflow-y-auto">
-                  {list.map(m => (
+                   {list.map(m => (
                     <MemberRow key={m.name} member={m} category={categories[m.name] || 'outros'}
                       onSetCategory={handleSetCategory} editingAnnotation={editingAnnotation} annotationText={annotationText}
                       setEditingAnnotation={setEditingAnnotation} setAnnotationText={setAnnotationText}
                       handleSaveAnnotation={handleSaveAnnotation} expanded={expandedPlayer === m.name}
                       onToggleExpand={() => setExpandedPlayer(expandedPlayer === m.name ? null : m.name)}
-                      getTodayLoginInfo={getTodayLoginInfo} />
+                      getTodayLoginInfo={getTodayLoginInfo} mapPin={pinMap[m.name]} />
                   ))}
                   {list.length === 0 && <div className="p-4 text-center text-[10px] text-muted-foreground/40">Vazio</div>}
                 </div>
