@@ -97,14 +97,8 @@ export default function HistoricoPage() {
           { label: 'USERS', value: uniqueUsers.toString(), sprite: 'users' as const },
           { label: 'CHARS', value: uniqueBonecos.toString(), sprite: 'bonecos' as const },
           { label: 'TOP USER', value: mostActive?.[0] || '—', sprite: 'crown' as const, highlight: true },
-        ].map(m => (
-          <div key={m.label} className="panel-inset rounded-md p-2 text-center">
-            <div className="flex items-center justify-center mb-0.5">
-              <ItemSprite item={m.sprite} className="h-5 w-5" />
-            </div>
-            <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary' : 'text-foreground'} truncate`}>{m.value}</p>
-            <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
-          </div>
+        ].map((m, i) => (
+          <MetricCard key={m.label} label={m.label} value={m.value} sprite={m.sprite} highlight={m.highlight} delay={i * 0.04} />
         ))}
       </div>
 
