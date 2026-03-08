@@ -6,6 +6,7 @@ import { MonitoredGuild } from '@/types/tibia';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import StatusDot from '@/components/StatusDot';
+import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
 
 interface BonecoRow {
