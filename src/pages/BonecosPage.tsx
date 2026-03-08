@@ -164,10 +164,16 @@ export default function BonecosPage() {
     setEditId(b.id); setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este boneco?')) return;
-    await supabase.from('bonecos').delete().eq('id', id);
-    toast({ title: 'Boneco removido' }); fetchBonecos();
+  const handleDelete = async (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from('bonecos').delete().eq('id', deleteTarget.id);
+    toast({ title: 'Boneco removido' });
+    setDeleteTarget(null);
+    fetchBonecos();
   };
 
   const handleClaim = async (boneco: BonecoRow) => {
