@@ -514,6 +514,7 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
     settings: 'nav_settings',
     users: 'nav_users',
     bonecos: 'nav_bonecos',
+    signout: 'action_signout',
   };
   const actionSlot = actionSlotMap[item];
   if (actionSlot) return <SlotSprite slot={actionSlot} className={className} />;
