@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, MessageSquare, Check } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
@@ -10,6 +10,7 @@ import PageHeader from '@/components/PageHeader';
 import { useMapPins, MapPin } from '@/hooks/useMapPins';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
 
 interface ClickPopup {
   x: number;
@@ -24,9 +25,12 @@ export default function MapaPage() {
   const [hoveredPin, setHoveredPin] = useState<string | null>(null);
   const [clickPopup, setClickPopup] = useState<ClickPopup | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState('');
+  const [exporting, setExporting] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const { pins, addPin, removePin, cleanOfflinePins } = useMapPins();
+  const { pins, addPin, removePin, updatePinNote, cleanOfflinePins } = useMapPins();
 
   // Zoom & pan state
   const [zoom, setZoom] = useState(1);
@@ -83,7 +87,6 @@ export default function MapaPage() {
     });
   }, [onlineMembers, pinnedNames, searchText]);
 
-  // Clamp pan to prevent going out of bounds
   const clampPan = useCallback((px: number, py: number, z: number) => {
     if (z <= 1) return { x: 0, y: 0 };
     const container = mapRef.current;
@@ -98,7 +101,6 @@ export default function MapaPage() {
     };
   }, []);
 
-  // Zoom handler (mouse wheel)
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.3 : 0.3;
@@ -110,13 +112,10 @@ export default function MapaPage() {
     });
   }, [clampPan]);
 
-  // Mouse drag handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
-    // Don't start drag on pins or popups
     const target = e.target as HTMLElement;
     if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
-
     setIsDragging(true);
     dragMoved.current = false;
     dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
@@ -135,7 +134,6 @@ export default function MapaPage() {
     setIsDragging(false);
   }, []);
 
-  // Map click → add pin (only if not dragging)
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (dragMoved.current) return;
     if (!mapRef.current) return;
@@ -143,7 +141,6 @@ export default function MapaPage() {
     if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
 
     const rect = mapRef.current.getBoundingClientRect();
-    // Convert screen coords to map percentage accounting for zoom & pan
     const containerX = e.clientX - rect.left;
     const containerY = e.clientY - rect.top;
     const mapX = ((containerX - rect.width / 2 - pan.x) / zoom + rect.width / 2) / rect.width * 100;
@@ -167,6 +164,40 @@ export default function MapaPage() {
     await removePin(name);
     toast.success(`${name} removido do mapa`);
   }, [removePin]);
+
+  const handleSaveNote = useCallback(async (charName: string) => {
+    await updatePinNote(charName, noteText);
+    setEditingNote(null);
+    setNoteText('');
+    toast.success('Nota salva');
+  }, [updatePinNote, noteText]);
+
+  const startEditNote = useCallback((pin: MapPin) => {
+    setEditingNote(pin.char_name);
+    setNoteText(pin.note || '');
+  }, []);
+
+  const handleExportScreenshot = useCallback(async () => {
+    if (!mapRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(mapRef.current, {
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        scale: 2,
+      });
+      const link = document.createElement('a');
+      link.download = `mapa-tibia-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast.success('Screenshot exportado!');
+    } catch {
+      toast.error('Erro ao exportar screenshot');
+    } finally {
+      setExporting(false);
+    }
+  }, []);
 
   const zoomIn = useCallback(() => {
     setZoom(prev => Math.min(MAX_ZOOM, prev + 0.5));
@@ -193,7 +224,6 @@ export default function MapaPage() {
     const w = container.clientWidth;
     const h = container.clientHeight;
     const targetZoom = Math.max(zoom, 2.5);
-    // Convert pin % position to pixel offset from center
     const pinPxX = (pin.pos_x / 100) * w;
     const pinPxY = (pin.pos_y / 100) * h;
     const centerX = w / 2;
@@ -206,16 +236,26 @@ export default function MapaPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="Mapa"
-        subtitle={
-          <span>
-            {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
-            <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>
-          </span>
-        }
-        icon="compass"
-      />
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Mapa"
+          subtitle={
+            <span>
+              {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
+              <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>
+            </span>
+          }
+          icon="compass"
+        />
+        <button
+          onClick={handleExportScreenshot}
+          disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
+        >
+          <Camera className="h-3.5 w-3.5" />
+          {exporting ? 'Exportando...' : 'Screenshot'}
+        </button>
+      </div>
 
       {/* Map Container */}
       <div
@@ -236,7 +276,6 @@ export default function MapaPage() {
             transitionProperty: isDragging ? 'none' : 'transform',
           }}
         >
-          {/* Real Tibia minimap background */}
           <img
             src="/tibia-world-map.png"
             alt="Tibia World Map"
@@ -244,7 +283,6 @@ export default function MapaPage() {
             style={{ imageRendering: 'pixelated' }}
             draggable={false}
           />
-          {/* Subtle overlay */}
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
           {/* Placed pins */}
@@ -284,22 +322,24 @@ export default function MapaPage() {
                           Lv {member.level} · {member.vocation}
                         </div>
                       )}
+                      {pin.note && (
+                        <div className="text-[9px] text-primary font-mono mt-0.5 italic">
+                          📝 {pin.note}
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Pin marker */}
                 <div className="relative group cursor-pointer" data-pin>
-                  {/* Pulse */}
                   <motion.div
                     className="absolute inset-0 rounded-full bg-primary"
                     animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
                     transition={{ duration: 2, repeat: Infinity }}
                     style={{ width: 12, height: 12, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
                   />
-                  {/* Dot */}
                   <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
-                  {/* Remove button on hover */}
                   <button
                     data-pin
                     onClick={(e) => handleRemovePin(e, pin.char_name)}
@@ -309,8 +349,9 @@ export default function MapaPage() {
                   </button>
                 </div>
 
-                {/* Name label */}
-                <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight">
+                {/* Name label + note indicator */}
+                <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight flex items-center gap-0.5">
+                  {pin.note && <span className="text-primary">📝</span>}
                   {pin.char_name}
                 </span>
               </div>
@@ -318,7 +359,7 @@ export default function MapaPage() {
           })}
         </div>
 
-        {/* Click popup (stays in screen space, not zoomable) */}
+        {/* Click popup */}
         <AnimatePresence>
           {clickPopup && (
             <motion.div
@@ -421,7 +462,7 @@ export default function MapaPage() {
 
         {/* Radar panel */}
         {visiblePins.length > 0 && (
-          <div className="absolute bottom-2 left-2 z-20 w-52" data-popup onClick={e => e.stopPropagation()}>
+          <div className="absolute bottom-2 left-2 z-20 w-56" data-popup onClick={e => e.stopPropagation()}>
             <div className="bg-card/95 backdrop-blur border border-border rounded-lg shadow-lg overflow-hidden">
               <button
                 onClick={() => setRadarOpen(!radarOpen)}
@@ -438,31 +479,58 @@ export default function MapaPage() {
                 <div className="border-t border-border max-h-48 overflow-y-auto">
                   {visiblePins.map(pin => {
                     const member = memberMap[pin.char_name];
+                    const isEditing = editingNote === pin.char_name;
                     return (
-                      <div
-                        key={pin.id}
-                        className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/30 transition-colors group"
-                      >
-                        <StatusDot status="online" />
-                        {member && <VocationIcon vocation={member.vocation} className="h-3 w-3" />}
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[10px] text-foreground truncate block">{pin.char_name}</span>
-                          {member && <span className="text-[8px] text-muted-foreground font-mono">Lv {member.level}</span>}
+                      <div key={pin.id} className="px-2.5 py-1 hover:bg-secondary/30 transition-colors group">
+                        <div className="flex items-center gap-1.5">
+                          <StatusDot status="online" />
+                          {member && <VocationIcon vocation={member.vocation} className="h-3 w-3" />}
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[10px] text-foreground truncate block">{pin.char_name}</span>
+                            {member && <span className="text-[8px] text-muted-foreground font-mono">Lv {member.level}</span>}
+                          </div>
+                          <button
+                            onClick={() => isEditing ? handleSaveNote(pin.char_name) : startEditNote(pin)}
+                            className="p-0.5 text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                            title={isEditing ? 'Salvar nota' : 'Adicionar nota'}
+                          >
+                            {isEditing ? <Check className="h-3 w-3" /> : <MessageSquare className="h-3 w-3" />}
+                          </button>
+                          <button
+                            onClick={() => centerOnPin(pin)}
+                            className="p-0.5 text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                            title="Centralizar no mapa"
+                          >
+                            <Crosshair className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => removePin(pin.char_name)}
+                            className="p-0.5 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                            title="Remover"
+                          >
+                            <Trash2 className="h-2.5 w-2.5" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => centerOnPin(pin)}
-                          className="p-0.5 text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
-                          title="Centralizar no mapa"
-                        >
-                          <Crosshair className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={() => removePin(pin.char_name)}
-                          className="p-0.5 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
-                          title="Remover"
-                        >
-                          <Trash2 className="h-2.5 w-2.5" />
-                        </button>
+                        {/* Note display / edit */}
+                        {isEditing ? (
+                          <div className="mt-1 flex gap-1">
+                            <Input
+                              value={noteText}
+                              onChange={e => setNoteText(e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && handleSaveNote(pin.char_name)}
+                              placeholder="Ex: huntando hydra..."
+                              className="h-5 text-[9px] border-border/50 bg-background/50 px-1.5 py-0 focus-visible:ring-1"
+                              autoFocus
+                            />
+                          </div>
+                        ) : pin.note ? (
+                          <div
+                            className="text-[9px] text-primary/80 font-mono mt-0.5 italic cursor-pointer hover:text-primary truncate"
+                            onClick={() => startEditNote(pin)}
+                          >
+                            📝 {pin.note}
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}
