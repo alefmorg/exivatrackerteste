@@ -170,7 +170,7 @@ export default function ConfiguracoesPage() {
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground px-1 pt-2">Salve para aplicar o novo tema. Isso altera a cor principal e os brilhos neon em toda a interface.</p>
+            <p className="text-[11px] text-muted-foreground px-1 pt-2">Salve para aplicar o novo tema.</p>
           </SettingsSection>
 
           <SettingsSection title="Pacote de Ícones" icon={<Image className="h-4 w-4 text-primary" />}>
@@ -195,7 +195,11 @@ export default function ConfiguracoesPage() {
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground px-1 pt-2">Os ícones de vocação e atividade serão trocados em toda a interface.</p>
+          </SettingsSection>
+
+          <SettingsSection title="Personalizar Ícones" icon={<Paintbrush className="h-4 w-4 text-primary" />}>
+            <p className="text-[11px] text-muted-foreground px-1 pb-2">Clique em qualquer ícone para trocar pelo sprite que preferir. Use "Reset" para voltar ao padrão.</p>
+            <IconCustomizer settings={settings} onUpdate={(customIcons) => updateSetting('customIcons', customIcons)} />
           </SettingsSection>
 
           <SettingsSection title="Animações" icon={<Zap className="h-4 w-4 text-primary" />}>
