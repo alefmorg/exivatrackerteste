@@ -515,11 +515,11 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
 export const VocationIcon = ({ vocation, className = "h-5 w-5" }: { vocation: string; className?: string }) => {
   const settings = useSettings();
   const voc = vocation.toLowerCase();
+  const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
 
-  if (settings.iconPack === 'tibia') {
-    const key = Object.keys(SPRITE.vocation).find(k => voc.includes(k)) as keyof typeof SPRITE.vocation | undefined;
+  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('voc_'))) {
     if (key) {
-      return <TibiaSprite src={SPRITE.vocation[key]} alt={vocation} className={className} />;
+      return <TibiaSprite src={getVocSpritePath(key, settings.customIcons)} alt={vocation} className={className} />;
     }
   }
 
