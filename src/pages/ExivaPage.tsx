@@ -140,6 +140,21 @@ export default function ExivaPage() {
     return { entries, loginCount: entries.filter(e => e.status === 'online').length };
   }, []);
 
+  if (guildLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 animate-pulse">
+          <div className="w-1 h-8 rounded-full bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-5 w-40 bg-secondary rounded" />
+            <div className="h-2 w-24 bg-secondary/60 rounded" />
+          </div>
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)}
+      </div>
+    );
+  }
+
   if (!guildName) {
     return (
       <div className="text-center py-16">
