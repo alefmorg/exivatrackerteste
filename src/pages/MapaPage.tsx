@@ -123,36 +123,6 @@ export default function MapaPage() {
         {/* Dark overlay for better pin visibility */}
         <div className="absolute inset-0 bg-background/30" />
 
-        {/* Region labels */}
-        {MAP_REGIONS.map(region => {
-          const regionCities = TIBIA_CITIES.filter(c => c.region === region);
-          if (!regionCities.length) return null;
-          const avgX = regionCities.reduce((s, c) => s + c.x, 0) / regionCities.length;
-          const avgY = regionCities.reduce((s, c) => s + c.y, 0) / regionCities.length;
-          return (
-            <div
-              key={region}
-              className="absolute text-[8px] font-mono text-muted-foreground/30 uppercase tracking-[0.3em] pointer-events-none"
-              style={{ left: `${avgX}%`, top: `${avgY - 6}%`, transform: 'translateX(-50%)' }}
-            >
-              {region}
-            </div>
-          );
-        })}
-
-        {/* Connection lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {CITY_CONNECTIONS.map(([a, b]) => {
-            const ca = TIBIA_CITIES.find(c => c.id === a);
-            const cb = TIBIA_CITIES.find(c => c.id === b);
-            if (!ca || !cb) return null;
-            return (
-              <line key={`${a}-${b}`} x1={ca.x} y1={ca.y} x2={cb.x} y2={cb.y}
-                stroke="hsl(var(--border))" strokeWidth="0.15" strokeDasharray="0.5,0.5" />
-            );
-          })}
-        </svg>
-
         {/* City pins */}
         {TIBIA_CITIES.map(city => {
           const count = cityGroups[city.id]?.length || 0;
