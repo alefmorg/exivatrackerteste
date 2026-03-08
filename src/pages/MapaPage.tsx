@@ -1,154 +1,102 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { fetchGuildMembers, fetchCharacter } from '@/lib/tibia-api';
+import { X, Plus, Trash2, MapPin } from 'lucide-react';
+import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { VocationIcon } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
-import { useSettings } from '@/hooks/useSettings';
-
-// ============================================================
-// Tibia City definitions with approximate grid positions
-// ============================================================
-
-interface TibiaCity {
-  id: string;
-  name: string;
-  region: string;
-  x: number; // percentage position on map
-  y: number;
-  color: string;
-  icon: string;
-}
-
-const TIBIA_CITIES: TibiaCity[] = [
-  // Mainland
-  { id: 'thais', name: 'Thais', region: 'Mainland', x: 30, y: 42, color: 'hsl(var(--primary))', icon: '🏰' },
-  { id: 'carlin', name: 'Carlin', region: 'Mainland', x: 28, y: 18, color: 'hsl(210 80% 55%)', icon: '🏛️' },
-  { id: 'venore', name: 'Venore', region: 'Mainland', x: 42, y: 48, color: 'hsl(142 70% 45%)', icon: '💰' },
-  { id: 'ab_dendriel', name: "Ab'Dendriel", region: 'Mainland', x: 38, y: 22, color: 'hsl(120 60% 40%)', icon: '🌳' },
-  { id: 'kazordoon', name: 'Kazordoon', region: 'Mainland', x: 35, y: 32, color: 'hsl(30 60% 45%)', icon: '⛏️' },
-  { id: 'edron', name: 'Edron', region: 'Mainland', x: 52, y: 28, color: 'hsl(272 72% 50%)', icon: '🔮' },
-  { id: 'darashia', name: 'Darashia', region: 'Desert', x: 68, y: 35, color: 'hsl(45 80% 50%)', icon: '🏜️' },
-  { id: 'ankrahmun', name: 'Ankrahmun', region: 'Desert', x: 72, y: 50, color: 'hsl(35 70% 40%)', icon: '🏺' },
-  { id: 'port_hope', name: 'Port Hope', region: 'Tiquanda', x: 55, y: 62, color: 'hsl(160 50% 40%)', icon: '🌴' },
-  { id: 'liberty_bay', name: 'Liberty Bay', region: 'Tiquanda', x: 48, y: 72, color: 'hsl(200 60% 50%)', icon: '⚓' },
-  { id: 'svargrond', name: 'Svargrond', region: 'Ice Islands', x: 18, y: 8, color: 'hsl(200 40% 70%)', icon: '❄️' },
-  { id: 'yalahar', name: 'Yalahar', region: 'Mainland', x: 60, y: 12, color: 'hsl(0 50% 45%)', icon: '⚙️' },
-  { id: 'gray_beach', name: 'Gray Beach', region: 'Roshamuul', x: 78, y: 18, color: 'hsl(0 0% 50%)', icon: '💀' },
-  { id: 'roshamuul', name: 'Roshamuul', region: 'Roshamuul', x: 82, y: 25, color: 'hsl(280 40% 35%)', icon: '👹' },
-  { id: 'issavi', name: 'Issavi', region: 'Kilmaresh', x: 85, y: 60, color: 'hsl(40 70% 55%)', icon: '🦁' },
-  { id: 'marapur', name: 'Marapur', region: 'Marapur', x: 88, y: 42, color: 'hsl(180 60% 45%)', icon: '🐚' },
-  { id: 'rathleton', name: 'Rathleton', region: 'Oramond', x: 15, y: 55, color: 'hsl(45 50% 45%)', icon: '🔧' },
-  { id: 'feyrist', name: 'Feyrist', region: 'Feyrist', x: 22, y: 68, color: 'hsl(300 60% 60%)', icon: '🦋' },
-  { id: 'gnomprona', name: 'Gnomprona', region: 'Underground', x: 10, y: 38, color: 'hsl(100 40% 35%)', icon: '🍄' },
-];
-
-// Match a boneco or member location string to a city
-function matchCity(location: string): string | null {
-  if (!location) return null;
-  const lower = location.toLowerCase().trim();
-  for (const city of TIBIA_CITIES) {
-    if (lower.includes(city.name.toLowerCase()) || lower.includes(city.id.replace(/_/g, ' '))) {
-      return city.id;
-    }
-  }
-  return null;
-}
-
-interface BonecoOnMap {
-  name: string;
-  level: number;
-  vocation: string;
-  status: 'online' | 'offline' | 'afk';
-  location: string;
-  type: 'boneco' | 'guild';
-}
+import { useMapPins } from '@/hooks/useMapPins';
+import { TIBIA_CITIES, CITY_CONNECTIONS, MAP_REGIONS } from '@/lib/tibia-cities';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function MapaPage() {
-  const settings = useSettings();
-  const [members, setMembers] = useState<GuildMember[]>([]);
-  const [guildOnMap, setGuildOnMap] = useState<BonecoOnMap[]>([]);
+  const [onlineMembers, setOnlineMembers] = useState<GuildMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingGuild, setLoadingGuild] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  const [addingTo, setAddingTo] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState('');
+  const { pins, addPin, removePin, cleanOfflinePins } = useMapPins();
 
-  // Fetch guild members
+  // Fetch online guild members
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         const guilds = await getMonitoredGuildsAsync();
-
         if (guilds.length > 0) {
-          const guildMembers = await fetchGuildMembers(guilds[0].name);
-          setMembers(guildMembers);
-
-          // Fetch residence for online members in batches
-          const onlineMembers = guildMembers.filter(m => m.status === 'online');
-          if (onlineMembers.length > 0) {
-            setLoadingGuild(true);
-            const batchSize = 8;
-            const results: BonecoOnMap[] = [];
-            for (let i = 0; i < onlineMembers.length; i += batchSize) {
-              const batch = onlineMembers.slice(i, i + batchSize);
-              const settled = await Promise.allSettled(
-                batch.map(async m => {
-                  const charData = await fetchCharacter(m.name);
-                  return {
-                    name: m.name,
-                    level: m.level,
-                    vocation: m.vocation,
-                    status: 'online' as const,
-                    location: charData?.character?.residence || '',
-                    type: 'guild' as const,
-                  };
-                })
-              );
-              for (const r of settled) {
-                if (r.status === 'fulfilled') results.push(r.value);
-              }
-              if (i + batchSize < onlineMembers.length) {
-                await new Promise(res => setTimeout(res, 400));
-              }
-            }
-            setGuildOnMap(results);
-            setLoadingGuild(false);
-          }
+          const members = await fetchGuildMembers(guilds[0].name);
+          const online = members.filter(m => m.status === 'online');
+          setOnlineMembers(online);
         }
-      } catch {
-        // silent
-      } finally {
+      } catch { /* silent */ } finally {
         setLoading(false);
       }
     };
     load();
+    const interval = setInterval(load, 60000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Group guild members by city
-  const cityGroups = useMemo(() => {
-    const groups: Record<string, BonecoOnMap[]> = {};
-    TIBIA_CITIES.forEach(c => (groups[c.id] = []));
-    groups['unknown'] = [];
-
-    for (const m of guildOnMap) {
-      const cityId = matchCity(m.location);
-      if (cityId) groups[cityId]?.push(m);
-      else if (m.location) groups['unknown']?.push(m);
+  // Clean offline pins whenever online members list updates
+  useEffect(() => {
+    if (onlineMembers.length === 0 && !loading) return;
+    const onlineNames = new Set(onlineMembers.map(m => m.name));
+    if (onlineNames.size > 0) {
+      cleanOfflinePins(onlineNames);
     }
+  }, [onlineMembers, cleanOfflinePins, loading]);
 
+  // Group pins by city, only keep online ones
+  const onlineNames = useMemo(() => new Set(onlineMembers.map(m => m.name)), [onlineMembers]);
+  const memberMap = useMemo(() => {
+    const map: Record<string, GuildMember> = {};
+    for (const m of onlineMembers) map[m.name] = m;
+    return map;
+  }, [onlineMembers]);
+
+  const cityGroups = useMemo(() => {
+    const groups: Record<string, typeof pins> = {};
+    TIBIA_CITIES.forEach(c => (groups[c.id] = []));
+    for (const pin of pins) {
+      if (onlineNames.has(pin.char_name) && groups[pin.city_id]) {
+        groups[pin.city_id].push(pin);
+      }
+    }
     return groups;
-  }, [guildOnMap]);
+  }, [pins, onlineNames]);
 
-  const totalOnMap = useMemo(() => {
-    return Object.values(cityGroups).reduce((sum, arr) => sum + arr.length, 0);
-  }, [cityGroups]);
+  const totalOnMap = useMemo(() =>
+    Object.values(cityGroups).reduce((sum, arr) => sum + arr.length, 0),
+  [cityGroups]);
+
+  // Filtered members for adding (online + not already pinned)
+  const pinnedNames = useMemo(() => new Set(pins.map(p => p.char_name)), [pins]);
+  const filteredMembers = useMemo(() => {
+    return onlineMembers.filter(m => {
+      if (pinnedNames.has(m.name)) return false;
+      if (!searchText) return true;
+      return m.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+  }, [onlineMembers, pinnedNames, searchText]);
+
+  const handleAddMember = useCallback(async (name: string, cityId: string) => {
+    await addPin(name, cityId);
+    setSearchText('');
+    toast.success(`${name} marcado no mapa`);
+  }, [addPin]);
+
+  const handleRemovePin = useCallback(async (name: string) => {
+    await removePin(name);
+    toast.success(`${name} removido do mapa`);
+  }, [removePin]);
 
   const selectedCityData = TIBIA_CITIES.find(c => c.id === selectedCity);
-  const selectedMembers = selectedCity ? cityGroups[selectedCity] || [] : [];
+  const selectedPins = selectedCity ? cityGroups[selectedCity] || [] : [];
 
   return (
     <div className="space-y-4">
@@ -156,23 +104,15 @@ export default function MapaPage() {
         title="Mapa"
         subtitle={
           <span>
-            {totalOnMap} personagens no mapa
-            {loadingGuild && <span className="ml-2 text-primary animate-pulse">· carregando guild...</span>}
+            {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
           </span>
         }
         icon="compass"
       />
 
-      {/* Controls */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-[10px] text-muted-foreground font-mono">
-          {guildOnMap.length} membros online no mapa
-        </span>
-      </div>
-
       {/* Map Container */}
       <div className="relative w-full aspect-[16/10] bg-card border border-border rounded-lg overflow-hidden select-none">
-        {/* Background grid pattern */}
+        {/* Background grid */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -185,7 +125,7 @@ export default function MapaPage() {
         />
 
         {/* Region labels */}
-        {['Mainland', 'Desert', 'Ice Islands', 'Tiquanda', 'Roshamuul', 'Kilmaresh'].map(region => {
+        {MAP_REGIONS.map(region => {
           const regionCities = TIBIA_CITIES.filter(c => c.region === region);
           if (!regionCities.length) return null;
           const avgX = regionCities.reduce((s, c) => s + c.x, 0) / regionCities.length;
@@ -201,25 +141,15 @@ export default function MapaPage() {
           );
         })}
 
-        {/* Connection lines between nearby cities */}
+        {/* Connection lines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {[
-            ['thais', 'venore'], ['thais', 'kazordoon'], ['kazordoon', 'ab_dendriel'],
-            ['ab_dendriel', 'carlin'], ['edron', 'ab_dendriel'], ['venore', 'port_hope'],
-            ['port_hope', 'liberty_bay'], ['darashia', 'ankrahmun'], ['edron', 'darashia'],
-            ['yalahar', 'edron'], ['gray_beach', 'roshamuul'], ['carlin', 'svargrond'],
-          ].map(([a, b]) => {
+          {CITY_CONNECTIONS.map(([a, b]) => {
             const ca = TIBIA_CITIES.find(c => c.id === a);
             const cb = TIBIA_CITIES.find(c => c.id === b);
             if (!ca || !cb) return null;
             return (
-              <line
-                key={`${a}-${b}`}
-                x1={ca.x} y1={ca.y} x2={cb.x} y2={cb.y}
-                stroke="hsl(var(--border))"
-                strokeWidth="0.15"
-                strokeDasharray="0.5,0.5"
-              />
+              <line key={`${a}-${b}`} x1={ca.x} y1={ca.y} x2={cb.x} y2={cb.y}
+                stroke="hsl(var(--border))" strokeWidth="0.15" strokeDasharray="0.5,0.5" />
             );
           })}
         </svg>
@@ -232,15 +162,18 @@ export default function MapaPage() {
           return (
             <motion.button
               key={city.id}
-              className={`absolute flex flex-col items-center gap-0.5 group cursor-pointer z-10`}
+              className="absolute flex flex-col items-center gap-0.5 group cursor-pointer z-10"
               style={{ left: `${city.x}%`, top: `${city.y}%`, transform: 'translate(-50%, -50%)' }}
-              onClick={() => setSelectedCity(isSelected ? null : city.id)}
+              onClick={() => {
+                setSelectedCity(isSelected ? null : city.id);
+                setAddingTo(null);
+              }}
               onMouseEnter={() => setHoveredCity(city.id)}
               onMouseLeave={() => setHoveredCity(null)}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.95 }}
             >
-              {/* Hover tooltip with member names */}
+              {/* Hover tooltip */}
               <AnimatePresence>
                 {hoveredCity === city.id && count > 0 && (
                   <motion.div
@@ -251,45 +184,42 @@ export default function MapaPage() {
                   >
                     <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-wider mb-1">{city.name}</div>
                     <div className="space-y-0.5">
-                      {(cityGroups[city.id] || []).slice(0, 10).map(m => (
-                        <div key={m.name} className="text-[10px] text-foreground truncate flex items-center gap-1">
+                      {(cityGroups[city.id] || []).slice(0, 10).map(pin => (
+                        <div key={pin.char_name} className="text-[10px] text-foreground truncate flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                          {m.name}
+                          {pin.char_name}
+                          {memberMap[pin.char_name] && (
+                            <span className="text-muted-foreground">Lv {memberMap[pin.char_name].level}</span>
+                          )}
                         </div>
                       ))}
-                      {count > 10 && (
-                        <div className="text-[9px] text-muted-foreground">+{count - 10} mais</div>
-                      )}
+                      {count > 10 && <div className="text-[9px] text-muted-foreground">+{count - 10} mais</div>}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Pulse ring for cities with members */}
+              {/* Pulse ring */}
               {count > 0 && (
                 <motion.div
                   className="absolute w-8 h-8 rounded-full"
-                  style={{ backgroundColor: `${city.color}`, opacity: 0.15 }}
+                  style={{ backgroundColor: city.color, opacity: 0.15 }}
                   animate={{ scale: [1, 1.5, 1], opacity: [0.15, 0, 0.15] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               )}
 
               {/* Pin */}
-              <div
-                className={`relative w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-all ${
-                  isSelected
-                    ? 'border-primary bg-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.5)]'
-                    : count > 0
-                    ? 'border-primary/60 bg-card'
-                    : 'border-border bg-card/50'
-                }`}
-              >
+              <div className={`relative w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-all ${
+                isSelected
+                  ? 'border-primary bg-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.5)]'
+                  : count > 0
+                  ? 'border-primary/60 bg-card'
+                  : 'border-border bg-card/50'
+              }`}>
                 <span style={{ filter: count > 0 ? 'none' : 'grayscale(1) opacity(0.4)' }}>
                   {city.icon}
                 </span>
-
-                {/* Count badge */}
                 {count > 0 && (
                   <motion.div
                     initial={{ scale: 0 }}
@@ -302,11 +232,9 @@ export default function MapaPage() {
               </div>
 
               {/* City name */}
-              <span
-                className={`text-[7px] font-mono leading-none whitespace-nowrap transition-colors ${
-                  isSelected ? 'text-primary font-bold' : count > 0 ? 'text-foreground/70' : 'text-muted-foreground/40'
-                }`}
-              >
+              <span className={`text-[7px] font-mono leading-none whitespace-nowrap transition-colors ${
+                isSelected ? 'text-primary font-bold' : count > 0 ? 'text-foreground/70' : 'text-muted-foreground/40'
+              }`}>
                 {city.name}
               </span>
             </motion.button>
@@ -338,56 +266,98 @@ export default function MapaPage() {
                 <span className="text-base">{selectedCityData.icon}</span>
                 <div>
                   <h3 className="text-xs font-bold text-foreground">{selectedCityData.name}</h3>
-                  <span className="text-[9px] text-muted-foreground font-mono">{selectedCityData.region} · {selectedMembers.length} personagens</span>
+                  <span className="text-[9px] text-muted-foreground font-mono">
+                    {selectedCityData.region} · {selectedPins.length} personagens
+                  </span>
                 </div>
               </div>
-              <button onClick={() => setSelectedCity(null)} className="p-1 text-muted-foreground hover:text-foreground">
-                <X className="h-3.5 w-3.5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant={addingTo === selectedCity ? 'default' : 'outline'}
+                  className="h-6 text-[10px] px-2"
+                  onClick={() => setAddingTo(addingTo === selectedCity ? null : selectedCity)}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Adicionar
+                </Button>
+                <button onClick={() => { setSelectedCity(null); setAddingTo(null); }} className="p-1 text-muted-foreground hover:text-foreground">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
 
-            {selectedMembers.length === 0 ? (
+            {/* Add member form */}
+            <AnimatePresence>
+              {addingTo === selectedCity && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="border-b border-border overflow-hidden"
+                >
+                  <div className="p-2 space-y-1.5">
+                    <Input
+                      placeholder="Buscar membro online..."
+                      value={searchText}
+                      onChange={e => setSearchText(e.target.value)}
+                      className="h-7 text-xs"
+                    />
+                    <div className="max-h-32 overflow-y-auto space-y-0.5">
+                      {filteredMembers.length === 0 ? (
+                        <div className="text-[10px] text-muted-foreground text-center py-2">
+                          {searchText ? 'Nenhum membro encontrado' : 'Todos membros online já estão no mapa'}
+                        </div>
+                      ) : (
+                        filteredMembers.slice(0, 20).map(m => (
+                          <button
+                            key={m.name}
+                            onClick={() => handleAddMember(m.name, selectedCity!)}
+                            className="flex items-center gap-2 w-full px-2 py-1 rounded hover:bg-secondary/50 transition-colors text-left"
+                          >
+                            <StatusDot status="online" />
+                            <VocationIcon vocation={m.vocation} className="h-3.5 w-3.5" />
+                            <span className="text-[10px] text-foreground flex-1 truncate">{m.name}</span>
+                            <span className="text-[9px] text-muted-foreground font-mono">Lv {m.level}</span>
+                            <MapPin className="h-3 w-3 text-primary" />
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Pinned members */}
+            {selectedPins.length === 0 && addingTo !== selectedCity ? (
               <div className="p-4 text-center text-xs text-muted-foreground">
-                Nenhum personagem nesta cidade
+                Nenhum personagem nesta cidade — clique em Adicionar
               </div>
             ) : (
               <div className="divide-y divide-border max-h-48 overflow-y-auto">
-                {selectedMembers.map(member => (
-                  <div key={member.name} className="flex items-center gap-2 px-3 py-1.5 hover:bg-secondary/30 transition-colors">
-                    <StatusDot status={member.status === 'online' ? 'online' : 'offline'} />
-                    <VocationIcon vocation={member.vocation} className="h-4 w-4" />
-                    <span className="text-[11px] font-medium text-foreground flex-1 truncate">{member.name}</span>
-                    <span className="text-[9px] text-muted-foreground font-mono">Lv {member.level}</span>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono ${
-                      member.type === 'boneco' ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground'
-                    }`}>
-                      {member.type === 'boneco' ? 'Boneco' : 'Guild'}
-                    </span>
-                  </div>
-                ))}
+                {selectedPins.map(pin => {
+                  const member = memberMap[pin.char_name];
+                  return (
+                    <div key={pin.char_name} className="flex items-center gap-2 px-3 py-1.5 hover:bg-secondary/30 transition-colors">
+                      <StatusDot status="online" />
+                      {member && <VocationIcon vocation={member.vocation} className="h-4 w-4" />}
+                      <span className="text-[11px] font-medium text-foreground flex-1 truncate">{pin.char_name}</span>
+                      {member && <span className="text-[9px] text-muted-foreground font-mono">Lv {member.level}</span>}
+                      <button
+                        onClick={() => handleRemovePin(pin.char_name)}
+                        className="p-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Unknown locations */}
-      {cityGroups['unknown']?.length > 0 && (
-        <div className="bg-card border border-border rounded-lg p-3">
-          <h4 className="text-[10px] font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-            📍 Localização não mapeada ({cityGroups['unknown'].length})
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {cityGroups['unknown'].map(m => (
-              <div key={m.name} className="flex items-center gap-1 px-2 py-1 rounded bg-secondary/50 text-[10px]">
-                <StatusDot status={m.status === 'online' ? 'online' : 'offline'} />
-                <span className="text-foreground">{m.name}</span>
-                <span className="text-muted-foreground">({m.location})</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
