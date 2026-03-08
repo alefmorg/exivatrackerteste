@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
+import { useSettings } from '@/hooks/useSettings';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
@@ -75,6 +76,7 @@ function getVocBorderColor(voc: string) {
 export default function BonecosPage() {
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
+  const settings = useSettings();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [searchFilter, setSearchFilter] = useState('');
   const [activityFilter, setActivityFilter] = useState('');
@@ -259,6 +261,7 @@ export default function BonecosPage() {
     if (statusFilter && b.status !== statusFilter) return false;
     if (vocationFilter && b.vocation !== vocationFilter) return false;
     if (showAvailableOnly && b.used_by) return false;
+    if (!settings.showOfflineBonecos && b.status === 'offline') return false;
     return true;
   });
 
@@ -492,9 +495,9 @@ export default function BonecosPage() {
       )}
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={settings.cardLayout === 'list' ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-2 gap-4'}>
         {filtered.map(b => (
-          <div key={b.id} className={`rounded-xl border border-border border-l-4 ${getVocBorderColor(b.vocation)} bg-card p-5 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5`}>
+          <div key={b.id} className={`rounded-xl border border-border border-l-4 ${getVocBorderColor(b.vocation)} bg-card ${settings.compactMode ? 'p-3' : 'p-5'} hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5`}>
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center ${getVocationColor(b.vocation)}`}>
@@ -553,18 +556,19 @@ export default function BonecosPage() {
             </div>
 
             {/* Acessos & Quests */}
-            {((b.acessos && b.acessos.length > 0) || (b.quests && b.quests.length > 0)) && (
+            {settings.showAcessos && ((b.acessos && b.acessos.length > 0) || (settings.showQuests && b.quests && b.quests.length > 0)) && (
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {b.acessos?.map((a, i) => (
                   <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">🔑 {a}</span>
                 ))}
-                {b.quests?.map((q, i) => (
+                {settings.showQuests && b.quests?.map((q, i) => (
                   <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">📜 {q}</span>
                 ))}
               </div>
             )}
 
             {/* Credentials */}
+            {settings.showCredentials && (
             <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
@@ -601,9 +605,10 @@ export default function BonecosPage() {
                 <button onClick={() => copyToClipboard(b.totp_secret)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
             </div>
+            )}
 
             {/* Skills bar */}
-            {(b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
+            {settings.showSkills && (b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
                 {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
                 {b.axe > 0 && <span>🪓 Axe: {b.axe}</span>}

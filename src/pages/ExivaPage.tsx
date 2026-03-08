@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
 import { RefreshCw, MapPin, Pencil, Users, UserCheck, UserX, Skull, ChevronDown, ChevronUp, CalendarDays, Activity, Zap, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
 export default function ExivaPage() {
   const { toast } = useToast();
+  const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
@@ -36,7 +38,7 @@ export default function ExivaPage() {
   const [showDeaths, setShowDeaths] = useState(true);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [categories, setCategories] = useState<Record<string, MemberCategory>>({});
-  const [refreshCountdown, setRefreshCountdown] = useState(60);
+  const [refreshCountdown, setRefreshCountdown] = useState(settings.refreshInterval);
 
   const annotations = getAnnotations();
   const guildName = useMemo(() => {
@@ -55,7 +57,7 @@ export default function ExivaPage() {
       withAnnotations.forEach(m => recordLoginChange(m.name, m.status));
       setMembers(withAnnotations);
       setLastUpdate(new Date().toLocaleTimeString('pt-BR'));
-      setRefreshCountdown(60);
+      setRefreshCountdown(settings.refreshInterval);
     } catch (e: any) {
       toast({ title: 'Erro', description: e.message, variant: 'destructive' });
     } finally {
@@ -79,7 +81,7 @@ export default function ExivaPage() {
     if (!guildName || members.length === 0) return;
     const interval = setInterval(() => {
       setRefreshCountdown(prev => {
-        if (prev <= 1) { doFetch(guildName); return 60; }
+        if (prev <= 1) { doFetch(guildName); return settings.refreshInterval; }
         return prev - 1;
       });
     }, 1000);
@@ -184,7 +186,7 @@ export default function ExivaPage() {
 
       {/* 4 Columns */}
       {members.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className={`grid grid-cols-1 ${settings.exivaColumns >= 3 ? 'md:grid-cols-2' : 'md:grid-cols-2'} ${settings.exivaColumns === 4 ? 'xl:grid-cols-4' : settings.exivaColumns === 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-2'} gap-3`}>
           {CATEGORIES.map(cat => {
             const cfg = CATEGORY_CONFIG[cat];
             const list = grouped[cat];

@@ -6,6 +6,7 @@ import { MonitoredGuild } from '@/types/tibia';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import StatusDot from '@/components/StatusDot';
+import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
 
 interface BonecoRow {
@@ -54,6 +55,7 @@ const tooltipStyle = {
 };
 
 export default function DashboardPage() {
+  const settings = useSettings();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [guilds, setGuilds] = useState<MonitoredGuild[]>([]);
   const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
@@ -63,7 +65,7 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     const [{ data: bData }, { data: lData }] = await Promise.all([
       supabase.from('bonecos').select('id,name,level,vocation,world,status,activity,used_by,last_access,full_bless,premium_active,tibia_coins').order('created_at', { ascending: false }),
-      supabase.from('boneco_logs').select('id,boneco_name,username,action,notes,created_at').order('created_at', { ascending: false }).limit(20),
+      supabase.from('boneco_logs').select('id,boneco_name,username,action,notes,created_at').order('created_at', { ascending: false }).limit(settings.logLimit),
     ]);
     if (bData) setBonecos(bData as BonecoRow[]);
     if (lData) setRecentLogs(lData as LogRow[]);
