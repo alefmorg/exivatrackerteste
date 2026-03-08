@@ -561,7 +561,7 @@ export default function BonecosPage() {
               )}
               {b.used_by && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-primary/15 text-primary border-primary/30 flex items-center gap-1">
-                  <ItemSprite item="skull" className="h-3.5 w-3.5" /> {b.used_by}
+                  <ItemSprite item="skull" className="h-4 w-4" /> {b.used_by}
                 </span>
               )}
             </div>
