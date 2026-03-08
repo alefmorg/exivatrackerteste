@@ -107,11 +107,11 @@ export default {
   				}
   			},
   			glow: {
-				'0%, 100%': {
-					boxShadow: '0 0 10px hsl(25 95% 50% / 0.3)'
+			'0%, 100%': {
+					boxShadow: '0 0 10px hsl(0 72% 45% / 0.3)'
 				},
 				'50%': {
-					boxShadow: '0 0 20px hsl(25 95% 50% / 0.5), 0 0 40px hsl(25 95% 50% / 0.2)'
+					boxShadow: '0 0 20px hsl(0 72% 45% / 0.5), 0 0 40px hsl(0 72% 45% / 0.2)'
 				}
   			},
   			flicker: {

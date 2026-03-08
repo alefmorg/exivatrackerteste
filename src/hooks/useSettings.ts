@@ -51,7 +51,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dashboardRefresh: 30,
   logLimit: 50,
   animationsEnabled: true,
-  theme: 'ember',
+  theme: 'blood',
   iconPack: 'lucide',
   customIcons: {},
 };
