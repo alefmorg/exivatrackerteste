@@ -89,6 +89,9 @@ export default function BonecosPage() {
   const [newAcesso, setNewAcesso] = useState('');
   const [newQuest, setNewQuest] = useState('');
   const [username, setUsername] = useState('');
+  const [syncing, setSyncing] = useState<Set<string>>(new Set());
+  const [syncAllLoading, setSyncAllLoading] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{ done: number; total: number } | null>(null);
   const [form, setForm] = useState({
     name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
     vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus,
