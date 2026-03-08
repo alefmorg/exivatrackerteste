@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { fetchGuildMembers } from '@/lib/tibia-api';
+import { fetchGuildMembers, fetchCharacter } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
@@ -72,7 +72,9 @@ export default function MapaPage() {
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
   const [bonecos, setBonecos] = useState<BonecoOnMap[]>([]);
+  const [guildOnMap, setGuildOnMap] = useState<BonecoOnMap[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingGuild, setLoadingGuild] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [showOnlineOnly, setShowOnlineOnly] = useState(true);
 
@@ -86,10 +88,42 @@ export default function MapaPage() {
           supabase.from('bonecos').select('name, level, vocation, status, location'),
         ]);
 
-        // Guild members
+        // Guild members — fetch online ones' residence
         if (guilds.length > 0) {
           const guildMembers = await fetchGuildMembers(guilds[0].name);
           setMembers(guildMembers);
+
+          // Fetch residence for online members in batches
+          const onlineMembers = guildMembers.filter(m => m.status === 'online');
+          if (onlineMembers.length > 0) {
+            setLoadingGuild(true);
+            const batchSize = 8;
+            const results: BonecoOnMap[] = [];
+            for (let i = 0; i < onlineMembers.length; i += batchSize) {
+              const batch = onlineMembers.slice(i, i + batchSize);
+              const settled = await Promise.allSettled(
+                batch.map(async m => {
+                  const charData = await fetchCharacter(m.name);
+                  return {
+                    name: m.name,
+                    level: m.level,
+                    vocation: m.vocation,
+                    status: 'online' as const,
+                    location: charData?.character?.residence || '',
+                    type: 'guild' as const,
+                  };
+                })
+              );
+              for (const r of settled) {
+                if (r.status === 'fulfilled') results.push(r.value);
+              }
+              if (i + batchSize < onlineMembers.length) {
+                await new Promise(res => setTimeout(res, 400));
+              }
+            }
+            setGuildOnMap(results);
+            setLoadingGuild(false);
+          }
         }
 
         // Bonecos from DB
@@ -120,8 +154,19 @@ export default function MapaPage() {
     TIBIA_CITIES.forEach(c => (groups[c.id] = []));
     groups['unknown'] = [];
 
-    // Add bonecos with known locations
-    for (const b of bonecos) {
+    // Combine bonecos + guild members
+    const allChars = [...bonecos, ...guildOnMap];
+    // Deduplicate by name (boneco takes priority)
+    const seen = new Set<string>();
+    const deduped: BonecoOnMap[] = [];
+    for (const c of allChars) {
+      if (!seen.has(c.name)) {
+        seen.add(c.name);
+        deduped.push(c);
+      }
+    }
+
+    for (const b of deduped) {
       if (showOnlineOnly && b.status === 'offline') continue;
       const cityId = matchCity(b.location);
       if (cityId) groups[cityId]?.push(b);
@@ -129,7 +174,7 @@ export default function MapaPage() {
     }
 
     return groups;
-  }, [bonecos, showOnlineOnly]);
+  }, [bonecos, guildOnMap, showOnlineOnly]);
 
   const totalOnMap = useMemo(() => {
     return Object.values(cityGroups).reduce((sum, arr) => sum + arr.length, 0);
@@ -142,7 +187,12 @@ export default function MapaPage() {
     <div className="space-y-4">
       <PageHeader
         title="Mapa"
-        subtitle={`${totalOnMap} personagens no mapa`}
+        subtitle={
+          <span>
+            {totalOnMap} personagens no mapa
+            {loadingGuild && <span className="ml-2 text-primary animate-pulse">· carregando guild...</span>}
+          </span>
+        }
         icon="compass"
       />
 
@@ -158,7 +208,7 @@ export default function MapaPage() {
           Apenas online
         </label>
         <span className="text-[10px] text-muted-foreground font-mono">
-          {bonecos.length} bonecos carregados
+          {bonecos.length} bonecos · {guildOnMap.length} guild online
         </span>
       </div>
 
