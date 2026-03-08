@@ -57,7 +57,7 @@ export default function ExivaPage() {
       withAnnotations.forEach(m => recordLoginChange(m.name, m.status));
       setMembers(withAnnotations);
       setLastUpdate(new Date().toLocaleTimeString('pt-BR'));
-      setRefreshCountdown(60);
+      setRefreshCountdown(settings.refreshInterval);
     } catch (e: any) {
       toast({ title: 'Erro', description: e.message, variant: 'destructive' });
     } finally {
