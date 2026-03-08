@@ -71,9 +71,10 @@ export default function ConfiguracoesPage() {
     } finally { setLoading(false); }
   };
 
-  const handleRemove = (id: string) => {
-    removeMonitoredGuild(id);
-    setGuilds(getMonitoredGuilds());
+  const handleRemove = async (id: string) => {
+    await removeMonitoredGuildAsync(id);
+    const updated = await getMonitoredGuildsAsync();
+    setGuilds(updated);
     toast({ title: 'Guild removida' });
   };
 
