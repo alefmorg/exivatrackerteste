@@ -9,6 +9,7 @@ import { timeAgo, formatDate } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
 import MetricCard from '@/components/MetricCard';
 import EmptyState from '@/components/EmptyState';
+import { SkeletonPage } from '@/components/SkeletonLoader';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
@@ -89,7 +90,7 @@ export default function HistoricoPage() {
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {[
           { label: 'TOTAL', value: logs.length.toString(), sprite: 'scroll' as const },
           { label: 'PEGOU', value: pegarCount.toString(), sprite: 'login' as const, highlight: true },
@@ -131,7 +132,7 @@ export default function HistoricoPage() {
 
       {/* Timeline */}
       {loading ? (
-        <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+        <SkeletonPage />
       ) : (
         <div className="space-y-4">
           {Object.entries(grouped).map(([date, entries]) => (
