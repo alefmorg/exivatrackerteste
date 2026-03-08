@@ -215,9 +215,27 @@ export default function BonecosPage() {
       notes: claimNotes,
     });
 
+    // Auto-copy credentials to clipboard when claiming
+    if (isPegar) {
+      const boneco = bonecos.find(b => b.id === showClaimModal.id);
+      if (boneco) {
+        let totpCode = '';
+        if (boneco.totp_secret) {
+          try {
+            const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(boneco.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
+            totpCode = totp.generate();
+          } catch { /* skip */ }
+        }
+        const ts3Text = `[b]${boneco.name}[/b] | ${boneco.email} | ${boneco.password}${totpCode ? ` | 2FA: ${totpCode}` : ''}`;
+        navigator.clipboard.writeText(ts3Text);
+      }
+    }
+
     toast({
       title: isPegar ? '📥 Boneco pego!' : '📤 Boneco devolvido!',
-      description: `${showClaimModal.name} ${isPegar ? 'está com você agora' : 'foi liberado'}`,
+      description: isPegar
+        ? `${showClaimModal.name} está com você — credenciais copiadas! 📋`
+        : `${showClaimModal.name} foi liberado`,
     });
     
     setClaimingId(null);
