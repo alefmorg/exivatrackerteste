@@ -255,7 +255,7 @@ export default function AdminUsersPage() {
                       <>
                         <span className="font-semibold text-foreground truncate">{u.username}</span>
                         <button onClick={() => { setEditingUser(u.id); setEditUsername(u.username); }}
-                          className="text-muted-foreground hover:text-primary"><Edit2 className="h-3 w-3" /></button>
+                          className="text-muted-foreground hover:text-primary"><ItemSprite item="edit" className="h-4 w-4" /></button>
                       </>
                     )}
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
