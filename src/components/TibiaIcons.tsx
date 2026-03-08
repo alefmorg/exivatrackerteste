@@ -332,6 +332,11 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'action_note', label: 'Nota', group: 'Ações' },
   { key: 'action_location', label: 'Localização', group: 'Ações' },
   { key: 'action_clock', label: 'Relógio', group: 'Ações' },
+  { key: 'action_copy', label: 'Copiar', group: 'Ações' },
+  { key: 'action_calendar', label: 'Calendário', group: 'Ações' },
+  { key: 'action_key', label: 'Chave', group: 'Ações' },
+  { key: 'action_shield', label: 'Escudo', group: 'Ações' },
+  { key: 'action_user', label: 'Pessoa', group: 'Ações' },
 ];
 
 // ============================================================
