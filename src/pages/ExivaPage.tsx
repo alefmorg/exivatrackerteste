@@ -234,9 +234,9 @@ export default function ExivaPage() {
               <span className="text-[9px] font-mono text-muted-foreground">{deaths.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              {loadingDeaths && <ItemSprite item="refresh" className="h-3 w-3 animate-spin" />}
+              {loadingDeaths && <ItemSprite item="refresh" className="h-4 w-4 animate-spin" />}
               <button className="p-1 hover:text-primary" onClick={(e) => { e.stopPropagation(); fetchDeaths(); }}>
-                <ItemSprite item="refresh" className="h-3.5 w-3.5" />
+                <ItemSprite item="refresh" className="h-4 w-4" />
               </button>
               {showDeaths ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
             </div>
