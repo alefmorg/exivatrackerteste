@@ -30,6 +30,7 @@ const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
 export default function ExivaPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,12 +43,27 @@ export default function ExivaPage() {
   const [showDeaths, setShowDeaths] = useState(true);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [categories, setCategories] = useState<Record<string, MemberCategory>>({});
+  const [annotations, setAnnotationsState] = useState<Record<string, string>>({});
   const [refreshCountdown, setRefreshCountdown] = useState(settings.refreshInterval);
+  const [showOnlineOnly, setShowOnlineOnly] = useState(true);
+  const [guildName, setGuildName] = useState('');
+  const [guildLoading, setGuildLoading] = useState(true);
 
-  const annotations = getAnnotations();
-  const guildName = useMemo(() => {
-    const guilds = getMonitoredGuilds();
-    return guilds.length > 0 ? guilds[0].name : '';
+  // Load guild + annotations + categories from DB
+  useEffect(() => {
+    const init = async () => {
+      setGuildLoading(true);
+      const [guilds, annots, cats] = await Promise.all([
+        getMonitoredGuildsAsync(),
+        loadAnnotations(),
+        loadCategories(),
+      ]);
+      if (guilds.length > 0) setGuildName(guilds[0].name);
+      setAnnotationsState(annots);
+      setCategories(cats);
+      setGuildLoading(false);
+    };
+    init();
   }, []);
 
   const doFetch = useCallback(async (name: string) => {
