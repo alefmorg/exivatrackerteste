@@ -551,7 +551,7 @@ export default function BonecosPage() {
               )}
               {b.tibia_coins > 0 && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-amber-500/10 text-amber-400 border-amber-500/30 flex items-center gap-1">
-                  <ItemSprite item="tibiaCoin" className="h-3.5 w-3.5" /> {b.tibia_coins} TC
+                  <ItemSprite item="tibiaCoin" className="h-4 w-4" /> {b.tibia_coins} TC
                 </span>
               )}
               {b.magic_level > 0 && (
