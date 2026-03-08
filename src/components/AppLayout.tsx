@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { user, role, isAdmin, signOut } = useAuth();
+  const { user, role, username, isAdmin, signOut } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: ScrollText, adminOnly: false },
@@ -73,7 +73,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Skull className="h-3 w-3 text-primary" />
               </div>
               <div className="hidden md:block">
-                <p className="text-[11px] font-medium text-foreground truncate max-w-[100px]">{user?.email}</p>
+                <p className="text-[11px] font-medium text-foreground truncate max-w-[100px]">{username || user?.email}</p>
                 <p className="text-[9px] text-muted-foreground capitalize">{role || 'Usuário'}</p>
               </div>
             </div>

@@ -27,7 +27,7 @@ type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perf
 
 export default function ConfiguracoesPage() {
   const { toast } = useToast();
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshProfile } = useAuth();
   const [tab, setTab] = useState<Tab>('bonecos');
   const [guilds, setGuilds] = useState<MonitoredGuild[]>([]);
   const [newGuildName, setNewGuildName] = useState('');
@@ -86,6 +86,7 @@ export default function ConfiguracoesPage() {
     if (!user) return;
     const { error } = await supabase.from('profiles').update({ username: profile.username }).eq('user_id', user.id);
     if (error) { toast({ title: 'Erro ao salvar perfil', variant: 'destructive' }); return; }
+    await refreshProfile();
     toast({ title: '✅ Perfil atualizado!' });
   };
 
