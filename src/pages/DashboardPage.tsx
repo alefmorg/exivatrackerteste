@@ -69,7 +69,7 @@ export default function DashboardPage() {
     if (lData) setRecentLogs(lData as LogRow[]);
     setLastRefresh(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     setLoading(false);
-  }, []);
+  }, [settings.logLimit]);
 
   useEffect(() => {
     getMonitoredGuildsAsync().then(setGuilds);

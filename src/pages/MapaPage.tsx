@@ -37,6 +37,8 @@ export default function MapaPage() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
   const dragMoved = useRef(false);
+  const touchStartDistance = useRef(0);
+  const touchStartZoom = useRef(1);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
@@ -112,6 +114,7 @@ export default function MapaPage() {
 
   // Wheel zoom disabled per user request
 
+  // Mouse handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
     const target = e.target as HTMLElement;
@@ -132,6 +135,60 @@ export default function MapaPage() {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+  }, []);
+
+  // Touch handlers for mobile
+  const getTouchDistance = (touches: React.TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+
+    if (e.touches.length === 2) {
+      // Pinch-to-zoom start
+      touchStartDistance.current = getTouchDistance(e.touches);
+      touchStartZoom.current = zoom;
+      e.preventDefault();
+    } else if (e.touches.length === 1 && zoom > 1) {
+      // Pan start
+      setIsDragging(true);
+      dragMoved.current = false;
+      dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, panX: pan.x, panY: pan.y };
+    }
+  }, [zoom, pan]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      // Pinch-to-zoom
+      e.preventDefault();
+      const dist = getTouchDistance(e.touches);
+      if (touchStartDistance.current > 0) {
+        const scale = dist / touchStartDistance.current;
+        const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, touchStartZoom.current * scale));
+        setZoom(newZoom);
+        if (newZoom <= 1) setPan({ x: 0, y: 0 });
+      }
+    } else if (e.touches.length === 1 && isDragging) {
+      // Pan
+      const dx = e.touches[0].clientX - dragStart.current.x;
+      const dy = e.touches[0].clientY - dragStart.current.y;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
+      setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
+    }
+  }, [isDragging, zoom, clampPan]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      touchStartDistance.current = 0;
+    }
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+    }
   }, []);
 
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -272,14 +329,16 @@ export default function MapaPage() {
       {/* Map Container */}
       <div
         ref={mapRef}
-        className={`relative w-full border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
+        className={`relative w-full border border-border rounded-lg overflow-hidden select-none touch-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
         style={{ aspectRatio: mapAspectRatio }}
         onClick={handleMapClick}
-        
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Zoomable/pannable inner container */}
         <div
