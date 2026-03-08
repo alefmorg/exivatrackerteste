@@ -187,7 +187,12 @@ export default function MapaPage() {
     <div className="space-y-4">
       <PageHeader
         title="Mapa"
-        subtitle={`${totalOnMap} personagens no mapa`}
+        subtitle={
+          <span>
+            {totalOnMap} personagens no mapa
+            {loadingGuild && <span className="ml-2 text-primary animate-pulse">· carregando guild...</span>}
+          </span>
+        }
         icon="compass"
       />
 
@@ -203,7 +208,7 @@ export default function MapaPage() {
           Apenas online
         </label>
         <span className="text-[10px] text-muted-foreground font-mono">
-          {bonecos.length} bonecos carregados
+          {bonecos.length} bonecos · {guildOnMap.length} guild online
         </span>
       </div>
 
