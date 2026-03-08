@@ -95,10 +95,12 @@ export default function ExivaPage() {
       setMembers(data);
       setRefreshCountdown(settings.refreshInterval);
       setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      // Refresh pins to ensure sync
+      refetchPins();
     } catch (e: any) {
       toast({ title: 'Erro ao buscar membros', description: e.message, variant: 'destructive' });
     } finally { setLoading(false); }
-  }, [settings.refreshInterval, toast]);
+  }, [settings.refreshInterval, toast, refetchPins]);
 
   const fetchDeaths = useCallback(async () => {
     if (members.length === 0) return;
