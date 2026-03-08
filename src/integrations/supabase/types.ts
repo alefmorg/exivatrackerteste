@@ -187,6 +187,30 @@ export type Database = {
         }
         Relationships: []
       }
+      map_pins: {
+        Row: {
+          char_name: string
+          city_id: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          char_name: string
+          city_id: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          char_name?: string
+          city_id?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       member_annotations: {
         Row: {
           annotation: string
