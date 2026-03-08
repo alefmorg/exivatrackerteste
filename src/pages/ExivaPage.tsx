@@ -18,6 +18,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import { SkeletonRow } from '@/components/SkeletonLoader';
+import PageHeader from '@/components/PageHeader';
+import EmptyState from '@/components/EmptyState';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
