@@ -18,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<'admin' | 'user' | null>(null);
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchRole = async (userId: string) => {
@@ -27,6 +28,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('user_id', userId)
       .single();
     setRole((data?.role as 'admin' | 'user') || 'user');
+  };
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('user_id', userId)
+      .single();
+    if (data?.username) setUsername(data.username);
+  };
+
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id);
   };
 
   useEffect(() => {
