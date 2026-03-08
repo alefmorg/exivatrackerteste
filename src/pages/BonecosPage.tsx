@@ -254,18 +254,6 @@ export default function BonecosPage() {
     navigator.clipboard.writeText(text); toast({ title: 'Copiado!' });
   };
 
-  const copyAllCredentials = (b: BonecoRow) => {
-    let totpCode = '';
-    if (b.totp_secret) {
-      try {
-        const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
-        totpCode = totp.generate();
-      } catch { totpCode = 'ERRO'; }
-    }
-    const text = `Email: ${b.email}\nSenha: ${b.password}${totpCode ? `\n2FA: ${totpCode}` : ''}`;
-    navigator.clipboard.writeText(text);
-    toast({ title: '📋 Credenciais copiadas!', description: `Email, senha${totpCode ? ' e código 2FA' : ''} copiados.` });
-  };
 
   const syncBoneco = async (b: BonecoRow) => {
     if (!b.name || syncing.has(b.id)) return;
