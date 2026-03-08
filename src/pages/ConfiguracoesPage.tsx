@@ -15,14 +15,7 @@ import { loadSettings, saveSettings, applyTheme, THEME_PRESETS, type AppSettings
 
 const WORLDS = ['Antica', 'Secura', 'Gentebra', 'Belobra', 'Lobera', 'Pacera', 'Quintera', 'Solidera', 'Celebra', 'Firmera', 'Gladera', 'Menera', 'Peloria', 'Refugia', 'Talera', 'Venebra', 'Yonabra', 'Zuna'];
 
-function timeAgo(dateStr: string) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'Agora';
-  if (min < 60) return `Há ${min} min`;
-  return `Há ${Math.floor(min / 60)}h`;
-}
+// timeAgo imported from utils
 
 type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema' | 'visual';
 
