@@ -180,7 +180,7 @@ export default function AdminUsersPage() {
             className="overflow-hidden">
             <div className="glass-card rounded-xl p-5 space-y-4">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-primary" /> Criar Novo Usuário
+                <ItemSprite item="add" className="h-5 w-5" /> Criar Novo Usuário
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
