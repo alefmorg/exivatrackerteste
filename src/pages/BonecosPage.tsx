@@ -13,6 +13,8 @@ import BonecoFilters from '@/components/bonecos/BonecoFilters';
 import BonecoFormModal, { type BonecoFormData } from '@/components/bonecos/BonecoFormModal';
 import ClaimModal from '@/components/bonecos/ClaimModal';
 import BonecoCard from '@/components/bonecos/BonecoCard';
+import { SkeletonPage } from '@/components/SkeletonLoader';
+import EmptyState from '@/components/EmptyState';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
