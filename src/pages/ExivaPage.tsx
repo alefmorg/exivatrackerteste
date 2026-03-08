@@ -220,13 +220,19 @@ export default function ExivaPage() {
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative">
-        <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
-          <ItemSprite item="search" className="h-4 w-4" />
+      {/* Search + Toggle */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+            <ItemSprite item="search" className="h-4 w-4" />
+          </div>
+          <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
+            placeholder={showOnlineOnly ? "Filtrar jogadores online..." : "Filtrar jogadores..."} className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
         </div>
-        <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
-          placeholder="Filtrar jogadores online..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
+        <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          <Switch checked={showOnlineOnly} onCheckedChange={setShowOnlineOnly} />
+          Só online
+        </label>
       </div>
 
       {/* Columns */}
