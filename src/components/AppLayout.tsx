@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut } from 'lucide-react';
+import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 import { useAuth } from '@/hooks/useAuth';
 import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 import MobileNav from '@/components/MobileNav';
