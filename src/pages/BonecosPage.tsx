@@ -509,19 +509,21 @@ export default function BonecosPage() {
           <div key={b.id} className={`panel rounded-lg border-l-2 ${getVocBorderColor(b.vocation)} ${settings.compactMode ? 'p-2.5' : 'p-4'} hover:border-primary/30 transition-all`}>
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center ${getVocationColor(b.vocation)}`}>
-                <VocationIcon vocation={b.vocation} className="h-5 w-5" />
+              <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center`}>
+                <VocationIcon vocation={b.vocation} className="h-6 w-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-foreground truncate">{b.name}</span>
                   <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{getVocShort(b.vocation)}</span>
-                  <span className="text-xs text-muted-foreground font-mono">Lv.{b.level}</span>
+                  <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                    <ItemSprite item="level" className="h-3 w-3" /> Lv.{b.level}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <Globe className="h-3 w-3" /> {b.world || '—'}
+                  <ItemSprite item="globe" className="h-3 w-3" /> {b.world || '—'}
                   <span className="text-border">•</span>
-                  <MapPin className="h-3 w-3" /> {b.location || '—'}
+                  <ItemSprite item="location" className="h-3 w-3" /> {b.location || '—'}
                 </div>
               </div>
               <div className="flex items-center gap-2">
