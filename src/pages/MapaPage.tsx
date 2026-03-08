@@ -292,7 +292,7 @@ export default function MapaPage() {
           <img
             src="/tibia-world-map.png"
             alt="Tibia World Map"
-            className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
             style={{ imageRendering: 'pixelated' }}
             draggable={false}
           />
