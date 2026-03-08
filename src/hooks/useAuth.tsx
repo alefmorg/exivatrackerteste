@@ -82,10 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setRole(null);
+    setUsername('');
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, signIn, signOut, isAdmin: role === 'admin' }}>
+    <AuthContext.Provider value={{ user, role, username, loading, signIn, signOut, isAdmin: role === 'admin', refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
