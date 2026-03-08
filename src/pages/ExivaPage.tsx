@@ -285,7 +285,7 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
     <div className="px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
       <div className="flex items-center gap-2 cursor-pointer" onClick={onToggleExpand}>
         <StatusDot status={m.status} />
-        <VocationIcon vocation={m.vocation} className={`h-3 w-3 ${getVocationColor(m.vocation)}`} />
+        <VocationIcon vocation={m.vocation} className={`h-4 w-4 ${getVocationColor(m.vocation)}`} />
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>
