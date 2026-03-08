@@ -46,16 +46,7 @@ const activityConfig: Record<string, { emoji: string; color: string }> = {
   boss: { emoji: '💀', color: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
 };
 
-function timeAgo(dateStr: string) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'Agora';
-  if (min < 60) return `${min} min`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h atrás`;
-  return `${Math.floor(hours / 24)}d atrás`;
-}
+// timeAgo imported from utils
 
 function getVocShort(voc: string) {
   if (voc.toLowerCase().includes('knight')) return 'EK';

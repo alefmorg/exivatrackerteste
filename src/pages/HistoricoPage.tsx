@@ -12,19 +12,7 @@ interface LogRow {
   username: string; action: string; notes: string; created_at: string;
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'agora';
-  if (min < 60) return `${min}m`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
-}
+// timeAgo and formatDate imported from utils
 
 export default function HistoricoPage() {
   const { toast } = useToast();
