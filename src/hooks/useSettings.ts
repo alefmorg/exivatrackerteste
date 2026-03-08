@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 const SETTINGS_KEY = 'exiva_settings';
 
@@ -26,6 +26,7 @@ export interface AppSettings {
   animationsEnabled: boolean;
   theme: ThemePreset;
   iconPack: IconPack;
+  customIcons: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -49,6 +50,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   animationsEnabled: true,
   theme: 'ember',
   iconPack: 'lucide',
+  customIcons: {},
 };
 
 export const THEME_PRESETS: Record<ThemePreset, { label: string; primary: string; accent: string; preview: string; vars: Record<string, string> }> = {
