@@ -324,25 +324,33 @@ export default function DashboardPage() {
 
 function ChartPanel({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="panel rounded-lg overflow-hidden">
+    <motion.div
+      whileHover={{ scale: 1.01, y: -2 }}
+      transition={{ duration: 0.15 }}
+      className="panel rounded-lg overflow-hidden transition-shadow hover:shadow-[0_0_24px_hsl(var(--primary)/0.08)]"
+    >
       <div className="px-4 py-2 border-b border-border flex items-center gap-2">
         <span className="text-primary">{icon}</span>
         <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">{title}</span>
       </div>
       <div className="p-3">{children}</div>
-    </div>
+    </motion.div>
   );
 }
 
 function SidePanel({ title, count, icon, children }: { title: string; count: number; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="panel rounded-lg overflow-hidden">
+    <motion.div
+      whileHover={{ scale: 1.01, y: -1 }}
+      transition={{ duration: 0.15 }}
+      className="panel rounded-lg overflow-hidden transition-shadow hover:shadow-[0_0_16px_hsl(var(--primary)/0.06)]"
+    >
       <div className="px-3 py-2 border-b border-border flex items-center gap-2">
         <span className="text-primary">{icon}</span>
         <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">{title}</span>
         <span className="ml-auto text-[9px] font-mono text-muted-foreground">{count}</span>
       </div>
       <div className="px-3 py-2 space-y-0.5">{children}</div>
-    </div>
+    </motion.div>
   );
 }
