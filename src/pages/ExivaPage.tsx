@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
-import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
+import { Pencil, ChevronDown, ChevronUp, CalendarDays, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +20,8 @@ import StatusDot from '@/components/StatusDot';
 import { SkeletonRow } from '@/components/SkeletonLoader';
 import PageHeader from '@/components/PageHeader';
 import EmptyState from '@/components/EmptyState';
-
+import { useMapPins, MapPin as MapPinType } from '@/hooks/useMapPins';
+import { TIBIA_CITIES } from '@/lib/tibia-cities';
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
   bomba: { label: 'Bomba', emoji: '💣', borderColor: 'border-t-destructive' },
