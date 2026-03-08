@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { fetchGuildMembers } from '@/lib/tibia-api';
+import { fetchGuildMembers, fetchCharacter } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
