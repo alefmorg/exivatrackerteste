@@ -582,9 +582,11 @@ export default function MapaPage() {
         {/* Loading overlay */}
         {loading && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs font-mono">Carregando mapa...</span>
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative w-12 h-12 rounded-xl bg-secondary/80 border border-border flex items-center justify-center">
+                <ItemSprite item="compass" className="h-8 w-8 opacity-40 animate-pulse" />
+              </div>
+              <span className="text-xs font-mono text-muted-foreground">Carregando mapa...</span>
             </div>
           </div>
         )}

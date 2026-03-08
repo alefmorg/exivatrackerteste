@@ -214,7 +214,7 @@ export default function DashboardPage() {
         </ChartPanel>
 
         <ChartPanel title="VOCAÇÕES" icon={<ItemSprite item="sword" className="h-5 w-5" />}>
-          <div className="h-44">
+          <div className="h-44 sm:h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vocData} layout="vertical">
                 <XAxis type="number" tick={{ fill: 'hsl(35, 5%, 45%)', fontSize: 10 }} axisLine={false} tickLine={false} />

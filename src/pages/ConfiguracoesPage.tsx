@@ -127,19 +127,24 @@ export default function ConfiguracoesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-secondary/50 rounded-xl overflow-x-auto">
-        {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-              tab === t.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-            }`}>
-            {tab === t.id && (
-              <motion.div layoutId="settings-tab" className="absolute inset-0 rounded-lg bg-card border border-border shadow-sm" transition={{ type: 'spring', stiffness: 500, damping: 30 }} />
-            )}
-            <t.icon className="h-3.5 w-3.5 relative z-10" />
-            <span className="relative z-10">{t.label}</span>
-          </button>
-        ))}
+      <div className="relative">
+        <div className="flex gap-1 p-1 bg-secondary/50 rounded-xl overflow-x-auto scrollbar-hide scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                tab === t.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}>
+              {tab === t.id && (
+                <motion.div layoutId="settings-tab" className="absolute inset-0 rounded-lg bg-card border border-border shadow-sm" transition={{ type: 'spring', stiffness: 500, damping: 30 }} />
+              )}
+              <t.icon className="h-3.5 w-3.5 relative z-10" />
+              <span className="relative z-10">{t.label}</span>
+            </button>
+          ))}
+        </div>
+        {/* Scroll fade indicators */}
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none rounded-r-xl md:hidden" />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none rounded-l-xl md:hidden" />
       </div>
 
       {/* ===== VISUAL TAB ===== */}

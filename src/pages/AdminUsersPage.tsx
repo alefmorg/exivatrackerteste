@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ItemSprite } from '@/components/TibiaIcons';
 import { useAuth, type AppRole } from '@/hooks/useAuth';
 import { timeAgo } from '@/lib/utils';
+import EmptyState from '@/components/EmptyState';
 
 interface UserRow {
   id: string;

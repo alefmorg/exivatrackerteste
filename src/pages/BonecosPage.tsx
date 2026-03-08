@@ -318,11 +318,11 @@ export default function BonecosPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <ItemSprite item="bonecos" className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhum boneco encontrado</p>
-          {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
-        </div>
+        <EmptyState
+          icon="bonecos"
+          title="Nenhum boneco encontrado"
+          description={bonecos.length > 0 ? 'Tente ajustar os filtros para encontrar o personagem.' : 'Adicione um personagem para começar.'}
+        />
       )}
 
       <ConfirmDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}

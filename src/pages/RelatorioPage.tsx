@@ -4,7 +4,7 @@ import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib
 import { GuildMember } from '@/types/tibia';
 import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
-import { SkeletonRow } from '@/components/SkeletonLoader';
+import { SkeletonPage } from '@/components/SkeletonLoader';
 import EmptyState from '@/components/EmptyState';
 import { Download } from 'lucide-react';
 
