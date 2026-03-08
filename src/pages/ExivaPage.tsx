@@ -123,7 +123,7 @@ export default function ExivaPage() {
   };
 
   const filtered = members.filter(m => {
-    if (m.status !== 'online') return false;
+    if (showOnlineOnly && m.status !== 'online') return false;
     if (searchFilter && !m.name.toLowerCase().includes(searchFilter.toLowerCase())) return false;
     return true;
   });
