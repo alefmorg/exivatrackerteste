@@ -672,6 +672,16 @@ export default function BonecosPage() {
           {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Excluir boneco"
+        description={`Tem certeza que deseja excluir "${deleteTarget?.name}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
