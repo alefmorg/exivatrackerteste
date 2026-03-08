@@ -36,7 +36,7 @@ interface TibiaDataCharResponse {
 
 // Cache
 const cache: Record<string, { data: unknown; timestamp: number }> = {};
-const CACHE_TTL = 55000; // 55 seconds
+const CACHE_TTL = 15000; // 15 seconds (reduced for fresher data)
 
 function getCached<T>(key: string): T | null {
   const entry = cache[key];
