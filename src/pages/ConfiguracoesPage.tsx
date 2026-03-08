@@ -103,6 +103,7 @@ export default function ConfiguracoesPage() {
   };
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
+    { id: 'visual', label: 'Visual', icon: Paintbrush },
     { id: 'bonecos', label: 'Bonecos', icon: Layout },
     { id: 'exiva', label: 'Exiva', icon: Search },
     { id: 'dashboard', label: 'Dashboard', icon: Monitor },
