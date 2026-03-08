@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, ClipboardCopy, Sparkles, Swords } from 'lucide-react';
+import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, ClipboardCopy, Sparkles, Swords, RefreshCw } from 'lucide-react';
 import { timeAgo } from '@/lib/utils';
+import { fetchCharacter } from '@/lib/tibia-api';
 import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -88,6 +89,9 @@ export default function BonecosPage() {
   const [newAcesso, setNewAcesso] = useState('');
   const [newQuest, setNewQuest] = useState('');
   const [username, setUsername] = useState('');
+  const [syncing, setSyncing] = useState<Set<string>>(new Set());
+  const [syncAllLoading, setSyncAllLoading] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{ done: number; total: number } | null>(null);
   const [form, setForm] = useState({
     name: '', email: '', password: '', totp_secret: '', world: '', level: 0,
     vocation: '', location: '', used_by: '', status: 'offline' as CharacterStatus,
@@ -249,6 +253,73 @@ export default function BonecosPage() {
     toast({ title: '📋 Credenciais copiadas!', description: `Email, senha${totpCode ? ' e código 2FA' : ''} copiados.` });
   };
 
+  const syncBoneco = async (b: BonecoRow) => {
+    if (!b.name || syncing.has(b.id)) return;
+    setSyncing(prev => new Set(prev).add(b.id));
+    try {
+      const charData = await fetchCharacter(b.name);
+      const char = charData.character;
+      if (!char) throw new Error('Char não encontrado');
+
+      const updates: Partial<BonecoRow> = {};
+      if (char.level && char.level !== b.level) updates.level = char.level;
+      if (char.vocation && char.vocation !== b.vocation) updates.vocation = char.vocation;
+      if (char.world && char.world !== b.world) updates.world = char.world;
+      if (char.residence && char.residence !== b.location) updates.location = char.residence;
+      if (char.account_status) updates.premium_active = char.account_status === 'Premium Account';
+
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.from('bonecos').update(updates).eq('id', b.id);
+        if (error) throw error;
+        toast({ title: `✅ ${b.name} atualizado`, description: Object.entries(updates).map(([k, v]) => `${k}: ${v}`).join(', ') });
+        fetchBonecos();
+      } else {
+        toast({ title: `${b.name} já está atualizado` });
+      }
+    } catch (err: any) {
+      toast({ title: `Erro ao sincronizar ${b.name}`, description: err?.message || 'Char não encontrado na API', variant: 'destructive' });
+    } finally {
+      setSyncing(prev => { const n = new Set(prev); n.delete(b.id); return n; });
+    }
+  };
+
+  const syncAllBonecos = async () => {
+    if (syncAllLoading) return;
+    setSyncAllLoading(true);
+    setSyncProgress({ done: 0, total: bonecos.length });
+    let updated = 0;
+
+    for (let i = 0; i < bonecos.length; i += 5) {
+      const batch = bonecos.slice(i, i + 5);
+      await Promise.allSettled(batch.map(async (b) => {
+        try {
+          const charData = await fetchCharacter(b.name);
+          const char = charData.character;
+          if (!char) return;
+
+          const updates: Record<string, any> = {};
+          if (char.level && char.level !== b.level) updates.level = char.level;
+          if (char.vocation && char.vocation !== b.vocation) updates.vocation = char.vocation;
+          if (char.world && char.world !== b.world) updates.world = char.world;
+          if (char.residence && char.residence !== b.location) updates.location = char.residence;
+          if (char.account_status) updates.premium_active = char.account_status === 'Premium Account';
+
+          if (Object.keys(updates).length > 0) {
+            await supabase.from('bonecos').update(updates).eq('id', b.id);
+            updated++;
+          }
+        } catch { /* skip */ }
+      }));
+      setSyncProgress({ done: Math.min(i + 5, bonecos.length), total: bonecos.length });
+      if (i + 5 < bonecos.length) await new Promise(r => setTimeout(r, 400));
+    }
+
+    toast({ title: `🔄 Sync concluído!`, description: `${updated} bonecos atualizados de ${bonecos.length}` });
+    setSyncAllLoading(false);
+    setSyncProgress(null);
+    fetchBonecos();
+  };
+
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
   const offlineCount = bonecos.filter(b => b.status === 'offline').length;
@@ -279,11 +350,23 @@ export default function BonecosPage() {
             <div className="text-[10px] text-muted-foreground font-mono">{bonecos.length} personagens registrados</div>
           </div>
         </div>
-        {isAdmin && (
-          <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
-            <ItemSprite item="add" className="h-4 w-4" /> Novo Char
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={syncAllBonecos}
+            disabled={syncAllLoading}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${syncAllLoading ? 'animate-spin' : ''}`} />
+            {syncAllLoading && syncProgress ? `${syncProgress.done}/${syncProgress.total}` : 'Sync Todos'}
           </Button>
-        )}
+          {isAdmin && (
+            <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
+              <ItemSprite item="add" className="h-4 w-4" /> Novo Char
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Stats */}
@@ -647,6 +730,14 @@ export default function BonecosPage() {
                 <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(b.last_access)}</span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => syncBoneco(b)}
+                  disabled={syncing.has(b.id)}
+                  className="text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+                  title="Sincronizar com TibiaData"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${syncing.has(b.id) ? 'animate-spin text-primary' : ''}`} />
+                </button>
                 <Button
                   variant={b.used_by ? 'outline' : 'default'}
                   size="sm"
