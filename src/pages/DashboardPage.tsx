@@ -55,6 +55,7 @@ const tooltipStyle = {
 };
 
 export default function DashboardPage() {
+  const settings = useSettings();
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [guilds, setGuilds] = useState<MonitoredGuild[]>([]);
   const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
