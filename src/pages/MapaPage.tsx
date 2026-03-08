@@ -26,6 +26,7 @@ export default function MapaPage() {
   const [clickPopup, setClickPopup] = useState<ClickPopup | null>(null);
   const [searchText, setSearchText] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [mapAspectRatio, setMapAspectRatio] = useState(5 / 4);
   const mapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const { pins, addPin, removePin, cleanOfflinePins } = useMapPins();
