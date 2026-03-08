@@ -4,6 +4,7 @@ import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, Chevr
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
+import { TIBIA_CITIES } from '@/lib/tibia-cities';
 import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
