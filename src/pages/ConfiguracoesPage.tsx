@@ -56,7 +56,7 @@ export default function ConfiguracoesPage() {
   };
 
   const handleSaveSettings = () => {
-    saveSettingsToStorage(settings);
+    saveSettings(settings);
     setHasChanges(false);
     toast({ title: '✅ Configurações salvas!' });
   };
