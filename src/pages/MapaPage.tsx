@@ -130,33 +130,20 @@ export default function MapaPage() {
     load();
   }, []);
 
-  // Group all characters by city
+  // Group guild members by city
   const cityGroups = useMemo(() => {
     const groups: Record<string, BonecoOnMap[]> = {};
     TIBIA_CITIES.forEach(c => (groups[c.id] = []));
     groups['unknown'] = [];
 
-    // Combine bonecos + guild members
-    const allChars = [...bonecos, ...guildOnMap];
-    // Deduplicate by name (boneco takes priority)
-    const seen = new Set<string>();
-    const deduped: BonecoOnMap[] = [];
-    for (const c of allChars) {
-      if (!seen.has(c.name)) {
-        seen.add(c.name);
-        deduped.push(c);
-      }
-    }
-
-    for (const b of deduped) {
-      if (showOnlineOnly && b.status === 'offline') continue;
-      const cityId = matchCity(b.location);
-      if (cityId) groups[cityId]?.push(b);
-      else if (b.location) groups['unknown']?.push(b);
+    for (const m of guildOnMap) {
+      const cityId = matchCity(m.location);
+      if (cityId) groups[cityId]?.push(m);
+      else if (m.location) groups['unknown']?.push(m);
     }
 
     return groups;
-  }, [bonecos, guildOnMap, showOnlineOnly]);
+  }, [guildOnMap]);
 
   const totalOnMap = useMemo(() => {
     return Object.values(cityGroups).reduce((sum, arr) => sum + arr.length, 0);
