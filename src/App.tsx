@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ExivaPage from "./pages/ExivaPage";
 import RelatorioPage from "./pages/RelatorioPage";
 import BonecosPage from "./pages/BonecosPage";
+import MapaPage from "./pages/MapaPage";
 import HistoricoPage from "./pages/HistoricoPage";
 import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
@@ -35,6 +36,7 @@ function ProtectedRoutes() {
         <Route path="/exiva" element={<ExivaPage />} />
         <Route path="/relatorio" element={<RelatorioPage />} />
         <Route path="/bonecos" element={<BonecosPage />} />
+        <Route path="/mapa" element={<MapaPage />} />
         <Route path="/historico" element={<HistoricoPage />} />
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
         <Route path="/configuracoes" element={<ConfiguracoesPage />} />
