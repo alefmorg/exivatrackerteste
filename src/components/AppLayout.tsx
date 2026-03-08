@@ -88,7 +88,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <ItemSprite item="skull" className="h-5 w-5" />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-[10px] font-semibold text-foreground truncate max-w-[80px]">{username || user?.email}</span>
-                <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role || 'user'}</span>
+                <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role === 'master_admin' ? 'MASTER' : (role || 'user')}</span>
               </div>
             </div>
             <button onClick={signOut} className="p-1 text-muted-foreground hover:text-destructive transition-colors" title="Sair">
