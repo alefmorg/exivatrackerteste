@@ -81,7 +81,7 @@ export default function ExivaPage() {
     if (!guildName || members.length === 0) return;
     const interval = setInterval(() => {
       setRefreshCountdown(prev => {
-        if (prev <= 1) { doFetch(guildName); return 60; }
+        if (prev <= 1) { doFetch(guildName); return settings.refreshInterval; }
         return prev - 1;
       });
     }, 1000);
