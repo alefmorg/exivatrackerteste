@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
+import MobileNav from '@/components/MobileNav';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -35,10 +36,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Separator */}
-          <div className="w-px h-4 bg-border mx-1" />
+          <div className="w-px h-4 bg-border mx-1 hidden md:block" />
 
-          {/* Nav */}
-          <nav className="flex items-center gap-px flex-1">
+          {/* Nav - hidden on mobile */}
+          <nav className="hidden md:flex items-center gap-px flex-1">
             {visibleItems.map(item => {
               const active = location.pathname === item.path;
               return (
@@ -66,6 +67,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
+          {/* Spacer on mobile */}
+          <div className="flex-1 md:hidden" />
+
           {/* Status */}
           <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/8 border border-primary/15 mr-2">
             <ItemSprite item="live" className="h-4 w-4 animate-pulse" />
@@ -90,12 +94,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Content */}
       <main className="flex-1">
-        <div className="p-3 md:p-5 max-w-[1600px] mx-auto">
+        <div className="p-3 md:p-5 pb-20 md:pb-5 max-w-[1600px] mx-auto">
           <motion.div key={location.pathname} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.12 }}>
             {children}
           </motion.div>
         </div>
       </main>
+
+      {/* Mobile Bottom Nav */}
+      <MobileNav />
     </div>
   );
 }

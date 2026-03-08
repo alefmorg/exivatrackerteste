@@ -1,30 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ItemSprite } from '@/components/TibiaIcons';
+import { timeAgo, formatDate } from '@/lib/utils';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
   username: string; action: string; notes: string; created_at: string;
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'agora';
-  if (min < 60) return `${min}m`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
-}
+// timeAgo and formatDate imported from utils
 
 export default function HistoricoPage() {
   const { toast } = useToast();

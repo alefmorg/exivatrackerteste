@@ -4,16 +4,20 @@ import { motion } from 'framer-motion';
 import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
 import {
-  getAnnotations, saveAnnotation, getMonitoredGuilds,
-  getCategories, saveCategory, MemberCategory,
-  recordLoginChange, getTodayLogins, LoginEntry,
+  loadAnnotations, saveAnnotationAsync,
+  getMonitoredGuildsAsync,
+  loadCategories, saveCategoryAsync, MemberCategory,
+  recordLoginChange, getTodayLoginsAsync, LoginEntry,
 } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
+import { SkeletonRow } from '@/components/SkeletonLoader';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
@@ -26,6 +30,7 @@ const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
 export default function ExivaPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,12 +43,27 @@ export default function ExivaPage() {
   const [showDeaths, setShowDeaths] = useState(true);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [categories, setCategories] = useState<Record<string, MemberCategory>>({});
+  const [annotations, setAnnotationsState] = useState<Record<string, string>>({});
   const [refreshCountdown, setRefreshCountdown] = useState(settings.refreshInterval);
+  const [showOnlineOnly, setShowOnlineOnly] = useState(true);
+  const [guildName, setGuildName] = useState('');
+  const [guildLoading, setGuildLoading] = useState(true);
 
-  const annotations = getAnnotations();
-  const guildName = useMemo(() => {
-    const guilds = getMonitoredGuilds();
-    return guilds.length > 0 ? guilds[0].name : '';
+  // Load guild + annotations + categories from DB
+  useEffect(() => {
+    const init = async () => {
+      setGuildLoading(true);
+      const [guilds, annots, cats] = await Promise.all([
+        getMonitoredGuildsAsync(),
+        loadAnnotations(),
+        loadCategories(),
+      ]);
+      if (guilds.length > 0) setGuildName(guilds[0].name);
+      setAnnotationsState(annots);
+      setCategories(cats);
+      setGuildLoading(false);
+    };
+    init();
   }, []);
 
   const doFetch = useCallback(async (name: string) => {
@@ -51,8 +71,9 @@ export default function ExivaPage() {
     setLoading(true);
     try {
       const data = await fetchGuildMembers(name);
-      const savedCats = getCategories();
+      const [savedCats, savedAnnots] = await Promise.all([loadCategories(), loadAnnotations()]);
       setCategories(savedCats);
+      setAnnotationsState(savedAnnots);
       const prevMembers = members;
       data.forEach(m => {
         m.annotation = annotations[m.name] || '';
@@ -89,20 +110,21 @@ export default function ExivaPage() {
   const onlineCount = members.filter(m => m.status === 'online').length;
   const offlineCount = members.filter(m => m.status === 'offline').length;
 
-  const handleSaveAnnotation = (charName: string) => {
-    saveAnnotation(charName, annotationText);
+  const handleSaveAnnotation = async (charName: string) => {
+    await saveAnnotationAsync(charName, annotationText, user?.id);
+    setAnnotationsState(prev => ({ ...prev, [charName]: annotationText }));
     setMembers(prev => prev.map(m => m.name === charName ? { ...m, annotation: annotationText } : m));
     setEditingAnnotation(null);
     toast({ title: 'Anotação salva' });
   };
 
-  const handleSetCategory = (charName: string, cat: MemberCategory) => {
-    saveCategory(charName, cat);
+  const handleSetCategory = async (charName: string, cat: MemberCategory) => {
+    await saveCategoryAsync(charName, cat, user?.id);
     setCategories(prev => ({ ...prev, [charName]: cat }));
   };
 
   const filtered = members.filter(m => {
-    if (m.status !== 'online') return false;
+    if (showOnlineOnly && m.status !== 'online') return false;
     if (searchFilter && !m.name.toLowerCase().includes(searchFilter.toLowerCase())) return false;
     return true;
   });
@@ -114,10 +136,25 @@ export default function ExivaPage() {
     return result;
   }, [filtered, categories]);
 
-  const getTodayLoginInfo = (name: string) => {
-    const entries = getTodayLogins(name);
+  const getTodayLoginInfo = useCallback(async (name: string) => {
+    const entries = await getTodayLoginsAsync(name);
     return { entries, loginCount: entries.filter(e => e.status === 'online').length };
-  };
+  }, []);
+
+  if (guildLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 animate-pulse">
+          <div className="w-1 h-8 rounded-full bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-5 w-40 bg-secondary rounded" />
+            <div className="h-2 w-24 bg-secondary/60 rounded" />
+          </div>
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)}
+      </div>
+    );
+  }
 
   if (!guildName) {
     return (
@@ -183,13 +220,19 @@ export default function ExivaPage() {
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative">
-        <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
-          <ItemSprite item="search" className="h-4 w-4" />
+      {/* Search + Toggle */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+            <ItemSprite item="search" className="h-4 w-4" />
+          </div>
+          <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
+            placeholder={showOnlineOnly ? "Filtrar jogadores online..." : "Filtrar jogadores..."} className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
         </div>
-        <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
-          placeholder="Filtrar jogadores online..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
+        <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          <Switch checked={showOnlineOnly} onCheckedChange={setShowOnlineOnly} />
+          Só online
+        </label>
       </div>
 
       {/* Columns */}
@@ -276,11 +319,20 @@ interface MemberRowProps {
   setEditingAnnotation: (name: string | null) => void; setAnnotationText: (text: string) => void;
   handleSaveAnnotation: (name: string) => void;
   expanded: boolean; onToggleExpand: () => void;
-  getTodayLoginInfo: (name: string) => { entries: LoginEntry[]; loginCount: number };
+  getTodayLoginInfo: (name: string) => Promise<{ entries: LoginEntry[]; loginCount: number }>;
 }
 
 function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo }: MemberRowProps) {
-  const loginInfo = expanded ? getTodayLoginInfo(m.name) : null;
+  const [loginInfo, setLoginInfo] = useState<{ entries: LoginEntry[]; loginCount: number } | null>(null);
+
+  useEffect(() => {
+    if (expanded) {
+      getTodayLoginInfo(m.name).then(setLoginInfo);
+    } else {
+      setLoginInfo(null);
+    }
+  }, [expanded, m.name]);
+
   return (
     <div className="px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
       <div className="flex items-center gap-2 cursor-pointer" onClick={onToggleExpand}>

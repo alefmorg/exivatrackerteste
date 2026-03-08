@@ -145,6 +145,102 @@ export type Database = {
         }
         Relationships: []
       }
+      login_history: {
+        Row: {
+          char_name: string
+          id: string
+          recorded_at: string
+          status: string
+        }
+        Insert: {
+          char_name: string
+          id?: string
+          recorded_at?: string
+          status: string
+        }
+        Update: {
+          char_name?: string
+          id?: string
+          recorded_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      member_annotations: {
+        Row: {
+          annotation: string
+          char_name: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          annotation?: string
+          char_name: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          annotation?: string
+          char_name?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      member_categories: {
+        Row: {
+          category: string
+          char_name: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string
+          char_name: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          char_name?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      monitored_guilds: {
+        Row: {
+          created_at: string
+          id: string
+          last_update: string
+          member_count: number
+          name: string
+          world: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_update?: string
+          member_count?: number
+          name: string
+          world?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_update?: string
+          member_count?: number
+          name?: string
+          world?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -180,6 +276,27 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          id: string
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          settings?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

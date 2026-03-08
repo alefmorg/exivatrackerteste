@@ -5,8 +5,8 @@ import { ALL_SPRITES, ICON_SLOTS, DEFAULT_ICON_MAP, TibiaSprite, getIconPath } f
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { getMonitoredGuilds, addMonitoredGuild, removeMonitoredGuild } from '@/lib/storage';
-import { MonitoredGuild } from '@/types/tibia';
+import { getMonitoredGuildsAsync, addMonitoredGuildAsync, removeMonitoredGuildAsync, MonitoredGuild } from '@/lib/storage';
+import { timeAgo } from '@/lib/utils';
 import { getGuildWorld } from '@/lib/tibia-api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,14 +15,7 @@ import { loadSettings, saveSettings, applyTheme, THEME_PRESETS, type AppSettings
 
 const WORLDS = ['Antica', 'Secura', 'Gentebra', 'Belobra', 'Lobera', 'Pacera', 'Quintera', 'Solidera', 'Celebra', 'Firmera', 'Gladera', 'Menera', 'Peloria', 'Refugia', 'Talera', 'Venebra', 'Yonabra', 'Zuna'];
 
-function timeAgo(dateStr: string) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'Agora';
-  if (min < 60) return `Há ${min} min`;
-  return `Há ${Math.floor(min / 60)}h`;
-}
+// timeAgo imported from utils
 
 type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema' | 'visual';
 
@@ -40,7 +33,7 @@ export default function ConfiguracoesPage() {
   const [passwords, setPasswords] = useState({ new1: '', new2: '' });
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => { setGuilds(getMonitoredGuilds()); }, []);
+  useEffect(() => { getMonitoredGuildsAsync().then(setGuilds); }, []);
 
   useEffect(() => {
     if (user) {
@@ -68,9 +61,9 @@ export default function ConfiguracoesPage() {
     setLoading(true);
     try {
       const world = newGuildWorld || await getGuildWorld(newGuildName.trim());
-      const guild: MonitoredGuild = { id: Date.now().toString(36), name: newGuildName.trim(), world, memberCount: 0, lastUpdate: new Date().toISOString() };
-      addMonitoredGuild(guild);
-      setGuilds(getMonitoredGuilds());
+      await addMonitoredGuildAsync({ name: newGuildName.trim(), world });
+      const updated = await getMonitoredGuildsAsync();
+      setGuilds(updated);
       setNewGuildName(''); setNewGuildWorld('');
       toast({ title: 'Guild adicionada' });
     } catch (e: any) {
@@ -78,9 +71,10 @@ export default function ConfiguracoesPage() {
     } finally { setLoading(false); }
   };
 
-  const handleRemove = (id: string) => {
-    removeMonitoredGuild(id);
-    setGuilds(getMonitoredGuilds());
+  const handleRemove = async (id: string) => {
+    await removeMonitoredGuildAsync(id);
+    const updated = await getMonitoredGuildsAsync();
+    setGuilds(updated);
     toast({ title: 'Guild removida' });
   };
 
@@ -362,7 +356,7 @@ export default function ConfiguracoesPage() {
                       <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {g.world}</span>
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{timeAgo(g.lastUpdate)}</span>
+                  <span className="text-xs text-muted-foreground">{timeAgo(g.last_update)}</span>
                   <button onClick={() => handleRemove(g.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>

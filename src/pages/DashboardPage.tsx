@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe } from 'lucide-react';
-import { getMonitoredGuilds } from '@/lib/storage';
-import { MonitoredGuild } from '@/types/tibia';
+import { getMonitoredGuildsAsync, MonitoredGuild } from '@/lib/storage';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import StatusDot from '@/components/StatusDot';
 import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor, ItemSprite, SPRITE } from '@/components/TibiaIcons';
+import { timeAgo } from '@/lib/utils';
+import { SkeletonPage } from '@/components/SkeletonLoader';
 
 // ============================================================
 // Data fetching & management
@@ -22,16 +23,7 @@ interface LogRow {
   id: string; boneco_name: string; username: string; action: string; notes: string; created_at: string;
 }
 
-function timeAgo(dateStr: string) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'agora';
-  if (min < 60) return `${min}m`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
-}
+// timeAgo imported from utils
 
 const STATUS_COLORS = ['hsl(142, 76%, 45%)', 'hsl(45, 93%, 47%)', 'hsl(0, 72%, 51%)'];
 const VOC_COLORS: Record<string, string> = {
@@ -77,12 +69,19 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    setGuilds(getMonitoredGuilds());
+    getMonitoredGuildsAsync().then(setGuilds);
     fetchData();
     const bCh = supabase.channel('dash-bonecos').on('postgres_changes', { event: '*', schema: 'public', table: 'bonecos' }, () => fetchData()).subscribe();
     const lCh = supabase.channel('dash-logs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'boneco_logs' }, () => fetchData()).subscribe();
     return () => { supabase.removeChannel(bCh); supabase.removeChannel(lCh); };
   }, [fetchData]);
+
+  // Auto-refresh based on settings
+  useEffect(() => {
+    if (!settings.dashboardRefresh || settings.dashboardRefresh < 10) return;
+    const interval = setInterval(fetchData, settings.dashboardRefresh * 1000);
+    return () => clearInterval(interval);
+  }, [settings.dashboardRefresh, fetchData]);
 
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
@@ -115,7 +114,7 @@ export default function DashboardPage() {
   const today = new Date().toDateString();
   const todayLogs = recentLogs.filter(l => new Date(l.created_at).toDateString() === today);
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <SkeletonPage />;
 
   return (
     <div className="space-y-4">

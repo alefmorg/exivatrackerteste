@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemSprite } from '@/components/TibiaIcons';
+import { timeAgo } from '@/lib/utils';
 
 interface UserRow {
   id: string;
@@ -16,16 +17,7 @@ interface UserRow {
   last_sign_in_at: string | null;
 }
 
-function timeAgo(dateStr: string | null) {
-  if (!dateStr) return 'Nunca';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'Agora';
-  if (min < 60) return `${min}min atrás`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h atrás`;
-  return `${Math.floor(hours / 24)}d atrás`;
-}
+// timeAgo imported from utils
 
 export default function AdminUsersPage() {
   const { toast } = useToast();

@@ -47,10 +47,5 @@ export interface UsageLog {
   ip: string;
 }
 
-export interface MonitoredGuild {
-  id: string;
-  name: string;
-  world: string;
-  memberCount: number;
-  lastUpdate: string;
-}
+// Re-export MonitoredGuild from storage for backward compat
+export type { MonitoredGuild } from '@/lib/storage';
