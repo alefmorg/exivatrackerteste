@@ -191,10 +191,11 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Papel</label>
-                  <select value={role} onChange={e => setRole(e.target.value as 'admin' | 'user')}
+                   <select value={role} onChange={e => setRole(e.target.value as AppRole)}
                     className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm">
                     <option value="user">Usuário</option>
-                    <option value="admin">Admin</option>
+                    {isMasterAdmin && <option value="admin">Admin</option>}
+                    {isMasterAdmin && <option value="master_admin">Master Admin</option>}
                   </select>
                 </div>
               </div>
