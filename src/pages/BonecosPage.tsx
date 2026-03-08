@@ -610,12 +610,12 @@ export default function BonecosPage() {
             {/* Skills bar */}
             {settings.showSkills && (b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
-                {b.sword_skill > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="sword" className="h-3 w-3" /> Sword: {b.sword_skill}</span>}
-                {b.axe > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="axe" className="h-3 w-3" /> Axe: {b.axe}</span>}
-                {b.club > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="club" className="h-3 w-3" /> Club: {b.club}</span>}
-                {b.distance > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="distance" className="h-3 w-3" /> Dist: {b.distance}</span>}
-                {b.shielding > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="shielding" className="h-3 w-3" /> Shield: {b.shielding}</span>}
-                {b.fist > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="fist" className="h-3 w-3" /> Fist: {b.fist}</span>}
+                {b.sword_skill > 0 && <span className="flex items-center gap-1"><ItemSprite item="sword" className="h-4 w-4" /> Sword: {b.sword_skill}</span>}
+                {b.axe > 0 && <span className="flex items-center gap-1"><ItemSprite item="axe" className="h-4 w-4" /> Axe: {b.axe}</span>}
+                {b.club > 0 && <span className="flex items-center gap-1"><ItemSprite item="club" className="h-4 w-4" /> Club: {b.club}</span>}
+                {b.distance > 0 && <span className="flex items-center gap-1"><ItemSprite item="distance" className="h-4 w-4" /> Dist: {b.distance}</span>}
+                {b.shielding > 0 && <span className="flex items-center gap-1"><ItemSprite item="shielding" className="h-4 w-4" /> Shield: {b.shielding}</span>}
+                {b.fist > 0 && <span className="flex items-center gap-1"><ItemSprite item="fist" className="h-4 w-4" /> Fist: {b.fist}</span>}
               </div>
             )}
 
