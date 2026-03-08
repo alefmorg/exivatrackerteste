@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Globe, Users, Trash2, RefreshCw, Search, Settings, User, Shield, Save, LogOut, Mail, Key, Clock, Zap, Palette, Bell, Database, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, AlertTriangle, Check, Volume2, VolumeX, Sun, Moon, Layout, Columns, List, Grid3X3, Paintbrush, Image, X, RotateCcw } from 'lucide-react';
-import { ALL_SPRITES, ICON_SLOTS, DEFAULT_ICON_MAP, TibiaSprite, getIconPath } from '@/components/TibiaIcons';
+import { Plus, Globe, Users, Trash2, RefreshCw, Search, Settings, User, Shield, Save, LogOut, Mail, Key, Clock, Zap, Bell, Database, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, AlertTriangle, Check, Volume2, VolumeX, Sun, Moon, Layout, Columns, List, Grid3X3, Paintbrush, X, RotateCcw } from 'lucide-react';
+import { TibiaSprite, getIconPath } from '@/components/TibiaIcons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
