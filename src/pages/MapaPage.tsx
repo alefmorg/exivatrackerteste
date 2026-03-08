@@ -4,11 +4,10 @@ import { X } from 'lucide-react';
 import { fetchGuildMembers, fetchCharacter } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
-import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
+import { VocationIcon } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useSettings } from '@/hooks/useSettings';
-import { supabase } from '@/integrations/supabase/client';
 
 // ============================================================
 // Tibia City definitions with approximate grid positions
