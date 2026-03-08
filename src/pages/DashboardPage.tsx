@@ -187,7 +187,7 @@ export default function DashboardPage() {
       {/* Today */}
       {todayLogs.length > 0 && (
         <div className="panel rounded-lg p-3 flex items-center gap-3 stripe-left">
-          <ItemSprite item="clock" className="h-4 w-4" />
+          <ItemSprite item="clock" className="h-5 w-5" />
           <span className="text-xs text-foreground font-medium">Hoje:</span>
           <span className="text-xs text-muted-foreground font-mono">
             {todayLogs.length} ações — {todayLogs.filter(l => l.action === 'pegar').length} pegaram, {todayLogs.filter(l => l.action === 'devolver').length} devolveram
