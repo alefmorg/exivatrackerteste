@@ -253,6 +253,73 @@ export default function BonecosPage() {
     toast({ title: '📋 Credenciais copiadas!', description: `Email, senha${totpCode ? ' e código 2FA' : ''} copiados.` });
   };
 
+  const syncBoneco = async (b: BonecoRow) => {
+    if (!b.name || syncing.has(b.id)) return;
+    setSyncing(prev => new Set(prev).add(b.id));
+    try {
+      const charData = await fetchCharacter(b.name);
+      const char = charData.character;
+      if (!char) throw new Error('Char não encontrado');
+
+      const updates: Partial<BonecoRow> = {};
+      if (char.level && char.level !== b.level) updates.level = char.level;
+      if (char.vocation && char.vocation !== b.vocation) updates.vocation = char.vocation;
+      if (char.world && char.world !== b.world) updates.world = char.world;
+      if (char.residence && char.residence !== b.location) updates.location = char.residence;
+      if (char.account_status) updates.premium_active = char.account_status === 'Premium Account';
+
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.from('bonecos').update(updates).eq('id', b.id);
+        if (error) throw error;
+        toast({ title: `✅ ${b.name} atualizado`, description: Object.entries(updates).map(([k, v]) => `${k}: ${v}`).join(', ') });
+        fetchBonecos();
+      } else {
+        toast({ title: `${b.name} já está atualizado` });
+      }
+    } catch (err: any) {
+      toast({ title: `Erro ao sincronizar ${b.name}`, description: err?.message || 'Char não encontrado na API', variant: 'destructive' });
+    } finally {
+      setSyncing(prev => { const n = new Set(prev); n.delete(b.id); return n; });
+    }
+  };
+
+  const syncAllBonecos = async () => {
+    if (syncAllLoading) return;
+    setSyncAllLoading(true);
+    setSyncProgress({ done: 0, total: bonecos.length });
+    let updated = 0;
+
+    for (let i = 0; i < bonecos.length; i += 5) {
+      const batch = bonecos.slice(i, i + 5);
+      await Promise.allSettled(batch.map(async (b) => {
+        try {
+          const charData = await fetchCharacter(b.name);
+          const char = charData.character;
+          if (!char) return;
+
+          const updates: Record<string, any> = {};
+          if (char.level && char.level !== b.level) updates.level = char.level;
+          if (char.vocation && char.vocation !== b.vocation) updates.vocation = char.vocation;
+          if (char.world && char.world !== b.world) updates.world = char.world;
+          if (char.residence && char.residence !== b.location) updates.location = char.residence;
+          if (char.account_status) updates.premium_active = char.account_status === 'Premium Account';
+
+          if (Object.keys(updates).length > 0) {
+            await supabase.from('bonecos').update(updates).eq('id', b.id);
+            updated++;
+          }
+        } catch { /* skip */ }
+      }));
+      setSyncProgress({ done: Math.min(i + 5, bonecos.length), total: bonecos.length });
+      if (i + 5 < bonecos.length) await new Promise(r => setTimeout(r, 400));
+    }
+
+    toast({ title: `🔄 Sync concluído!`, description: `${updated} bonecos atualizados de ${bonecos.length}` });
+    setSyncAllLoading(false);
+    setSyncProgress(null);
+    fetchBonecos();
+  };
+
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
   const offlineCount = bonecos.filter(b => b.status === 'offline').length;
