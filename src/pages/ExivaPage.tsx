@@ -172,28 +172,17 @@ export default function ExivaPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="exiva" className="h-6 w-6" /> EXIVA LIST
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span className="text-foreground font-semibold">{guildName}</span>
-              <span>•</span>
-              <span className="text-primary">{lastUpdate || '—'}</span>
-              <span>•</span>
-              <span className="text-primary">{refreshCountdown}s</span>
-            </div>
-          </div>
-        </div>
-        <button onClick={() => doFetch(guildName)} disabled={loading}
-          className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
+      <PageHeader
+        title="EXIVA LIST"
+        icon="exiva"
+        subtitle={<><span className="text-foreground font-semibold">{guildName}</span><span>•</span><span className="text-primary">{lastUpdate || '—'}</span><span>•</span><span className="text-primary">{refreshCountdown}s</span></>}
+        actions={
+          <button onClick={() => doFetch(guildName)} disabled={loading}
+            className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
+            <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        }
+      />
 
       {/* Status bar */}
       {members.length > 0 && (
