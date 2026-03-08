@@ -117,8 +117,8 @@ export default function ExivaPage() {
     toast({ title: 'Anotação salva' });
   };
 
-  const handleSetCategory = (charName: string, cat: MemberCategory) => {
-    saveCategory(charName, cat);
+  const handleSetCategory = async (charName: string, cat: MemberCategory) => {
+    await saveCategoryAsync(charName, cat, user?.id);
     setCategories(prev => ({ ...prev, [charName]: cat }));
   };
 
