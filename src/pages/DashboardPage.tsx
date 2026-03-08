@@ -158,7 +158,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {[
           { label: 'LV MÉD', value: avgLevel.toString(), sprite: 'level' as const },
           { label: 'LV MAX', value: maxLevel.toString(), sprite: 'level' as const },
