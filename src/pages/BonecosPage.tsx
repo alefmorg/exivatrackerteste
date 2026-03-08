@@ -624,7 +624,7 @@ export default function BonecosPage() {
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 {b.acessos?.map((a, i) => (
                   <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
-                    <ItemSprite item="key" className="h-3 w-3" /> {a}
+                    <ItemSprite item="key" className="h-4 w-4" /> {a}
                   </span>
                 ))}
                 {settings.showQuests && b.quests?.map((q, i) => (
