@@ -13,7 +13,7 @@ export default function MobileNav() {
     { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const },
     { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const },
     { path: '/mapa', label: 'Mapa', sprite: 'mapa' as const },
-    { path: '/historico', label: 'Log', sprite: 'history' as const },
+    
     ...(isAdminOrAbove ? [{ path: '/admin/usuarios', label: 'Users', sprite: 'users' as const }] : []),
     { path: '/configuracoes', label: 'Config', sprite: 'settings' as const },
   ];

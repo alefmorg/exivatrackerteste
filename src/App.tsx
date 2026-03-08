@@ -44,7 +44,7 @@ function ProtectedRoutes() {
         <Route path="/relatorio" element={<RelatorioPage />} />
         <Route path="/bonecos" element={<BonecosPage />} />
         <Route path="/mapa" element={<MapaPage />} />
-        <Route path="/historico" element={<HistoricoPage />} />
+        
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
         <Route path="/configuracoes" element={<ConfiguracoesPage />} />
         <Route path="*" element={<NotFound />} />
