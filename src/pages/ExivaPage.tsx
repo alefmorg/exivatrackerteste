@@ -351,7 +351,13 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>
-        </div>
+          {mapPin && (
+            <span className="text-[9px] font-mono text-primary flex items-center gap-0.5">
+              <MapPin className="h-2.5 w-2.5" />
+              {getNearestCity(mapPin.pos_x, mapPin.pos_y)}
+              {mapPin.note && <span className="text-muted-foreground">· {mapPin.note}</span>}
+            </span>
+          )}
         <select value={category} onChange={e => { e.stopPropagation(); onSetCategory(m.name, e.target.value as MemberCategory); }}
           onClick={e => e.stopPropagation()}
           className="text-[9px] px-1 py-0.5 rounded bg-secondary border border-border text-foreground cursor-pointer">
