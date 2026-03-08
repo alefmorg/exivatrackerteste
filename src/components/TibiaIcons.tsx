@@ -457,6 +457,7 @@ export function NavSprite({ spriteKey, className = 'h-5 w-5' }: { spriteKey: str
     exiva: 'nav_exiva',
     bonecos: 'nav_bonecos',
     relatorio: 'nav_relatorio',
+    mapa: 'nav_mapa',
     history: 'nav_history',
     users: 'nav_users',
     settings: 'nav_settings',

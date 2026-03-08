@@ -143,7 +143,7 @@ export default function MapaPage() {
       <PageHeader
         title="Mapa"
         subtitle={`${totalOnMap} personagens no mapa`}
-        spriteKey="compass"
+        icon="compass"
       />
 
       {/* Controls */}

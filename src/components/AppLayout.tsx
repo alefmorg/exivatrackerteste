@@ -18,6 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const, adminOnly: false },
     { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const, adminOnly: false },
     { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: false },
+    { path: '/mapa', label: 'Mapa', sprite: 'mapa' as const, adminOnly: false },
     { path: '/historico', label: 'Histórico', sprite: 'history' as const, adminOnly: false },
     { path: '/admin/usuarios', label: 'Usuários', sprite: 'users' as const, adminOnly: true },
     { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
