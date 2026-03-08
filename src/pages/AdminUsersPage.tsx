@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserPlus, Shield, Users, Trash2, Key, RefreshCw, Search, Crown, User, Mail, Clock, MoreVertical, Edit2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ItemSprite } from '@/components/TibiaIcons';
 
 interface UserRow {
   id: string;
