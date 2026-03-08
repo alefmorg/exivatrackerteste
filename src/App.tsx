@@ -19,9 +19,9 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { isAdmin, loading } = useAuth();
+  const { isAdminOrAbove, loading } = useAuth();
   if (loading) return null;
-  return isAdmin ? <>{children}</> : <Navigate to="/" replace />;
+  return isAdminOrAbove ? <>{children}</> : <Navigate to="/" replace />;
 }
 
 function ProtectedRoutes() {

@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
   ];
 
-  const visibleItems = navItems.filter(item => !item.adminOnly || isAdmin);
+  const visibleItems = navItems.filter(item => !item.adminOnly || isAdminOrAbove);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
