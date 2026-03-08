@@ -517,13 +517,13 @@ export default function BonecosPage() {
                   <span className="font-bold text-foreground truncate">{b.name}</span>
                   <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{getVocShort(b.vocation)}</span>
                   <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
-                    <ItemSprite item="level" className="h-3 w-3" /> Lv.{b.level}
+                    <ItemSprite item="level" className="h-4 w-4" /> Lv.{b.level}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <ItemSprite item="globe" className="h-3 w-3" /> {b.world || '—'}
+                  <ItemSprite item="globe" className="h-4 w-4" /> {b.world || '—'}
                   <span className="text-border">•</span>
-                  <ItemSprite item="location" className="h-3 w-3" /> {b.location || '—'}
+                  <ItemSprite item="location" className="h-4 w-4" /> {b.location || '—'}
                 </div>
               </div>
               <div className="flex items-center gap-2">
