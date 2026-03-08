@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ItemSprite } from '@/components/TibiaIcons';
+import { timeAgo, formatDate } from '@/lib/utils';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
