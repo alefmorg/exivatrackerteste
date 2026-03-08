@@ -158,12 +158,36 @@ export default function MapaPage() {
     if (!mapRef.current) return;
     setExporting(true);
     try {
+      // Temporarily hide animated pulse elements and popups for clean screenshot
+      const pulses = mapRef.current.querySelectorAll('[style*="animation"], .animate-pulse');
+      const popups = mapRef.current.querySelectorAll('[data-popup]');
+      const zoomControls = mapRef.current.querySelector('.absolute.top-2.right-2');
+      
+      pulses.forEach(el => (el as HTMLElement).style.visibility = 'hidden');
+      popups.forEach(el => (el as HTMLElement).style.visibility = 'hidden');
+      if (zoomControls) (zoomControls as HTMLElement).style.visibility = 'hidden';
+
       const canvas = await html2canvas(mapRef.current, {
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null,
+        backgroundColor: '#1a1a1a',
         scale: 2,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Fix framer-motion animated elements in clone
+          const motionDivs = clonedDoc.querySelectorAll('[style*="opacity"]');
+          motionDivs.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            if (htmlEl.style.opacity === '0') htmlEl.remove();
+          });
+        },
       });
+      
+      // Restore visibility
+      pulses.forEach(el => (el as HTMLElement).style.visibility = '');
+      popups.forEach(el => (el as HTMLElement).style.visibility = '');
+      if (zoomControls) (zoomControls as HTMLElement).style.visibility = '';
+
       const link = document.createElement('a');
       link.download = `mapa-tibia-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = canvas.toDataURL('image/png');
@@ -256,7 +280,7 @@ export default function MapaPage() {
           <img
             src="/tibia-world-map.png"
             alt="Tibia World Map"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            className="absolute inset-0 w-full h-full object-fill pointer-events-none"
             style={{ imageRendering: 'pixelated' }}
             draggable={false}
           />
