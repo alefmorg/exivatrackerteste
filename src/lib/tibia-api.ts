@@ -36,7 +36,7 @@ interface TibiaDataCharResponse {
 
 // Cache
 const cache: Record<string, { data: unknown; timestamp: number }> = {};
-const CACHE_TTL = 55000; // 55 seconds
+const CACHE_TTL = 15000; // 15 seconds (reduced for fresher data)
 
 function getCached<T>(key: string): T | null {
   const entry = cache[key];
@@ -48,6 +48,26 @@ function getCached<T>(key: string): T | null {
 
 function setCache(key: string, data: unknown) {
   cache[key] = { data, timestamp: Date.now() };
+}
+
+// Fetch online players from world endpoint (updates faster than guild endpoint)
+async function fetchWorldOnlinePlayers(world: string): Promise<Set<string>> {
+  const cacheKey = `world_online_${world}`;
+  const cached = getCached<Set<string>>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const res = await fetch(`https://api.tibiadata.com/v4/world/${encodeURIComponent(world)}`);
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    const onlinePlayers = new Set<string>(
+      (data.world?.online_players || []).map((p: { name: string }) => p.name)
+    );
+    setCache(cacheKey, onlinePlayers);
+    return onlinePlayers;
+  } catch {
+    return new Set();
+  }
 }
 
 export async function fetchGuildMembers(guildName: string): Promise<GuildMember[]> {
@@ -64,15 +84,27 @@ export async function fetchGuildMembers(guildName: string): Promise<GuildMember[
     throw new Error('Guild não encontrada ou sem membros');
   }
 
-  const members: GuildMember[] = data.guild.members.map(m => ({
-    name: m.name,
-    level: m.level,
-    vocation: m.vocation,
-    status: m.status === 'online' ? 'online' as const : 'offline' as const,
-    lastLocation: '',
-    annotation: '',
-    lastUpdate: new Date().toLocaleTimeString('pt-BR'),
-  }));
+  const world = data.guild.world || '';
+
+  // Cross-reference with world online list for more accurate status
+  const worldOnline = world ? await fetchWorldOnlinePlayers(world) : new Set<string>();
+
+  const members: GuildMember[] = data.guild.members.map(m => {
+    // Use world endpoint as primary source if available, fallback to guild status
+    const isOnline = worldOnline.size > 0
+      ? worldOnline.has(m.name)
+      : m.status === 'online';
+
+    return {
+      name: m.name,
+      level: m.level,
+      vocation: m.vocation,
+      status: isOnline ? 'online' as const : 'offline' as const,
+      lastLocation: '',
+      annotation: '',
+      lastUpdate: new Date().toLocaleTimeString('pt-BR'),
+    };
+  });
 
   setCache(cacheKey, members);
   return members;

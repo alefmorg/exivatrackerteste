@@ -32,7 +32,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  refreshInterval: 60,
+  refreshInterval: 30,
   maxDeaths: 30,
   defaultWorld: '',
   showOfflineBonecos: true,
