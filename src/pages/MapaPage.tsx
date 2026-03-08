@@ -26,6 +26,7 @@ export default function MapaPage() {
   const [clickPopup, setClickPopup] = useState<ClickPopup | null>(null);
   const [searchText, setSearchText] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [mapAspectRatio, setMapAspectRatio] = useState(5 / 4);
   const mapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const { pins, addPin, removePin, cleanOfflinePins } = useMapPins();
@@ -39,6 +40,16 @@ export default function MapaPage() {
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        setMapAspectRatio(img.naturalWidth / img.naturalHeight);
+      }
+    };
+    img.src = '/tibia-world-map.png';
+  }, []);
 
   // Fetch online guild members
   useEffect(() => {
@@ -261,7 +272,8 @@ export default function MapaPage() {
       {/* Map Container */}
       <div
         ref={mapRef}
-        className={`relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
+        className={`relative w-full border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
+        style={{ aspectRatio: mapAspectRatio }}
         onClick={handleMapClick}
         
         onMouseDown={handleMouseDown}
@@ -280,7 +292,7 @@ export default function MapaPage() {
           <img
             src="/tibia-world-map.png"
             alt="Tibia World Map"
-            className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
             style={{ imageRendering: 'pixelated' }}
             draggable={false}
           />
