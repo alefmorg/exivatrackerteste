@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemSprite } from '@/components/TibiaIcons';
+import { useAuth, type AppRole } from '@/hooks/useAuth';
 import { timeAgo } from '@/lib/utils';
 
 interface UserRow {
