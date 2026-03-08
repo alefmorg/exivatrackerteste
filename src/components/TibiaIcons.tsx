@@ -534,8 +534,10 @@ export const VocationIcon = ({ vocation, className = "h-5 w-5" }: { vocation: st
 export const ActivityIcon = ({ activity, className = "h-5 w-5" }: { activity: string; className?: string }) => {
   const settings = useSettings();
 
-  if (settings.iconPack === 'tibia' && SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
-    return <TibiaSprite src={SPRITE.activity[activity as keyof typeof SPRITE.activity]} alt={activity} className={className} />;
+  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('act_'))) {
+    if (SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
+      return <TibiaSprite src={getActSpritePath(activity, settings.customIcons)} alt={activity} className={className} />;
+    }
   }
 
   switch (activity) {
