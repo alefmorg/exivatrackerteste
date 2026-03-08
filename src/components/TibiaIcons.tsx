@@ -549,24 +549,26 @@ export const VocationIcon = forwardRef<HTMLSpanElement, { vocation: string; clas
 );
 VocationIcon.displayName = 'VocationIcon';
 
-// Map activities to icons
-export const ActivityIcon = ({ activity, className = "h-5 w-5" }: { activity: string; className?: string }) => {
-  const settings = useSettings();
+export const ActivityIcon = forwardRef<HTMLSpanElement, { activity: string; className?: string }>(
+  ({ activity, className = "h-5 w-5" }, ref) => {
+    const settings = useSettings();
 
-  if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('act_'))) {
-    if (SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
-      return <TibiaSprite src={getActSpritePath(activity, settings.customIcons)} alt={activity} className={className} />;
+    if (settings.iconPack === 'tibia' || Object.keys(settings.customIcons).some(k => k.startsWith('act_'))) {
+      if (SPRITE.activity[activity as keyof typeof SPRITE.activity]) {
+        return <span ref={ref}><TibiaSprite src={getActSpritePath(activity, settings.customIcons)} alt={activity} className={className} /></span>;
+      }
+    }
+
+    switch (activity) {
+      case 'hunt': return <span ref={ref}><Target className={className} /></span>;
+      case 'war': return <span ref={ref}><Swords className={className} /></span>;
+      case 'maker': return <span ref={ref}><Hammer className={className} /></span>;
+      case 'boss': return <span ref={ref}><Skull className={className} /></span>;
+      default: return <span ref={ref}><Shield className={className} /></span>;
     }
   }
-
-  switch (activity) {
-    case 'hunt': return <Target className={className} />;
-    case 'war': return <Swords className={className} />;
-    case 'maker': return <Hammer className={className} />;
-    case 'boss': return <Skull className={className} />;
-    default: return <Shield className={className} />;
-  }
-};
+);
+ActivityIcon.displayName = 'ActivityIcon';
 
 // Vocation colors
 export const vocationColors: Record<string, string> = {
