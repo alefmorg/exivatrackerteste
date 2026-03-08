@@ -299,7 +299,7 @@ export default function AdminUsersPage() {
           ))}
           {filtered.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              <Users className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <ItemSprite item="users" className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p className="text-lg font-medium">Nenhum usuário encontrado</p>
             </div>
           )}
