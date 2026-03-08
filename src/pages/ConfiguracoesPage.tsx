@@ -33,7 +33,7 @@ export default function ConfiguracoesPage() {
   const [passwords, setPasswords] = useState({ new1: '', new2: '' });
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => { setGuilds(getMonitoredGuilds()); }, []);
+  useEffect(() => { getMonitoredGuildsAsync().then(setGuilds); }, []);
 
   useEffect(() => {
     if (user) {
