@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 import MobileNav from '@/components/MobileNav';
@@ -91,7 +90,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <button onClick={signOut} className="p-1 text-muted-foreground hover:text-destructive transition-colors" title="Sair">
-              <LogOut className="h-3 w-3" />
+              <ItemSprite item="signout" className="h-4 w-4" />
             </button>
           </div>
         </div>

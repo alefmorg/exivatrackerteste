@@ -294,6 +294,8 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   // Login/Logout actions (separate from status)
   action_login: 'green_gem',
   action_logout: 'red_gem',
+  // Menu
+  action_signout: 'death_ring',
 };
 
 // Customizable icon slots with labels
@@ -363,6 +365,7 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   // Login/Logout
   { key: 'action_login', label: 'Login (Pegar)', group: 'Ações' },
   { key: 'action_logout', label: 'Logout (Devolver)', group: 'Ações' },
+  { key: 'action_signout', label: 'Sair (Menu)', group: 'Ações' },
 ];
 
 // ============================================================
@@ -511,6 +514,7 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
     settings: 'nav_settings',
     users: 'nav_users',
     bonecos: 'nav_bonecos',
+    signout: 'action_signout',
   };
   const actionSlot = actionSlotMap[item];
   if (actionSlot) return <SlotSprite slot={actionSlot} className={className} />;
