@@ -168,10 +168,7 @@ export default function HistoricoPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground">
-              <ItemSprite item="history" className="h-10 w-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">Nenhum repasse registrado</p>
-            </div>
+            <EmptyState icon="history" title="Nenhum repasse registrado" description="Os logs de pegar/devolver bonecos aparecerão aqui." />
           )}
           {logs.length >= limit && (
             <div className="text-center pt-2">
