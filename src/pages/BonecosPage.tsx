@@ -566,17 +566,6 @@ export default function BonecosPage() {
               )}
             </div>
 
-            {/* Acessos & Quests */}
-            {settings.showAcessos && ((b.acessos && b.acessos.length > 0) || (settings.showQuests && b.quests && b.quests.length > 0)) && (
-              <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {b.acessos?.map((a, i) => (
-                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">🔑 {a}</span>
-                ))}
-                {settings.showQuests && b.quests?.map((q, i) => (
-                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">📜 {q}</span>
-                ))}
-              </div>
-            )}
 
             {/* Credentials */}
             {settings.showCredentials && (
