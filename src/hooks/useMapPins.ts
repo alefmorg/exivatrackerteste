@@ -70,5 +70,5 @@ export function useMapPins() {
     }
   }, [pins]);
 
-  return { pins, loading, addPin, removePin, cleanOfflinePins, refetch: fetchPins };
+  return { pins, loading, addPin, removePin, updatePinNote, cleanOfflinePins, refetch: fetchPins };
 }
