@@ -74,31 +74,19 @@ export default function HistoricoPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="history" className="h-5 w-5" /> BATTLE LOG
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span>{logs.length} registros</span>
-              <span className="text-primary flex items-center gap-1">
-                <ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5">
+      <PageHeader
+        title="BATTLE LOG"
+        icon="history"
+        subtitle={<><span>{logs.length} registros</span><span className="text-primary flex items-center gap-1"><ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME</span></>}
+        actions={<>
           <button onClick={exportCSV} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
             <ItemSprite item="scroll" className="h-5 w-5" />
           </button>
           <button onClick={fetchLogs} disabled={loading} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
             <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
