@@ -17,6 +17,7 @@ export interface AppSettings {
   exivaColumns: 2 | 3 | 4;
   soundNotifications: boolean;
   toastNotifications: boolean;
+  pushNotifications: boolean;
   autoClaimReturn: boolean;
   showCredentials: boolean;
   showSkills: boolean;
