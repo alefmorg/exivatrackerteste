@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Globe, Users, Trash2, RefreshCw, Search, Settings, User, Shield, Save, LogOut, Mail, Key, Clock, Zap, Palette, Bell, Database, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, AlertTriangle, Check, Volume2, VolumeX, Sun, Moon, Layout, Columns, List, Grid3X3 } from 'lucide-react';
+import { Plus, Globe, Users, Trash2, RefreshCw, Search, Settings, User, Shield, Save, LogOut, Mail, Key, Clock, Zap, Palette, Bell, Database, Monitor, Eye, EyeOff, ChevronDown, ChevronUp, AlertTriangle, Check, Volume2, VolumeX, Sun, Moon, Layout, Columns, List, Grid3X3, Paintbrush, Image } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -10,7 +10,7 @@ import { getGuildWorld } from '@/lib/tibia-api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { loadSettings, saveSettings, type AppSettings, DEFAULT_SETTINGS } from '@/hooks/useSettings';
+import { loadSettings, saveSettings, applyTheme, THEME_PRESETS, type AppSettings, type ThemePreset, type IconPack, DEFAULT_SETTINGS } from '@/hooks/useSettings';
 
 const WORLDS = ['Antica', 'Secura', 'Gentebra', 'Belobra', 'Lobera', 'Pacera', 'Quintera', 'Solidera', 'Celebra', 'Firmera', 'Gladera', 'Menera', 'Peloria', 'Refugia', 'Talera', 'Venebra', 'Yonabra', 'Zuna'];
 
@@ -23,7 +23,7 @@ function timeAgo(dateStr: string) {
   return `Há ${Math.floor(min / 60)}h`;
 }
 
-type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema';
+type Tab = 'guilds' | 'bonecos' | 'exiva' | 'dashboard' | 'notificacoes' | 'perfil' | 'sistema' | 'visual';
 
 export default function ConfiguracoesPage() {
   const { toast } = useToast();
@@ -57,6 +57,7 @@ export default function ConfiguracoesPage() {
 
   const handleSaveSettings = () => {
     saveSettings(settings);
+    applyTheme(settings.theme);
     setHasChanges(false);
     toast({ title: '✅ Configurações salvas!' });
   };
@@ -102,6 +103,7 @@ export default function ConfiguracoesPage() {
   };
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
+    { id: 'visual', label: 'Visual', icon: Paintbrush },
     { id: 'bonecos', label: 'Bonecos', icon: Layout },
     { id: 'exiva', label: 'Exiva', icon: Search },
     { id: 'dashboard', label: 'Dashboard', icon: Monitor },
@@ -149,7 +151,62 @@ export default function ConfiguracoesPage() {
         ))}
       </div>
 
-      {/* ===== BONECOS TAB ===== */}
+      {/* ===== VISUAL TAB ===== */}
+      {tab === 'visual' && (
+        <div className="space-y-4">
+          <SettingsSection title="Tema de Cores" icon={<Palette className="h-4 w-4 text-primary" />}>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-1">
+              {(Object.entries(THEME_PRESETS) as [ThemePreset, typeof THEME_PRESETS[ThemePreset]][]).map(([key, preset]) => (
+                <button key={key} onClick={() => updateSetting('theme', key)}
+                  className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    settings.theme === key 
+                      ? 'border-primary bg-primary/10 shadow-lg' 
+                      : 'border-border/50 bg-secondary/30 hover:border-border hover:bg-secondary/60'
+                  }`}>
+                  <div className="w-8 h-8 rounded-full shadow-lg" style={{ backgroundColor: preset.preview, boxShadow: `0 0 16px ${preset.preview}40` }} />
+                  <span className="text-xs font-semibold text-foreground">{preset.label}</span>
+                  {settings.theme === key && (
+                    <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground px-1 pt-2">Salve para aplicar o novo tema. Isso altera a cor principal e os brilhos neon em toda a interface.</p>
+          </SettingsSection>
+
+          <SettingsSection title="Pacote de Ícones" icon={<Image className="h-4 w-4 text-primary" />}>
+            <div className="grid grid-cols-2 gap-3 p-1 max-w-md">
+              {([
+                { value: 'lucide' as IconPack, label: 'Lucide (Padrão)', desc: 'Ícones minimalistas e vetorizados' },
+                { value: 'tibia' as IconPack, label: 'Tibia Sprites', desc: 'Sprites pixelados do jogo' },
+              ]).map(opt => (
+                <button key={opt.value} onClick={() => updateSetting('iconPack', opt.value)}
+                  className={`flex flex-col items-start gap-1 p-4 rounded-xl border-2 transition-all text-left ${
+                    settings.iconPack === opt.value
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border/50 bg-secondary/30 hover:border-border'
+                  }`}>
+                  <span className="text-sm font-semibold text-foreground">{opt.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{opt.desc}</span>
+                  {settings.iconPack === opt.value && (
+                    <div className="self-end mt-1">
+                      <Check className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground px-1 pt-2">Os ícones de vocação e atividade serão trocados em toda a interface.</p>
+          </SettingsSection>
+
+          <SettingsSection title="Animações" icon={<Zap className="h-4 w-4 text-primary" />}>
+            <SettingToggle label="Animações" description="Habilitar transições e efeitos de movimento" checked={settings.animationsEnabled} onChange={v => updateSetting('animationsEnabled', v)} />
+          </SettingsSection>
+        </div>
+      )}
+
       {tab === 'bonecos' && (
         <div className="space-y-4">
           <SettingsSection title="Layout dos Cards" icon={<Layout className="h-4 w-4 text-primary" />}>
