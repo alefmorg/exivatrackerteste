@@ -237,9 +237,36 @@ export default function MapaPage() {
               className={`absolute flex flex-col items-center gap-0.5 group cursor-pointer z-10`}
               style={{ left: `${city.x}%`, top: `${city.y}%`, transform: 'translate(-50%, -50%)' }}
               onClick={() => setSelectedCity(isSelected ? null : city.id)}
+              onMouseEnter={() => setHoveredCity(city.id)}
+              onMouseLeave={() => setHoveredCity(null)}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.95 }}
             >
+              {/* Hover tooltip with member names */}
+              <AnimatePresence>
+                {hoveredCity === city.id && count > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 bg-popover border border-border rounded px-2 py-1.5 shadow-lg min-w-[100px] max-w-[180px] pointer-events-none"
+                  >
+                    <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-wider mb-1">{city.name}</div>
+                    <div className="space-y-0.5">
+                      {members.slice(0, 10).map(m => (
+                        <div key={m.name} className="text-[10px] text-foreground truncate flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {m.name}
+                        </div>
+                      ))}
+                      {members.length > 10 && (
+                        <div className="text-[9px] text-muted-foreground">+{members.length - 10} mais</div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Pulse ring for cities with members */}
               {count > 0 && (
                 <motion.div
