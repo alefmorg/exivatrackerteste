@@ -261,6 +261,7 @@ export default function BonecosPage() {
     if (statusFilter && b.status !== statusFilter) return false;
     if (vocationFilter && b.vocation !== vocationFilter) return false;
     if (showAvailableOnly && b.used_by) return false;
+    if (!settings.showOfflineBonecos && b.status === 'offline') return false;
     return true;
   });
 
