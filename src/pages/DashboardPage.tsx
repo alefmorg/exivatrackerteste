@@ -114,7 +114,7 @@ export default function DashboardPage() {
   const today = new Date().toDateString();
   const todayLogs = recentLogs.filter(l => new Date(l.created_at).toDateString() === today);
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <SkeletonPage />;
 
   return (
     <div className="space-y-4">
