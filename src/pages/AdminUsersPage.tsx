@@ -207,7 +207,7 @@ export default function AdminUsersPage() {
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)}>Cancelar</Button>
                 <Button size="sm" onClick={handleCreate} disabled={creating} className="gap-2">
-                  {creating ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                  {creating ? <ItemSprite item="refresh" className="h-4 w-4 animate-spin" /> : <ItemSprite item="add" className="h-4 w-4" />}
                   Criar
                 </Button>
               </div>
