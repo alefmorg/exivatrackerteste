@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { Sword, Swords, Shield, Skull, Hammer, Crosshair, Heart, Wand2, Target } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
 
