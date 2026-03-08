@@ -430,36 +430,69 @@ export default function MapaPage() {
         )}
       </div>
 
-      {/* Summary of pinned members */}
-      {visiblePins.length > 0 && (
-        <div className="bg-card border border-border rounded-lg p-2">
-          <div className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1.5 px-1">
-            Personagens no mapa ({visiblePins.length})
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {visiblePins.map(pin => {
-              const member = memberMap[pin.char_name];
-              return (
-                <div
-                  key={pin.id}
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-secondary/50 text-[10px] group"
-                >
-                  <StatusDot status="online" />
-                  {member && <VocationIcon vocation={member.vocation} className="h-3 w-3" />}
-                  <span className="text-foreground">{pin.char_name}</span>
-                  {member && <span className="text-muted-foreground font-mono">Lv {member.level}</span>}
-                  <button
-                    onClick={() => removePin(pin.char_name)}
-                    className="p-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-2.5 w-2.5" />
-                  </button>
+        {/* Radar panel */}
+        {visiblePins.length > 0 && (
+          <div className="absolute bottom-2 left-2 z-20 w-52" data-popup onClick={e => e.stopPropagation()}>
+            <div className="bg-card/95 backdrop-blur border border-border rounded-lg shadow-lg overflow-hidden">
+              <button
+                onClick={() => setRadarOpen(!radarOpen)}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-secondary/30 transition-colors"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Radar className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">Radar</span>
+                  <span className="text-[9px] font-mono text-muted-foreground">{visiblePins.length}</span>
                 </div>
-              );
-            })}
+                {radarOpen ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronUp className="h-3 w-3 text-muted-foreground" />}
+              </button>
+              {radarOpen && (
+                <div className="border-t border-border max-h-48 overflow-y-auto">
+                  {visiblePins.map(pin => {
+                    const member = memberMap[pin.char_name];
+                    return (
+                      <div
+                        key={pin.id}
+                        className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/30 transition-colors group"
+                      >
+                        <StatusDot status="online" />
+                        {member && <VocationIcon vocation={member.vocation} className="h-3 w-3" />}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[10px] text-foreground truncate block">{pin.char_name}</span>
+                          {member && <span className="text-[8px] text-muted-foreground font-mono">Lv {member.level}</span>}
+                        </div>
+                        <button
+                          onClick={() => centerOnPin(pin)}
+                          className="p-0.5 text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                          title="Centralizar no mapa"
+                        >
+                          <Crosshair className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => removePin(pin.char_name)}
+                          className="p-0.5 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                          title="Remover"
+                        >
+                          <Trash2 className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Loading overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-mono">Carregando mapa...</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
