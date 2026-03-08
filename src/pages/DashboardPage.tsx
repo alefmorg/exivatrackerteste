@@ -149,7 +149,7 @@ export default function DashboardPage() {
             { label: 'EM USO', value: inUseCount, sprite: 'login' as const },
           ].map(s => (
             <div key={s.label} className="flex items-center gap-2">
-              <ItemSprite item={s.sprite} className="h-3.5 w-3.5" />
+              <ItemSprite item={s.sprite} className="h-5 w-5" />
               <span className={`text-xs font-bold font-mono text-foreground`}>{s.value}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.label}</span>
             </div>
