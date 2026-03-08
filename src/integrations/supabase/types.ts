@@ -192,6 +192,7 @@ export type Database = {
           char_name: string
           city_id: string
           id: string
+          note: string
           pos_x: number
           pos_y: number
           updated_at: string
@@ -201,6 +202,7 @@ export type Database = {
           char_name: string
           city_id?: string
           id?: string
+          note?: string
           pos_x?: number
           pos_y?: number
           updated_at?: string
@@ -210,6 +212,7 @@ export type Database = {
           char_name?: string
           city_id?: string
           id?: string
+          note?: string
           pos_x?: number
           pos_y?: number
           updated_at?: string
