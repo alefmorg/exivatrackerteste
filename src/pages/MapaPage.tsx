@@ -167,17 +167,8 @@ export default function MapaPage() {
 
       {/* Controls */}
       <div className="flex items-center gap-3 flex-wrap">
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={showOnlineOnly}
-            onChange={e => setShowOnlineOnly(e.target.checked)}
-            className="rounded border-border"
-          />
-          Apenas online
-        </label>
         <span className="text-[10px] text-muted-foreground font-mono">
-          {bonecos.length} bonecos · {guildOnMap.length} guild online
+          {guildOnMap.length} membros online no mapa
         </span>
       </div>
 
