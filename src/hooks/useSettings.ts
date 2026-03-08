@@ -182,7 +182,7 @@ async function saveRemoteSettings(userId: string, s: AppSettings) {
   await supabase
     .from('user_settings')
     .upsert(
-      { user_id: userId, settings: s as unknown as Record<string, unknown>, updated_at: new Date().toISOString() },
+      [{ user_id: userId, settings: s as unknown as Record<string, unknown>, updated_at: new Date().toISOString() }],
       { onConflict: 'user_id' }
     );
 }
