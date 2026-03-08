@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Skull, Swords, Bug, ChevronDown, ChevronUp } from 'lucide-react';
 import { CharacterDeath } from '@/lib/tibia-api';
 
-export default function DeathsPanel({ deaths, loading }: { deaths: CharacterDeath[]; loading: boolean }) {
+export default function DeathsPanel({ deaths, loading, progress }: { deaths: CharacterDeath[]; loading: boolean; progress?: { loaded: number; total: number } | null }) {
   const [filter, setFilter] = useState<'all' | 'pvp' | 'pve'>('all');
   const [expanded, setExpanded] = useState(false);
 
