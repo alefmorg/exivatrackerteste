@@ -419,17 +419,6 @@ export default function MapaPage() {
           </div>
         </div>
 
-        {/* Loading overlay */}
-        {loading && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs font-mono">Carregando mapa...</span>
-            </div>
-          </div>
-        )}
-      </div>
-
         {/* Radar panel */}
         {visiblePins.length > 0 && (
           <div className="absolute bottom-2 left-2 z-20 w-52" data-popup onClick={e => e.stopPropagation()}>
