@@ -69,12 +69,19 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    setGuilds(getMonitoredGuilds());
+    getMonitoredGuildsAsync().then(setGuilds);
     fetchData();
     const bCh = supabase.channel('dash-bonecos').on('postgres_changes', { event: '*', schema: 'public', table: 'bonecos' }, () => fetchData()).subscribe();
     const lCh = supabase.channel('dash-logs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'boneco_logs' }, () => fetchData()).subscribe();
     return () => { supabase.removeChannel(bCh); supabase.removeChannel(lCh); };
   }, [fetchData]);
+
+  // Auto-refresh based on settings
+  useEffect(() => {
+    if (!settings.dashboardRefresh || settings.dashboardRefresh < 10) return;
+    const interval = setInterval(fetchData, settings.dashboardRefresh * 1000);
+    return () => clearInterval(interval);
+  }, [settings.dashboardRefresh, fetchData]);
 
   const onlineCount = bonecos.filter(b => b.status === 'online').length;
   const afkCount = bonecos.filter(b => b.status === 'afk').length;
