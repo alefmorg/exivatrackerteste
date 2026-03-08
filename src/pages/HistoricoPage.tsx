@@ -9,6 +9,7 @@ import { timeAgo, formatDate } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
 import MetricCard from '@/components/MetricCard';
 import EmptyState from '@/components/EmptyState';
+import { SkeletonPage } from '@/components/SkeletonLoader';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
