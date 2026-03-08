@@ -495,9 +495,9 @@ export default function BonecosPage() {
       )}
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={settings.cardLayout === 'list' ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-2 gap-4'}>
         {filtered.map(b => (
-          <div key={b.id} className={`rounded-xl border border-border border-l-4 ${getVocBorderColor(b.vocation)} bg-card p-5 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5`}>
+          <div key={b.id} className={`rounded-xl border border-border border-l-4 ${getVocBorderColor(b.vocation)} bg-card ${settings.compactMode ? 'p-3' : 'p-5'} hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5`}>
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
               <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center ${getVocationColor(b.vocation)}`}>
