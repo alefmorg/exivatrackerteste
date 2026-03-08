@@ -57,10 +57,15 @@ export default {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
-  			online: 'hsl(var(--online))',
-  			offline: 'hsl(var(--offline))',
-  			afk: 'hsl(var(--afk))',
-  			sidebar: {
+			online: 'hsl(var(--online))',
+			offline: 'hsl(var(--offline))',
+			afk: 'hsl(var(--afk))',
+			surface: {
+				1: 'hsl(var(--surface-1))',
+				2: 'hsl(var(--surface-2))',
+				3: 'hsl(var(--surface-3))',
+			},
+			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
   				primary: 'hsl(var(--sidebar-primary))',
