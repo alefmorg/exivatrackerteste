@@ -318,7 +318,7 @@ export default function DashboardPage() {
             ))}
           </SidePanel>
 
-          <SidePanel title="GUILDS" count={guilds.length} icon={<ItemSprite item="guild" className="h-4 w-4" />}>
+          <SidePanel title="GUILDS" count={guilds.length} icon={<ItemSprite item="guild" className="h-5 w-5" />}>
             {guilds.map((g, i) => (
               <div key={g.id} className="flex items-center gap-2 py-0.5">
                 <ItemSprite item="globe" className="h-3.5 w-3.5" />
