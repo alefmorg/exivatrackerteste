@@ -37,6 +37,8 @@ export default function MapaPage() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
   const dragMoved = useRef(false);
+  const touchStartDistance = useRef(0);
+  const touchStartZoom = useRef(1);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
