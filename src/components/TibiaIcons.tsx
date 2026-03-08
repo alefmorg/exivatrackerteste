@@ -281,6 +281,16 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   action_key: 'parchment',
   action_shield: 'mastermind_shield',
   action_user: 'skull',
+  // Vocations
+  voc_knight: 'outfit_knight',
+  voc_paladin: 'outfit_paladin',
+  voc_druid: 'outfit_druid',
+  voc_sorcerer: 'outfit_sorcerer',
+  // Activities
+  act_hunt: 'enchanted_spear',
+  act_war: 'war_axe',
+  act_maker: 'wand_of_vortex',
+  act_boss: 'demon_helmet',
 };
 
 // Customizable icon slots with labels
