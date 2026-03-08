@@ -55,12 +55,16 @@ export default function RelatorioPage() {
           .order('recorded_at', { ascending: true });
         setLoginHistory(logins || []);
 
-        // Load deaths in background
+        // Load deaths for ALL members in background
         setDeathsLoading(true);
-        const onlineNames = guildMembers.filter(m => m.status === 'online').map(m => m.name);
-        fetchGuildMemberDeaths(onlineNames.length > 0 ? onlineNames : guildMembers.slice(0, 20).map(m => m.name))
-          .then(d => { setDeaths(d); setDeathsLoading(false); })
-          .catch(() => setDeathsLoading(false));
+        setDeathProgress({ loaded: 0, total: guildMembers.length });
+        const allNames = guildMembers.map(m => m.name);
+        fetchGuildMemberDeaths(allNames, (loaded, total) => {
+          setDeathProgress({ loaded, total });
+          // Stream partial results as they come in
+        })
+          .then(d => { setDeaths(d); setDeathsLoading(false); setDeathProgress(null); })
+          .catch(() => { setDeathsLoading(false); setDeathProgress(null); });
       } catch {
         // ignore
       } finally {
