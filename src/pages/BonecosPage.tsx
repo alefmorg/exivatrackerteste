@@ -590,7 +590,7 @@ export default function BonecosPage() {
                 <button onClick={() => copyToClipboard(b.password)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <ItemSprite item="token2fa" className="h-4 w-4 shrink-0" />
+                <ItemSprite item="token2fa" className="h-5 w-5 shrink-0" />
                 {visibleTokens.has(b.id) ? (
                   <div className="flex-1 flex items-center gap-2">
                     <span className="font-mono text-xs">{b.totp_secret}</span>
