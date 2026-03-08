@@ -47,7 +47,7 @@ export default function ExivaPage() {
   const { user } = useAuth();
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
-  const { pins } = useMapPins();
+  const { pins, refetch: refetchPins } = useMapPins();
   const [loading, setLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
   const [editingAnnotation, setEditingAnnotation] = useState<string | null>(null);
