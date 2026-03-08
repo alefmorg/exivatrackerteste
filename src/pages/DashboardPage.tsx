@@ -125,7 +125,7 @@ export default function DashboardPage() {
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
             <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="dashboard" className="h-5 w-5" /> COMMAND CENTER
+              <ItemSprite item="dashboard" className="h-6 w-6" /> COMMAND CENTER
             </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span>{bonecos.length} unidades</span>
