@@ -573,7 +573,7 @@ export default function BonecosPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-primary hover:text-primary" onClick={() => copyAllCredentials(b)}>
-                  <ItemSprite item="copy" className="h-3.5 w-3.5" /> Copiar Tudo
+                  <ItemSprite item="copy" className="h-4 w-4" /> Copiar Tudo
                 </Button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
