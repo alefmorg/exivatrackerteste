@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
+import { useSettings } from '@/hooks/useSettings';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
