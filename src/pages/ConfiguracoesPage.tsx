@@ -11,7 +11,7 @@ import { getGuildWorld } from '@/lib/tibia-api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { loadSettings, saveSettings, applyTheme, THEME_PRESETS, type AppSettings, type ThemePreset, type IconPack, DEFAULT_SETTINGS } from '@/hooks/useSettings';
+import { loadSettings, saveSettings, applyTheme, type AppSettings, DEFAULT_SETTINGS } from '@/hooks/useSettings';
 
 const WORLDS = ['Antica', 'Secura', 'Gentebra', 'Belobra', 'Lobera', 'Pacera', 'Quintera', 'Solidera', 'Celebra', 'Firmera', 'Gladera', 'Menera', 'Peloria', 'Refugia', 'Talera', 'Venebra', 'Yonabra', 'Zuna'];
 
