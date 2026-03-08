@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
-import { RefreshCw, MapPin, Pencil, Users, UserCheck, UserX, Skull, ChevronDown, ChevronUp, CalendarDays, Activity, Zap, Globe, Search } from 'lucide-react';
+import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
@@ -12,7 +12,7 @@ import {
 } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { useToast } from '@/hooks/use-toast';
-import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
+import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
