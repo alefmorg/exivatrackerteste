@@ -40,6 +40,9 @@ export function useGuildMonitor() {
         }
       }
 
+      // Record level snapshots
+      recordLevelSnapshots(members.map(m => ({ name: m.name, level: m.level })));
+
       prevMembersRef.current = newMap;
     } catch {
       // Silently fail — will retry on next interval
