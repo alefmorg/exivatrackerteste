@@ -253,14 +253,14 @@ export default function MapaPage() {
                   >
                     <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-wider mb-1">{city.name}</div>
                     <div className="space-y-0.5">
-                      {members.slice(0, 10).map(m => (
+                      {(cityGroups[city.id] || []).slice(0, 10).map(m => (
                         <div key={m.name} className="text-[10px] text-foreground truncate flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                           {m.name}
                         </div>
                       ))}
-                      {members.length > 10 && (
-                        <div className="text-[9px] text-muted-foreground">+{members.length - 10} mais</div>
+                      {count > 10 && (
+                        <div className="text-[9px] text-muted-foreground">+{count - 10} mais</div>
                       )}
                     </div>
                   </motion.div>
