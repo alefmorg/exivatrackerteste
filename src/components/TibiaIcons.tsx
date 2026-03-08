@@ -276,6 +276,11 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   action_note: 'parchment',
   action_location: 'compass',
   action_clock: 'watch',
+  action_copy: 'parchment',
+  action_calendar: 'watch',
+  action_key: 'parchment',
+  action_shield: 'mastermind_shield',
+  action_user: 'skull',
 };
 
 // Customizable icon slots with labels
