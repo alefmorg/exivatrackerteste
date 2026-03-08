@@ -18,6 +18,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import { SkeletonRow } from '@/components/SkeletonLoader';
+import PageHeader from '@/components/PageHeader';
+import EmptyState from '@/components/EmptyState';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
@@ -158,38 +160,29 @@ export default function ExivaPage() {
 
   if (!guildName) {
     return (
-      <div className="text-center py-16">
-        <ItemSprite item="globe" className="h-12 w-12 mx-auto mb-3 opacity-30" />
-        <h2 className="text-sm font-display font-bold text-foreground mb-1">SEM GUILD CONFIGURADA</h2>
-        <p className="text-xs text-muted-foreground">Vá em <strong className="text-primary">Config → Guilds</strong> e adicione uma guild.</p>
-      </div>
+      <EmptyState
+        icon="globe"
+        title="Sem guild configurada"
+        description="Vá em Config → Guilds e adicione uma guild para começar a monitorar."
+        actionLabel="Ir para Config"
+        onAction={() => window.location.href = '/configuracoes'}
+      />
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="exiva" className="h-6 w-6" /> EXIVA LIST
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span className="text-foreground font-semibold">{guildName}</span>
-              <span>•</span>
-              <span className="text-primary">{lastUpdate || '—'}</span>
-              <span>•</span>
-              <span className="text-primary">{refreshCountdown}s</span>
-            </div>
-          </div>
-        </div>
-        <button onClick={() => doFetch(guildName)} disabled={loading}
-          className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
+      <PageHeader
+        title="EXIVA LIST"
+        icon="exiva"
+        subtitle={<><span className="text-foreground font-semibold">{guildName}</span><span>•</span><span className="text-primary">{lastUpdate || '—'}</span><span>•</span><span className="text-primary">{refreshCountdown}s</span></>}
+        actions={
+          <button onClick={() => doFetch(guildName)} disabled={loading}
+            className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
+            <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        }
+      />
 
       {/* Status bar */}
       {members.length > 0 && (

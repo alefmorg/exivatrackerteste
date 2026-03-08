@@ -6,6 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ItemSprite } from '@/components/TibiaIcons';
 import { timeAgo, formatDate } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
+import MetricCard from '@/components/MetricCard';
+import EmptyState from '@/components/EmptyState';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
@@ -71,31 +74,19 @@ export default function HistoricoPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="history" className="h-5 w-5" /> BATTLE LOG
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span>{logs.length} registros</span>
-              <span className="text-primary flex items-center gap-1">
-                <ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5">
+      <PageHeader
+        title="BATTLE LOG"
+        icon="history"
+        subtitle={<><span>{logs.length} registros</span><span className="text-primary flex items-center gap-1"><ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME</span></>}
+        actions={<>
           <button onClick={exportCSV} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
             <ItemSprite item="scroll" className="h-5 w-5" />
           </button>
           <button onClick={fetchLogs} disabled={loading} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
             <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
-        </div>
-      </div>
+        </>}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -106,14 +97,8 @@ export default function HistoricoPage() {
           { label: 'USERS', value: uniqueUsers.toString(), sprite: 'users' as const },
           { label: 'CHARS', value: uniqueBonecos.toString(), sprite: 'bonecos' as const },
           { label: 'TOP USER', value: mostActive?.[0] || '—', sprite: 'crown' as const, highlight: true },
-        ].map(m => (
-          <div key={m.label} className="panel-inset rounded-md p-2 text-center">
-            <div className="flex items-center justify-center mb-0.5">
-              <ItemSprite item={m.sprite} className="h-5 w-5" />
-            </div>
-            <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary' : 'text-foreground'} truncate`}>{m.value}</p>
-            <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
-          </div>
+        ].map((m, i) => (
+          <MetricCard key={m.label} label={m.label} value={m.value} sprite={m.sprite} highlight={m.highlight} delay={i * 0.04} />
         ))}
       </div>
 
@@ -183,10 +168,7 @@ export default function HistoricoPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground">
-              <ItemSprite item="history" className="h-10 w-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">Nenhum repasse registrado</p>
-            </div>
+            <EmptyState icon="history" title="Nenhum repasse registrado" description="Os logs de pegar/devolver bonecos aparecerão aqui." />
           )}
           {logs.length >= limit && (
             <div className="text-center pt-2">

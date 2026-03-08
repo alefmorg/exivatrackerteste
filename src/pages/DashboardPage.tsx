@@ -9,6 +9,9 @@ import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor, ItemSprite, SPRITE } from '@/components/TibiaIcons';
 import { timeAgo } from '@/lib/utils';
 import { SkeletonPage } from '@/components/SkeletonLoader';
+import PageHeader from '@/components/PageHeader';
+import MetricCard from '@/components/MetricCard';
+import EmptyState from '@/components/EmptyState';
 
 // ============================================================
 // Data fetching & management
@@ -118,25 +121,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 rounded-full bg-primary" />
-          <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="dashboard" className="h-6 w-6" /> COMMAND CENTER
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
-              <span>{bonecos.length} unidades</span>
-              <span>•</span>
-              <span className="text-primary">{lastRefresh}</span>
-            </div>
-          </div>
-        </div>
-        <button onClick={fetchData} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
+      <PageHeader
+        title="COMMAND CENTER"
+        icon="dashboard"
+        subtitle={<><span>{bonecos.length} unidades</span><span>•</span><span className="text-primary">{lastRefresh}</span></>}
+        actions={
+          <button onClick={fetchData} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
+            <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        }
+      />
 
       {/* Status Bar */}
       <div className="panel rounded-lg p-3">
@@ -172,14 +166,8 @@ export default function DashboardPage() {
           { label: 'BLESS', value: `${blessCount}/${bonecos.length}`, sprite: 'bless' as const },
           { label: 'PREMIUM', value: `${premiumCount}/${bonecos.length}`, sprite: 'premiumScroll' as const },
           { label: 'LIVRES', value: `${bonecos.length - inUseCount}`, sprite: 'online' as const, highlight: true },
-        ].map(m => (
-          <div key={m.label} className="panel-inset rounded-md p-2 text-center">
-            <div className="flex items-center justify-center gap-1 mb-0.5">
-              <ItemSprite item={m.sprite} className="h-5 w-5" />
-            </div>
-            <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary stat-glow' : 'text-foreground'}`}>{m.value}</p>
-            <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
-          </div>
+        ].map((m, i) => (
+          <MetricCard key={m.label} label={m.label} value={m.value} sprite={m.sprite} highlight={m.highlight} delay={i * 0.04} />
         ))}
       </div>
 
@@ -287,7 +275,7 @@ export default function DashboardPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            {recentLogs.length === 0 && <p className="text-muted-foreground text-xs text-center py-10">Sem atividade</p>}
+            {recentLogs.length === 0 && <EmptyState icon="history" title="Sem atividade" description="Nenhum repasse registrado ainda." />}
           </div>
         </div>
 
@@ -336,25 +324,33 @@ export default function DashboardPage() {
 
 function ChartPanel({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="panel rounded-lg overflow-hidden">
+    <motion.div
+      whileHover={{ scale: 1.01, y: -2 }}
+      transition={{ duration: 0.15 }}
+      className="panel rounded-lg overflow-hidden transition-shadow hover:shadow-[0_0_24px_hsl(var(--primary)/0.08)]"
+    >
       <div className="px-4 py-2 border-b border-border flex items-center gap-2">
         <span className="text-primary">{icon}</span>
         <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">{title}</span>
       </div>
       <div className="p-3">{children}</div>
-    </div>
+    </motion.div>
   );
 }
 
 function SidePanel({ title, count, icon, children }: { title: string; count: number; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="panel rounded-lg overflow-hidden">
+    <motion.div
+      whileHover={{ scale: 1.01, y: -1 }}
+      transition={{ duration: 0.15 }}
+      className="panel rounded-lg overflow-hidden transition-shadow hover:shadow-[0_0_16px_hsl(var(--primary)/0.06)]"
+    >
       <div className="px-3 py-2 border-b border-border flex items-center gap-2">
         <span className="text-primary">{icon}</span>
         <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">{title}</span>
         <span className="ml-auto text-[9px] font-mono text-muted-foreground">{count}</span>
       </div>
       <div className="px-3 py-2 space-y-0.5">{children}</div>
-    </div>
+    </motion.div>
   );
 }

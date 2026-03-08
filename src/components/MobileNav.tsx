@@ -12,6 +12,7 @@ export default function MobileNav() {
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const },
     { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const },
     { path: '/historico', label: 'Log', sprite: 'history' as const },
+    ...(isAdmin ? [{ path: '/admin/usuarios', label: 'Users', sprite: 'users' as const }] : []),
     { path: '/configuracoes', label: 'Config', sprite: 'settings' as const },
   ];
 

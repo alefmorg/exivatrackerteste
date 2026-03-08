@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
@@ -82,6 +83,7 @@ export default function BonecosPage() {
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [claimNotes, setClaimNotes] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [showClaimModal, setShowClaimModal] = useState<{ id: string; name: string; action: 'pegar' | 'devolver' } | null>(null);
   const [newAcesso, setNewAcesso] = useState('');
   const [newQuest, setNewQuest] = useState('');
@@ -162,10 +164,16 @@ export default function BonecosPage() {
     setEditId(b.id); setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este boneco?')) return;
-    await supabase.from('bonecos').delete().eq('id', id);
-    toast({ title: 'Boneco removido' }); fetchBonecos();
+  const handleDelete = async (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await supabase.from('bonecos').delete().eq('id', deleteTarget.id);
+    toast({ title: 'Boneco removido' });
+    setDeleteTarget(null);
+    fetchBonecos();
   };
 
   const handleClaim = async (boneco: BonecoRow) => {
@@ -644,7 +652,7 @@ export default function BonecosPage() {
                 {isAdmin && (
                   <>
                     <button onClick={() => handleEdit(b)} className="text-primary hover:underline font-medium">Editar</button>
-                    <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
+                    <button onClick={() => handleDelete(b.id, b.name)} className="text-offline hover:underline">Excluir</button>
                   </>
                 )}
               </div>
@@ -664,6 +672,16 @@ export default function BonecosPage() {
           {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Excluir boneco"
+        description={`Tem certeza que deseja excluir "${deleteTarget?.name}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
