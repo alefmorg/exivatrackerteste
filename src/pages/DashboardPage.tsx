@@ -211,7 +211,7 @@ export default function DashboardPage() {
           </div>
         </ChartPanel>
 
-        <ChartPanel title="ATIVIDADES" icon={<ItemSprite item="hunt" className="h-4 w-4" />}>
+        <ChartPanel title="ATIVIDADES" icon={<ItemSprite item="level" className="h-4 w-4" />}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={activityData}>
