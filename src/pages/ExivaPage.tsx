@@ -136,7 +136,9 @@ export default function ExivaPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">EXIVA LIST</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="exiva" className="h-5 w-5" /> EXIVA LIST
+            </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span className="text-foreground font-semibold">{guildName}</span>
               <span>•</span>
@@ -148,7 +150,7 @@ export default function ExivaPage() {
         </div>
         <button onClick={() => doFetch(guildName)} disabled={loading}
           className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
