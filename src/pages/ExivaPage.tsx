@@ -47,7 +47,7 @@ export default function ExivaPage() {
   const { user } = useAuth();
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
-  const { pins } = useMapPins();
+  const { pins, refetch: refetchPins } = useMapPins();
   const [loading, setLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
   const [editingAnnotation, setEditingAnnotation] = useState<string | null>(null);
@@ -95,10 +95,12 @@ export default function ExivaPage() {
       setMembers(data);
       setRefreshCountdown(settings.refreshInterval);
       setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      // Refresh pins to ensure sync
+      refetchPins();
     } catch (e: any) {
       toast({ title: 'Erro ao buscar membros', description: e.message, variant: 'destructive' });
     } finally { setLoading(false); }
-  }, [settings.refreshInterval, toast]);
+  }, [settings.refreshInterval, toast, refetchPins]);
 
   const fetchDeaths = useCallback(async () => {
     if (members.length === 0) return;
@@ -352,9 +354,9 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
           <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>
           {mapPin && (
-            <span className="text-[9px] font-mono text-primary flex items-center gap-0.5">
-              <MapPin className="h-2.5 w-2.5" />
-              {getNearestCity(mapPin.pos_x, mapPin.pos_y)}
+            <span className="text-[9px] font-mono text-primary flex items-center gap-0.5 bg-primary/10 px-1 py-0.5 rounded">
+              <MapPin className="h-2.5 w-2.5 shrink-0" />
+              <span className="font-semibold">{getNearestCity(mapPin.pos_x, mapPin.pos_y)}</span>
               {mapPin.note && <span className="text-muted-foreground">· {mapPin.note}</span>}
             </span>
           )}
