@@ -238,7 +238,7 @@ export default function AdminUsersPage() {
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                   u.role === 'admin' ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
                 }`}>
-                  {u.role === 'admin' ? <Crown className="h-4 w-4 text-primary" /> : <User className="h-4 w-4 text-muted-foreground" />}
+                {u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
                 </div>
 
                 {/* Info */}
