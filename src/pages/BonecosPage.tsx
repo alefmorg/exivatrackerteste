@@ -652,7 +652,7 @@ export default function BonecosPage() {
                 {isAdmin && (
                   <>
                     <button onClick={() => handleEdit(b)} className="text-primary hover:underline font-medium">Editar</button>
-                    <button onClick={() => handleDelete(b.id)} className="text-offline hover:underline">Excluir</button>
+                    <button onClick={() => handleDelete(b.id, b.name)} className="text-offline hover:underline">Excluir</button>
                   </>
                 )}
               </div>
