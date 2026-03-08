@@ -264,7 +264,7 @@ export default function DashboardPage() {
         {/* Feed */}
         <div className="panel rounded-lg lg:col-span-2 overflow-hidden">
           <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
-            <ItemSprite item="history" className="h-4 w-4" />
+            <ItemSprite item="history" className="h-5 w-5" />
             <span className="text-[11px] font-display font-semibold text-foreground uppercase tracking-wider">Feed</span>
             <span className="ml-auto flex items-center gap-1 text-[9px] text-primary font-mono">
               <ItemSprite item="live" className="h-3 w-3 animate-pulse" /> REALTIME
