@@ -23,16 +23,7 @@ interface LogRow {
   id: string; boneco_name: string; username: string; action: string; notes: string; created_at: string;
 }
 
-function timeAgo(dateStr: string) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'agora';
-  if (min < 60) return `${min}m`;
-  const hours = Math.floor(min / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
-}
+// timeAgo imported from utils
 
 const STATUS_COLORS = ['hsl(142, 76%, 45%)', 'hsl(45, 93%, 47%)', 'hsl(0, 72%, 51%)'];
 const VOC_COLORS: Record<string, string> = {
