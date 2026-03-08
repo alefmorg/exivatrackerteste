@@ -75,7 +75,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* User */}
           <div className="flex items-center gap-1.5 shrink-0">
             <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/50">
-              <ItemSprite item="skull" className="h-4 w-4" />
+              <ItemSprite item="skull" className="h-5 w-5" />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-[10px] font-semibold text-foreground truncate max-w-[80px]">{username || user?.email}</span>
                 <span className="text-[8px] text-muted-foreground uppercase font-mono tracking-wider">{role || 'user'}</span>
