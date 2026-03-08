@@ -192,10 +192,9 @@ export default function BonecosPage() {
     setClaimingId(showClaimModal.id);
     const isPegar = showClaimModal.action === 'pegar';
     
-    // Update boneco
+    // Update boneco — don't change status, let the API sync handle it
     const { error: updateError } = await supabase.from('bonecos').update({
       used_by: isPegar ? username : '',
-      status: isPegar ? 'online' : 'offline',
       last_access: new Date().toISOString(),
     }).eq('id', showClaimModal.id);
 
