@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function MobileNav() {
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdminOrAbove } = useAuth();
 
   const items = [
     { path: '/', label: 'Dashboard', sprite: 'dashboard' as const },
