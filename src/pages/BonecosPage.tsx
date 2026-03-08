@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart, X, Tag, ArrowRightLeft, LogIn, LogOut, Filter } from 'lucide-react';
+import { Plus, X, LogIn, LogOut } from 'lucide-react';
 import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import StatCard from '@/components/StatCard';
 import StatusDot from '@/components/StatusDot';
 import StatusBadge from '@/components/StatusBadge';
 import TotpDisplay from '@/components/TotpDisplay';
-import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
+import { VocationIcon, getVocationColor, ItemSprite, ActivityIcon } from '@/components/TibiaIcons';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
