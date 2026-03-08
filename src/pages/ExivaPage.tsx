@@ -137,7 +137,7 @@ export default function ExivaPage() {
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
             <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="exiva" className="h-5 w-5" /> EXIVA LIST
+              <ItemSprite item="exiva" className="h-6 w-6" /> EXIVA LIST
             </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span className="text-foreground font-semibold">{guildName}</span>
