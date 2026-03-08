@@ -13,7 +13,7 @@ interface UserRow {
   id: string;
   email: string;
   username: string;
-  role: 'admin' | 'user';
+  role: AppRole;
   created_at: string;
   last_sign_in_at: string | null;
 }
