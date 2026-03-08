@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const SETTINGS_KEY = 'exiva_settings';
 
@@ -145,7 +146,11 @@ export function applyTheme(theme: ThemePreset) {
   });
 }
 
-export function loadSettings(): AppSettings {
+// ============================================================
+// Local cache (fast reads) + Supabase sync (persistence)
+// ============================================================
+
+function loadLocalSettings(): AppSettings {
   try {
     const data = localStorage.getItem(SETTINGS_KEY);
     return data ? { ...DEFAULT_SETTINGS, ...JSON.parse(data) } : DEFAULT_SETTINGS;
@@ -154,16 +159,92 @@ export function loadSettings(): AppSettings {
   }
 }
 
-export function saveSettings(s: AppSettings) {
+function saveLocalSettings(s: AppSettings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
   window.dispatchEvent(new Event('settings-changed'));
 }
 
-export function useSettings(): AppSettings {
-  const [settings, setSettings] = useState<AppSettings>(loadSettings);
+/** Load settings from Supabase for the current user, merging with defaults */
+async function loadRemoteSettings(userId: string): Promise<AppSettings | null> {
+  const { data } = await supabase
+    .from('user_settings')
+    .select('settings')
+    .eq('user_id', userId)
+    .single();
+  if (data?.settings && typeof data.settings === 'object') {
+    return { ...DEFAULT_SETTINGS, ...(data.settings as Record<string, unknown>) } as AppSettings;
+  }
+  return null;
+}
 
+/** Save settings to Supabase for the current user */
+async function saveRemoteSettings(userId: string, s: AppSettings) {
+  await supabase
+    .from('user_settings')
+    .upsert(
+      [{ user_id: userId, settings: JSON.parse(JSON.stringify(s)), updated_at: new Date().toISOString() }],
+      { onConflict: 'user_id' }
+    );
+}
+
+// ============================================================
+// Public API — backward compatible
+// ============================================================
+
+/** @deprecated Use saveSettingsAsync instead */
+export function loadSettings(): AppSettings {
+  return loadLocalSettings();
+}
+
+/** Save settings locally + remotely (fire and forget for remote) */
+export function saveSettings(s: AppSettings) {
+  saveLocalSettings(s);
+  // Async sync to remote — get user id from current session
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user?.id) {
+      saveRemoteSettings(session.user.id, s).catch(console.error);
+    }
+  });
+}
+
+// ============================================================
+// Hook
+// ============================================================
+
+export function useSettings(): AppSettings {
+  const [settings, setSettings] = useState<AppSettings>(loadLocalSettings);
+  const syncedRef = useRef(false);
+
+  // On mount, try to load from remote and merge
   useEffect(() => {
-    const handler = () => setSettings(loadSettings());
+    let cancelled = false;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled || !session?.user?.id) return;
+      const userId = session.user.id;
+
+      loadRemoteSettings(userId).then(remote => {
+        if (cancelled) return;
+        if (remote) {
+          // Remote wins — update local cache
+          saveLocalSettings(remote);
+          setSettings(remote);
+          applyTheme(remote.theme);
+        } else {
+          // No remote yet — push local to remote
+          const local = loadLocalSettings();
+          saveRemoteSettings(userId, local).catch(console.error);
+        }
+        syncedRef.current = true;
+      });
+    });
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // Listen for local changes (from saveSettings calls)
+  useEffect(() => {
+    const handler = () => setSettings(loadLocalSettings());
     window.addEventListener('settings-changed', handler);
     window.addEventListener('storage', handler);
     return () => {
