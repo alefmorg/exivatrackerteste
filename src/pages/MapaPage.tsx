@@ -185,6 +185,25 @@ export default function MapaPage() {
     setPan({ x: 0, y: 0 });
   }, []);
 
+  const [radarOpen, setRadarOpen] = useState(true);
+
+  const centerOnPin = useCallback((pin: MapPin) => {
+    const container = mapRef.current;
+    if (!container) return;
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    const targetZoom = Math.max(zoom, 2.5);
+    // Convert pin % position to pixel offset from center
+    const pinPxX = (pin.pos_x / 100) * w;
+    const pinPxY = (pin.pos_y / 100) * h;
+    const centerX = w / 2;
+    const centerY = h / 2;
+    const newPanX = (centerX - pinPxX) * targetZoom;
+    const newPanY = (centerY - pinPxY) * targetZoom;
+    setZoom(targetZoom);
+    setPan(clampPan(newPanX, newPanY, targetZoom));
+  }, [zoom, clampPan]);
+
   return (
     <div className="space-y-4">
       <PageHeader
