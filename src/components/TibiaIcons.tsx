@@ -233,6 +233,7 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   nav_dashboard: 'almanac_of_magic',
   nav_exiva: 'crystal_ball',
   nav_bonecos: 'golden_figurine',
+  nav_relatorio: 'old_parchment',
   nav_history: 'parchment',
   nav_users: 'ring_of_ending',
   nav_settings: 'mechanical_fishing_rod',
