@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   exivaColumns: 4,
   soundNotifications: true,
   toastNotifications: true,
+  pushNotifications: true,
   autoClaimReturn: false,
   showCredentials: true,
   showSkills: true,
