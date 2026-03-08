@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
-import { RefreshCw, MapPin, Pencil, Users, UserCheck, UserX, Skull, ChevronDown, ChevronUp, CalendarDays, Activity, Zap, Globe, Search } from 'lucide-react';
+import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
@@ -12,7 +12,7 @@ import {
 } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
 import { useToast } from '@/hooks/use-toast';
-import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
+import { VocationIcon, getVocationColor, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
@@ -122,7 +122,7 @@ export default function ExivaPage() {
   if (!guildName) {
     return (
       <div className="text-center py-16">
-        <Globe className="h-12 w-12 mx-auto mb-3 text-muted-foreground/15" />
+        <ItemSprite item="globe" className="h-12 w-12 mx-auto mb-3 opacity-30" />
         <h2 className="text-sm font-display font-bold text-foreground mb-1">SEM GUILD CONFIGURADA</h2>
         <p className="text-xs text-muted-foreground">Vá em <strong className="text-primary">Config → Guilds</strong> e adicione uma guild.</p>
       </div>
@@ -136,7 +136,9 @@ export default function ExivaPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">EXIVA LIST</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="exiva" className="h-5 w-5" /> EXIVA LIST
+            </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span className="text-foreground font-semibold">{guildName}</span>
               <span>•</span>
@@ -148,7 +150,7 @@ export default function ExivaPage() {
         </div>
         <button onClick={() => doFetch(guildName)} disabled={loading}
           className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -183,7 +185,9 @@ export default function ExivaPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+          <ItemSprite item="search" className="h-3.5 w-3.5" />
+        </div>
         <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
           placeholder="Filtrar jogadores online..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
       </div>
@@ -225,14 +229,14 @@ export default function ExivaPage() {
           <button onClick={() => { setShowDeaths(!showDeaths); if (!showDeaths && deaths.length === 0) fetchDeaths(); }}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-2">
-              <Skull className="h-3.5 w-3.5 text-destructive" />
+              <ItemSprite item="skull" className="h-4 w-4" />
               <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">DEATH LOG</span>
               <span className="text-[9px] font-mono text-muted-foreground">{deaths.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              {loadingDeaths && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
+              {loadingDeaths && <ItemSprite item="refresh" className="h-3 w-3 animate-spin" />}
               <button className="p-1 hover:text-primary" onClick={(e) => { e.stopPropagation(); fetchDeaths(); }}>
-                <RefreshCw className="h-3 w-3" />
+                <ItemSprite item="refresh" className="h-3.5 w-3.5" />
               </button>
               {showDeaths ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
             </div>
@@ -254,7 +258,7 @@ export default function ExivaPage() {
               ))}
               {deaths.length === 0 && !loadingDeaths && <div className="p-6 text-center text-[10px] text-muted-foreground/40">Sem mortes</div>}
               {loadingDeaths && deaths.length === 0 && (
-                <div className="p-6 text-center"><RefreshCw className="h-4 w-4 animate-spin mx-auto text-muted-foreground" /></div>
+                <div className="p-6 text-center"><ItemSprite item="refresh" className="h-4 w-4 animate-spin mx-auto" /></div>
               )}
             </div>
           )}

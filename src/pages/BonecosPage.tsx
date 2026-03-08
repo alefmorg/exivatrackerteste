@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Swords, Mail, Key, Globe, MapPin, User, Eye, EyeOff, Copy, Clock, Sword, Shield, Gem, Crown, Star, ClipboardCopy, Sparkles, Heart, X, Tag, ArrowRightLeft, LogIn, LogOut, Filter } from 'lucide-react';
+import { Plus, X, LogIn, LogOut, Eye, EyeOff, Copy, Sword, Shield, Heart, Crown, Mail, Key, Clock, ClipboardCopy, Sparkles, Swords } from 'lucide-react';
 import * as OTPAuth from 'otpauth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import StatCard from '@/components/StatCard';
 import StatusDot from '@/components/StatusDot';
 import StatusBadge from '@/components/StatusBadge';
 import TotpDisplay from '@/components/TotpDisplay';
-import { VocationIcon, getVocationColor } from '@/components/TibiaIcons';
+import { VocationIcon, getVocationColor, ItemSprite, ActivityIcon } from '@/components/TibiaIcons';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -273,13 +273,15 @@ export default function BonecosPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">CHAR ROSTER</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="bonecos" className="h-5 w-5" /> CHAR ROSTER
+            </h1>
             <div className="text-[10px] text-muted-foreground font-mono">{bonecos.length} personagens registrados</div>
           </div>
         </div>
         {isAdmin && (
           <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
-            <Plus className="h-3.5 w-3.5" /> Novo Char
+            <ItemSprite item="add" className="h-3.5 w-3.5" /> Novo Char
           </Button>
         )}
       </div>
@@ -304,12 +306,14 @@ export default function BonecosPage() {
       <div className="space-y-3 mb-6">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              <ItemSprite item="search" className="h-4 w-4" />
+            </div>
             <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)} placeholder="Buscar por nome ou mundo..." className="pl-9 bg-secondary border-border" />
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+          <ItemSprite item="filter" className="h-4 w-4" />
           {/* Activity */}
           <div className="flex gap-1">
             {ACTIVITIES.map(a => (
@@ -505,19 +509,21 @@ export default function BonecosPage() {
           <div key={b.id} className={`panel rounded-lg border-l-2 ${getVocBorderColor(b.vocation)} ${settings.compactMode ? 'p-2.5' : 'p-4'} hover:border-primary/30 transition-all`}>
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center ${getVocationColor(b.vocation)}`}>
-                <VocationIcon vocation={b.vocation} className="h-5 w-5" />
+              <div className={`w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center`}>
+                <VocationIcon vocation={b.vocation} className="h-6 w-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-foreground truncate">{b.name}</span>
                   <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{getVocShort(b.vocation)}</span>
-                  <span className="text-xs text-muted-foreground font-mono">Lv.{b.level}</span>
+                  <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                    <ItemSprite item="level" className="h-3 w-3" /> Lv.{b.level}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <Globe className="h-3 w-3" /> {b.world || '—'}
+                  <ItemSprite item="globe" className="h-3 w-3" /> {b.world || '—'}
                   <span className="text-border">•</span>
-                  <MapPin className="h-3 w-3" /> {b.location || '—'}
+                  <ItemSprite item="location" className="h-3 w-3" /> {b.location || '—'}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -529,48 +535,37 @@ export default function BonecosPage() {
             {/* Tags row */}
             <div className="flex flex-wrap items-center gap-1.5 mb-3">
               {b.activity && (
-                <span className={`px-2 py-0.5 rounded border text-[11px] font-medium ${activityConfig[b.activity]?.color || ''}`}>
-                  {activityConfig[b.activity]?.emoji} {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
+                <span className={`px-2 py-0.5 rounded border text-[11px] font-medium ${activityConfig[b.activity]?.color || ''} flex items-center gap-1`}>
+                  <ActivityIcon activity={b.activity} className="h-3.5 w-3.5" /> {b.activity.charAt(0).toUpperCase() + b.activity.slice(1)}
                 </span>
               )}
               {b.full_bless && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-red-500/10 text-red-400 border-red-500/30 flex items-center gap-1">
-                  <Heart className="h-3 w-3" /> Full Bless
+                  <ItemSprite item="bless" className="h-3.5 w-3.5" /> Full Bless
                 </span>
               )}
               {b.premium_active && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-yellow-500/10 text-yellow-400 border-yellow-500/30 flex items-center gap-1">
-                  <Crown className="h-3 w-3" /> Premium
+                  <ItemSprite item="premiumScroll" className="h-3.5 w-3.5" /> Premium
                 </span>
               )}
               {b.tibia_coins > 0 && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-amber-500/10 text-amber-400 border-amber-500/30 flex items-center gap-1">
-                  <Gem className="h-3 w-3" /> {b.tibia_coins} TC
+                  <ItemSprite item="tibiaCoin" className="h-3.5 w-3.5" /> {b.tibia_coins} TC
                 </span>
               )}
               {b.magic_level > 0 && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" /> ML {b.magic_level}
+                  <ItemSprite item="magicLevel" className="h-3.5 w-3.5" /> ML {b.magic_level}
                 </span>
               )}
               {b.used_by && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-primary/15 text-primary border-primary/30 flex items-center gap-1">
-                  <User className="h-3 w-3" /> {b.used_by}
+                  <ItemSprite item="skull" className="h-3.5 w-3.5" /> {b.used_by}
                 </span>
               )}
             </div>
 
-            {/* Acessos & Quests */}
-            {settings.showAcessos && ((b.acessos && b.acessos.length > 0) || (settings.showQuests && b.quests && b.quests.length > 0)) && (
-              <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                {b.acessos?.map((a, i) => (
-                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">🔑 {a}</span>
-                ))}
-                {settings.showQuests && b.quests?.map((q, i) => (
-                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30">📜 {q}</span>
-                ))}
-              </div>
-            )}
 
             {/* Credentials */}
             {settings.showCredentials && (
@@ -578,16 +573,16 @@ export default function BonecosPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5 text-primary hover:text-primary" onClick={() => copyAllCredentials(b)}>
-                  <ClipboardCopy className="h-3.5 w-3.5" /> Copiar Tudo
+                  <ItemSprite item="copy" className="h-3.5 w-3.5" /> Copiar Tudo
                 </Button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="email" className="h-4 w-4 shrink-0" />
                 <span className="font-mono text-xs flex-1 truncate">{b.email || '—'}</span>
                 {b.email && <button onClick={() => copyToClipboard(b.email)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Key className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="password" className="h-4 w-4 shrink-0" />
                 <span className="font-mono text-xs flex-1">{visiblePasswords.has(b.id) ? b.password : '••••••••'}</span>
                 <button onClick={() => togglePassword(b.id)} className="text-muted-foreground hover:text-primary">
                   {visiblePasswords.has(b.id) ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -595,7 +590,7 @@ export default function BonecosPage() {
                 <button onClick={() => copyToClipboard(b.password)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-3.5 w-3.5 shrink-0" />
+                <ItemSprite item="token2fa" className="h-4 w-4 shrink-0" />
                 {visibleTokens.has(b.id) ? (
                   <div className="flex-1 flex items-center gap-2">
                     <span className="font-mono text-xs">{b.totp_secret}</span>
@@ -614,30 +609,45 @@ export default function BonecosPage() {
 
             {/* Skills bar */}
             {settings.showSkills && (b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
-                {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
-                {b.axe > 0 && <span>🪓 Axe: {b.axe}</span>}
-                {b.club > 0 && <span>🔨 Club: {b.club}</span>}
-                {b.distance > 0 && <span>🎯 Dist: {b.distance}</span>}
-                {b.shielding > 0 && <span>🛡 Shield: {b.shielding}</span>}
-                {b.fist > 0 && <span>👊 Fist: {b.fist}</span>}
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
+                {b.sword_skill > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="sword" className="h-3 w-3" /> Sword: {b.sword_skill}</span>}
+                {b.axe > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="axe" className="h-3 w-3" /> Axe: {b.axe}</span>}
+                {b.club > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="club" className="h-3 w-3" /> Club: {b.club}</span>}
+                {b.distance > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="distance" className="h-3 w-3" /> Dist: {b.distance}</span>}
+                {b.shielding > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="shielding" className="h-3 w-3" /> Shield: {b.shielding}</span>}
+                {b.fist > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="fist" className="h-3 w-3" /> Fist: {b.fist}</span>}
+              </div>
+            )}
+
+            {/* Acessos & Quests */}
+            {settings.showAcessos && ((b.acessos && b.acessos.length > 0) || (settings.showQuests && b.quests && b.quests.length > 0)) && (
+              <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                {b.acessos?.map((a, i) => (
+                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
+                    <ItemSprite item="key" className="h-3 w-3" /> {a}
+                  </span>
+                ))}
+                {settings.showQuests && b.quests?.map((q, i) => (
+                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
+                    <ItemSprite item="quest" className="h-3 w-3" /> {q}
+                  </span>
+                ))}
               </div>
             )}
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(b.last_access)}</span>
+                <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-3.5 w-3.5" /> {timeAgo(b.last_access)}</span>
               </div>
               <div className="flex items-center gap-2">
-                {/* Claim/Return button - available to all users */}
                 <Button
                   variant={b.used_by ? 'outline' : 'default'}
                   size="sm"
                   className={`h-7 text-xs gap-1 ${b.used_by ? 'border-afk/30 text-afk hover:bg-afk/10' : ''}`}
                   onClick={() => handleClaim(b)}
                 >
-                  {b.used_by ? <><LogOut className="h-3 w-3" /> Devolver</> : <><LogIn className="h-3 w-3" /> Pegar</>}
+                  {b.used_by ? <><ItemSprite item="logout" className="h-3.5 w-3.5" /> Devolver</> : <><ItemSprite item="login" className="h-3.5 w-3.5" /> Pegar</>}
                 </Button>
                 {isAdmin && (
                   <>
@@ -649,7 +659,7 @@ export default function BonecosPage() {
             </div>
 
             {b.observations && (
-              <p className="text-[11px] text-muted-foreground mt-2 italic">💬 {b.observations}</p>
+              <p className="text-[11px] text-muted-foreground mt-2 italic flex items-center gap-1"><ItemSprite item="note" className="h-3 w-3" /> {b.observations}</p>
             )}
           </div>
         ))}
@@ -657,7 +667,7 @@ export default function BonecosPage() {
 
       {filtered.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <ItemSprite item="bonecos" className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>Nenhum boneco encontrado</p>
           {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
         </div>

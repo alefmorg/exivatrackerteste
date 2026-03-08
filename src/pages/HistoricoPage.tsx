@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRightLeft, Clock, Search, RefreshCw, Download, Users, TrendingUp, Calendar, Filter } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ItemSprite } from '@/components/TibiaIcons';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
@@ -87,19 +88,23 @@ export default function HistoricoPage() {
         <div className="flex items-center gap-3">
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">BATTLE LOG</h1>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
+              <ItemSprite item="history" className="h-5 w-5" /> BATTLE LOG
+            </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span>{logs.length} registros</span>
-              <span className="text-primary flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-primary animate-pulse" /> REALTIME</span>
+              <span className="text-primary flex items-center gap-1">
+                <ItemSprite item="live" className="h-3 w-3 animate-pulse" /> REALTIME
+              </span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={exportCSV} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-            <Download className="h-3.5 w-3.5" />
+            <ItemSprite item="scroll" className="h-4 w-4" />
           </button>
           <button onClick={fetchLogs} disabled={loading} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -107,14 +112,17 @@ export default function HistoricoPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {[
-          { label: 'TOTAL', value: logs.length.toString() },
-          { label: 'PEGOU', value: pegarCount.toString(), highlight: true },
-          { label: 'DEVOLVEU', value: devolverCount.toString() },
-          { label: 'USERS', value: uniqueUsers.toString() },
-          { label: 'CHARS', value: uniqueBonecos.toString() },
-          { label: 'TOP USER', value: mostActive?.[0] || '—', highlight: true },
+          { label: 'TOTAL', value: logs.length.toString(), sprite: 'scroll' as const },
+          { label: 'PEGOU', value: pegarCount.toString(), sprite: 'login' as const, highlight: true },
+          { label: 'DEVOLVEU', value: devolverCount.toString(), sprite: 'logout' as const },
+          { label: 'USERS', value: uniqueUsers.toString(), sprite: 'users' as const },
+          { label: 'CHARS', value: uniqueBonecos.toString(), sprite: 'bonecos' as const },
+          { label: 'TOP USER', value: mostActive?.[0] || '—', sprite: 'crown' as const, highlight: true },
         ].map(m => (
           <div key={m.label} className="panel-inset rounded-md p-2 text-center">
+            <div className="flex items-center justify-center mb-0.5">
+              <ItemSprite item={m.sprite} className="h-4 w-4" />
+            </div>
             <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary' : 'text-foreground'} truncate`}>{m.value}</p>
             <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
           </div>
@@ -124,7 +132,9 @@ export default function HistoricoPage() {
       {/* Filters */}
       <div className="flex gap-2 items-center">
         <div className="flex-1 relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+            <ItemSprite item="search" className="h-3.5 w-3.5" />
+          </div>
           <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
             placeholder="Buscar char ou usuário..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
         </div>
@@ -165,7 +175,7 @@ export default function HistoricoPage() {
                   {entries.map(log => (
                     <motion.div key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} layout
                       className="flex items-center py-2 px-3 gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 transition-colors">
-                      <div className={`w-1 h-5 rounded-full shrink-0 ${log.action === 'pegar' ? 'bg-primary' : 'bg-afk'}`} />
+                      <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-4 w-4 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 text-xs">
                           <span className="font-semibold text-foreground">{log.username || '?'}</span>
@@ -186,7 +196,7 @@ export default function HistoricoPage() {
           ))}
           {filtered.length === 0 && (
             <div className="text-center py-16 text-muted-foreground">
-              <ArrowRightLeft className="h-10 w-10 mx-auto mb-3 opacity-15" />
+              <ItemSprite item="history" className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p className="text-sm font-medium">Nenhum repasse registrado</p>
             </div>
           )}
