@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ExivaPage from "./pages/ExivaPage";
 import RelatorioPage from "./pages/RelatorioPage";
 import BonecosPage from "./pages/BonecosPage";
+import MapaPage from "./pages/MapaPage";
 import HistoricoPage from "./pages/HistoricoPage";
 import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
