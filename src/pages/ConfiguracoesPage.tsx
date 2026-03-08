@@ -507,3 +507,165 @@ function InfoBox({ label, value, highlight }: { label: string; value: string; hi
     </div>
   );
 }
+
+// --- Icon Customizer ---
+
+function IconCustomizer({ settings, onUpdate }: { settings: AppSettings; onUpdate: (customIcons: Record<string, string>) => void }) {
+  const [pickerSlot, setPickerSlot] = useState<string | null>(null);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  const groups = ICON_SLOTS.reduce((acc, slot) => {
+    if (!acc[slot.group]) acc[slot.group] = [];
+    acc[slot.group].push(slot);
+    return acc;
+  }, {} as Record<string, typeof ICON_SLOTS>);
+
+  const handleSelect = (slot: string, spriteKey: string) => {
+    const newCustom = { ...settings.customIcons, [slot]: spriteKey };
+    if (DEFAULT_ICON_MAP[slot] === spriteKey) {
+      delete newCustom[slot];
+    }
+    onUpdate(newCustom);
+    setPickerSlot(null);
+    setSearchFilter('');
+  };
+
+  const handleReset = (slot: string) => {
+    const newCustom = { ...settings.customIcons };
+    delete newCustom[slot];
+    onUpdate(newCustom);
+  };
+
+  const handleResetAll = () => {
+    onUpdate({});
+  };
+
+  const filteredSprites = Object.entries(ALL_SPRITES).filter(([key, sprite]) =>
+    !searchFilter || sprite.label.toLowerCase().includes(searchFilter.toLowerCase()) || sprite.category.toLowerCase().includes(searchFilter.toLowerCase())
+  );
+
+  const spriteCategories = filteredSprites.reduce((acc, [key, sprite]) => {
+    if (!acc[sprite.category]) acc[sprite.category] = [];
+    acc[sprite.category].push({ key, ...sprite });
+    return acc;
+  }, {} as Record<string, { key: string; path: string; label: string; category: string }[]>);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end px-1">
+        <button onClick={handleResetAll} className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors">
+          <RotateCcw className="h-3 w-3" /> Resetar todos
+        </button>
+      </div>
+
+      {Object.entries(groups).map(([groupName, slots]) => (
+        <div key={groupName}>
+          <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">{groupName}</h4>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+            {slots.map(slot => {
+              const currentKey = settings.customIcons[slot.key] || DEFAULT_ICON_MAP[slot.key];
+              const isCustom = !!settings.customIcons[slot.key];
+              const path = getIconPath(slot.key, settings.customIcons);
+              return (
+                <div key={slot.key} className="relative group">
+                  <button
+                    onClick={() => setPickerSlot(pickerSlot === slot.key ? null : slot.key)}
+                    className={`w-full flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all hover:scale-105 ${
+                      pickerSlot === slot.key
+                        ? 'border-primary bg-primary/10 shadow-lg'
+                        : isCustom
+                          ? 'border-primary/40 bg-primary/5'
+                          : 'border-border/40 bg-secondary/30 hover:border-border'
+                    }`}
+                  >
+                    <TibiaSprite src={path} alt={slot.label} className="h-10 w-10" />
+                    <span className="text-[10px] font-medium text-foreground truncate w-full text-center">{slot.label}</span>
+                  </button>
+                  {isCustom && (
+                    <button onClick={(e) => { e.stopPropagation(); handleReset(slot.key); }}
+                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="h-2.5 w-2.5 text-destructive-foreground" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Sprite Picker Modal */}
+      <AnimatePresence>
+        {pickerSlot && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+            onClick={() => { setPickerSlot(null); setSearchFilter(''); }}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-2xl max-h-[80vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-4 border-b border-border/30 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <TibiaSprite src={getIconPath(pickerSlot, settings.customIcons)} className="h-6 w-6" />
+                  <h3 className="font-semibold text-foreground text-sm">
+                    Escolher ícone para: <span className="text-primary">{ICON_SLOTS.find(s => s.key === pickerSlot)?.label}</span>
+                  </h3>
+                </div>
+                <button onClick={() => { setPickerSlot(null); setSearchFilter(''); }} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-3 border-b border-border/30">
+                <input
+                  type="text"
+                  value={searchFilter}
+                  onChange={e => setSearchFilter(e.target.value)}
+                  placeholder="Buscar sprite..."
+                  className="w-full h-9 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {Object.entries(spriteCategories).map(([cat, sprites]) => (
+                  <div key={cat}>
+                    <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat} ({sprites.length})</h4>
+                    <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-1.5">
+                      {sprites.map(sprite => {
+                        const currentKey = settings.customIcons[pickerSlot] || DEFAULT_ICON_MAP[pickerSlot];
+                        const isActive = currentKey === sprite.key;
+                        return (
+                          <button
+                            key={sprite.key}
+                            onClick={() => handleSelect(pickerSlot, sprite.key)}
+                            title={sprite.label}
+                            className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all hover:scale-110 ${
+                              isActive
+                                ? 'border-primary bg-primary/15 shadow-md'
+                                : 'border-transparent hover:border-border hover:bg-secondary/50'
+                            }`}
+                          >
+                            <TibiaSprite src={sprite.path} alt={sprite.label} className="h-10 w-10" />
+                            <span className="text-[9px] text-muted-foreground truncate w-full text-center">{sprite.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
