@@ -269,30 +269,35 @@ export default function BonecosPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Swords className="h-5 w-5 text-primary" />
-          </div>
+          <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
-            <h1 className="text-2xl font-extrabold text-foreground">Bloco de Bonecos</h1>
-            <p className="text-xs text-muted-foreground">Gerenciamento e repasse de personagens</p>
+            <h1 className="text-lg font-display font-bold text-foreground tracking-wide">CHAR ROSTER</h1>
+            <div className="text-[10px] text-muted-foreground font-mono">{bonecos.length} personagens registrados</div>
           </div>
         </div>
         {isAdmin && (
-          <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
-            <Plus className="h-4 w-4" /> Novo Boneco
+          <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm" className="gap-1.5 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Novo Char
           </Button>
         )}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 my-6">
-        <StatCard icon={<Swords className="h-5 w-5" />} value={bonecos.length} label="Total" color="primary" />
-        <StatCard icon={<span className="w-3 h-3 rounded-full bg-online" />} value={onlineCount} label="Online" color="online" />
-        <StatCard icon={<span className="w-3 h-3 rounded-full bg-afk" />} value={afkCount} label="AFK" color="afk" />
-        <StatCard icon={<span className="w-3 h-3 rounded-full bg-offline" />} value={offlineCount} label="Offline" color="offline" />
-        <StatCard icon={<ArrowRightLeft className="h-5 w-5" />} value={inUseCount} label="Em Uso" color="primary" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+        {[
+          { label: 'TOTAL', value: bonecos.length, color: 'text-foreground' },
+          { label: 'ONLINE', value: onlineCount, color: 'text-online' },
+          { label: 'AFK', value: afkCount, color: 'text-afk' },
+          { label: 'OFFLINE', value: offlineCount, color: 'text-offline' },
+          { label: 'EM USO', value: inUseCount, color: 'text-primary' },
+        ].map(s => (
+          <div key={s.label} className="panel-inset rounded-md p-2 text-center">
+            <p className={`text-sm font-bold font-mono ${s.color}`}>{s.value}</p>
+            <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{s.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
