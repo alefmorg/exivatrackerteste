@@ -68,7 +68,7 @@ export default function ConfiguracoesPage() {
     setLoading(true);
     try {
       const world = newGuildWorld || await getGuildWorld(newGuildName.trim());
-      const guild: MonitoredGuild = { id: Date.now().toString(36), name: newGuildName.trim(), world, memberCount: 0, lastUpdate: new Date().toISOString() };
+      const guild: MonitoredGuild = { id: Date.now().toString(36), name: newGuildName.trim(), world, member_count: 0, last_update: new Date().toISOString() };
       addMonitoredGuild(guild);
       setGuilds(getMonitoredGuilds());
       setNewGuildName(''); setNewGuildWorld('');
