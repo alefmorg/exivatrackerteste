@@ -8,6 +8,7 @@ export interface MapPin {
   city_id: string;
   pos_x: number;
   pos_y: number;
+  note: string;
   updated_at: string;
   updated_by: string | null;
 }
@@ -42,9 +43,17 @@ export function useMapPins() {
     await supabase
       .from('map_pins')
       .upsert(
-        { char_name: charName, city_id: '', pos_x: posX, pos_y: posY, updated_by: user.id, updated_at: new Date().toISOString() },
+        { char_name: charName, city_id: '', pos_x: posX, pos_y: posY, note: '', updated_by: user.id, updated_at: new Date().toISOString() },
         { onConflict: 'char_name' }
       );
+  }, [user]);
+
+  const updatePinNote = useCallback(async (charName: string, note: string) => {
+    if (!user) return;
+    await supabase
+      .from('map_pins')
+      .update({ note, updated_by: user.id, updated_at: new Date().toISOString() })
+      .eq('char_name', charName);
   }, [user]);
 
   const removePin = useCallback(async (charName: string) => {
@@ -61,5 +70,5 @@ export function useMapPins() {
     }
   }, [pins]);
 
-  return { pins, loading, addPin, removePin, cleanOfflinePins, refetch: fetchPins };
+  return { pins, loading, addPin, removePin, updatePinNote, cleanOfflinePins, refetch: fetchPins };
 }

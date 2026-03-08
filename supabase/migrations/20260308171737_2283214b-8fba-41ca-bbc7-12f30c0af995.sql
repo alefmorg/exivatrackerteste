@@ -1,0 +1,1 @@
+ALTER TABLE public.map_pins ADD COLUMN note text NOT NULL DEFAULT '';
