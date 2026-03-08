@@ -6,6 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ItemSprite } from '@/components/TibiaIcons';
 import { timeAgo, formatDate } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
+import MetricCard from '@/components/MetricCard';
+import EmptyState from '@/components/EmptyState';
 
 interface LogRow {
   id: string; boneco_id: string; boneco_name: string; user_id: string;
