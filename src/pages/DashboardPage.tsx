@@ -183,7 +183,7 @@ export default function DashboardPage() {
       )}
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <ChartPanel title="STATUS" icon={<ItemSprite item="online" className="h-5 w-5" />}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
