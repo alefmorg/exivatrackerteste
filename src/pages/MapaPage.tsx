@@ -8,7 +8,7 @@ import { VocationIcon } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useMapPins } from '@/hooks/useMapPins';
-import { TIBIA_CITIES, CITY_CONNECTIONS, MAP_REGIONS } from '@/lib/tibia-cities';
+import { TIBIA_CITIES } from '@/lib/tibia-cities';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -111,48 +111,17 @@ export default function MapaPage() {
       />
 
       {/* Map Container */}
-      <div className="relative w-full aspect-[16/10] bg-card border border-border rounded-lg overflow-hidden select-none">
-        {/* Background grid */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(hsl(var(--primary) / 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(var(--primary) / 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
+      <div className="relative w-full aspect-[16/9] border border-border rounded-lg overflow-hidden select-none">
+        {/* Background map image */}
+        <img
+          src="/tibia-world-map.png"
+          alt="Tibia World Map"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ imageRendering: 'auto' }}
+          draggable={false}
         />
-
-        {/* Region labels */}
-        {MAP_REGIONS.map(region => {
-          const regionCities = TIBIA_CITIES.filter(c => c.region === region);
-          if (!regionCities.length) return null;
-          const avgX = regionCities.reduce((s, c) => s + c.x, 0) / regionCities.length;
-          const avgY = regionCities.reduce((s, c) => s + c.y, 0) / regionCities.length;
-          return (
-            <div
-              key={region}
-              className="absolute text-[8px] font-mono text-muted-foreground/30 uppercase tracking-[0.3em] pointer-events-none"
-              style={{ left: `${avgX}%`, top: `${avgY - 6}%`, transform: 'translateX(-50%)' }}
-            >
-              {region}
-            </div>
-          );
-        })}
-
-        {/* Connection lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {CITY_CONNECTIONS.map(([a, b]) => {
-            const ca = TIBIA_CITIES.find(c => c.id === a);
-            const cb = TIBIA_CITIES.find(c => c.id === b);
-            if (!ca || !cb) return null;
-            return (
-              <line key={`${a}-${b}`} x1={ca.x} y1={ca.y} x2={cb.x} y2={cb.y}
-                stroke="hsl(var(--border))" strokeWidth="0.15" strokeDasharray="0.5,0.5" />
-            );
-          })}
-        </svg>
+        {/* Dark overlay for better pin visibility */}
+        <div className="absolute inset-0 bg-background/30" />
 
         {/* City pins */}
         {TIBIA_CITIES.map(city => {
