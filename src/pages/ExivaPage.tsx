@@ -31,6 +31,17 @@ const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; bo
 
 const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
+// Find nearest city name from pin coordinates
+function getNearestCity(posX: number, posY: number): string {
+  let closest = '';
+  let minDist = Infinity;
+  for (const city of TIBIA_CITIES) {
+    const d = Math.hypot(city.x - posX, city.y - posY);
+    if (d < minDist) { minDist = d; closest = city.name; }
+  }
+  return closest;
+}
+
 export default function ExivaPage() {
   const { toast } = useToast();
   const { user } = useAuth();
