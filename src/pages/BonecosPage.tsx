@@ -546,7 +546,7 @@ export default function BonecosPage() {
               )}
               {b.premium_active && (
                 <span className="px-2 py-0.5 rounded border text-[11px] font-medium bg-yellow-500/10 text-yellow-400 border-yellow-500/30 flex items-center gap-1">
-                  <ItemSprite item="premiumScroll" className="h-3.5 w-3.5" /> Premium
+                  <ItemSprite item="premiumScroll" className="h-4 w-4" /> Premium
                 </span>
               )}
               {b.tibia_coins > 0 && (
