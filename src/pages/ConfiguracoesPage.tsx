@@ -362,7 +362,7 @@ export default function ConfiguracoesPage() {
                       <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {g.world}</span>
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{timeAgo(g.lastUpdate)}</span>
+                  <span className="text-xs text-muted-foreground">{timeAgo(g.last_update)}</span>
                   <button onClick={() => handleRemove(g.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
