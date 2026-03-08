@@ -15,6 +15,9 @@ import TopPodium from '@/components/relatorio/TopPodium';
 import DeathsPanel from '@/components/relatorio/DeathsPanel';
 import MemberTable, { MemberReport } from '@/components/relatorio/MemberTable';
 import OnlineHeatmap from '@/components/relatorio/OnlineHeatmap';
+import LevelDistribution from '@/components/relatorio/LevelDistribution';
+import WarReadiness from '@/components/relatorio/WarReadiness';
+import ActivityRisk from '@/components/relatorio/ActivityRisk';
 
 export default function RelatorioPage() {
   const [members, setMembers] = useState<GuildMember[]>([]);
@@ -197,14 +200,23 @@ export default function RelatorioPage() {
         avgLevelGuild: avgLevel,
       }} />
 
-      {/* Charts row */}
+      {/* War Readiness + Podium */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <WarReadiness members={members} loginHistory={loginHistory} />
         <TopPodium players={reports} period="today" />
+      </div>
+
+      {/* Level Distribution + Vocation */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <LevelDistribution members={members} />
         <VocationBreakdown members={reports} />
       </div>
 
       {/* Level chart */}
       <LevelChart levelHistory={levelHistory} members={members} />
+
+      {/* Activity & Risk */}
+      <ActivityRisk members={members} loginHistory={loginHistory} deaths={deaths} />
 
       {/* Heatmap + Deaths */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
