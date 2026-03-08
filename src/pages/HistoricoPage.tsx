@@ -94,7 +94,7 @@ export default function HistoricoPage() {
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span>{logs.length} registros</span>
               <span className="text-primary flex items-center gap-1">
-                <ItemSprite item="live" className="h-3 w-3 animate-pulse" /> REALTIME
+                <ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME
               </span>
             </div>
           </div>
