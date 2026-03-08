@@ -620,30 +620,45 @@ export default function BonecosPage() {
 
             {/* Skills bar */}
             {settings.showSkills && (b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
-                {b.sword_skill > 0 && <span>⚔ Sword: {b.sword_skill}</span>}
-                {b.axe > 0 && <span>🪓 Axe: {b.axe}</span>}
-                {b.club > 0 && <span>🔨 Club: {b.club}</span>}
-                {b.distance > 0 && <span>🎯 Dist: {b.distance}</span>}
-                {b.shielding > 0 && <span>🛡 Shield: {b.shielding}</span>}
-                {b.fist > 0 && <span>👊 Fist: {b.fist}</span>}
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground mb-3 px-1">
+                {b.sword_skill > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="sword" className="h-3 w-3" /> Sword: {b.sword_skill}</span>}
+                {b.axe > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="axe" className="h-3 w-3" /> Axe: {b.axe}</span>}
+                {b.club > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="club" className="h-3 w-3" /> Club: {b.club}</span>}
+                {b.distance > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="distance" className="h-3 w-3" /> Dist: {b.distance}</span>}
+                {b.shielding > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="shielding" className="h-3 w-3" /> Shield: {b.shielding}</span>}
+                {b.fist > 0 && <span className="flex items-center gap-0.5"><ItemSprite item="fist" className="h-3 w-3" /> Fist: {b.fist}</span>}
+              </div>
+            )}
+
+            {/* Acessos & Quests */}
+            {settings.showAcessos && ((b.acessos && b.acessos.length > 0) || (settings.showQuests && b.quests && b.quests.length > 0)) && (
+              <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                {b.acessos?.map((a, i) => (
+                  <span key={`a-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30 flex items-center gap-1">
+                    <ItemSprite item="key" className="h-3 w-3" /> {a}
+                  </span>
+                ))}
+                {settings.showQuests && b.quests?.map((q, i) => (
+                  <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
+                    <ItemSprite item="quest" className="h-3 w-3" /> {q}
+                  </span>
+                ))}
               </div>
             )}
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(b.last_access)}</span>
+                <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-3.5 w-3.5" /> {timeAgo(b.last_access)}</span>
               </div>
               <div className="flex items-center gap-2">
-                {/* Claim/Return button - available to all users */}
                 <Button
                   variant={b.used_by ? 'outline' : 'default'}
                   size="sm"
                   className={`h-7 text-xs gap-1 ${b.used_by ? 'border-afk/30 text-afk hover:bg-afk/10' : ''}`}
                   onClick={() => handleClaim(b)}
                 >
-                  {b.used_by ? <><LogOut className="h-3 w-3" /> Devolver</> : <><LogIn className="h-3 w-3" /> Pegar</>}
+                  {b.used_by ? <><ItemSprite item="logout" className="h-3.5 w-3.5" /> Devolver</> : <><ItemSprite item="login" className="h-3.5 w-3.5" /> Pegar</>}
                 </Button>
                 {isAdmin && (
                   <>
@@ -655,7 +670,7 @@ export default function BonecosPage() {
             </div>
 
             {b.observations && (
-              <p className="text-[11px] text-muted-foreground mt-2 italic">💬 {b.observations}</p>
+              <p className="text-[11px] text-muted-foreground mt-2 italic flex items-center gap-1"><ItemSprite item="note" className="h-3 w-3" /> {b.observations}</p>
             )}
           </div>
         ))}
@@ -663,7 +678,7 @@ export default function BonecosPage() {
 
       {filtered.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <Swords className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <ItemSprite item="bonecos" className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>Nenhum boneco encontrado</p>
           {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
         </div>
