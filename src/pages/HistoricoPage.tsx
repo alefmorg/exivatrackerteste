@@ -165,7 +165,7 @@ export default function HistoricoPage() {
             <div key={date}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[10px] font-display font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3" /> {date}
+                  <ItemSprite item="calendar" className="h-4 w-4" /> {date}
                 </span>
                 <div className="flex-1 glow-divider" />
                 <span className="text-[9px] text-muted-foreground font-mono">{entries.length}</span>
