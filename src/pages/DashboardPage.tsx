@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe } from 'lucide-react';
-import { getMonitoredGuilds } from '@/lib/storage';
-import { MonitoredGuild } from '@/types/tibia';
+import { getMonitoredGuildsAsync, MonitoredGuild } from '@/lib/storage';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import StatusDot from '@/components/StatusDot';
 import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor, ItemSprite, SPRITE } from '@/components/TibiaIcons';
+import { timeAgo } from '@/lib/utils';
+import { SkeletonPage } from '@/components/SkeletonLoader';
 
 // ============================================================
 // Data fetching & management
