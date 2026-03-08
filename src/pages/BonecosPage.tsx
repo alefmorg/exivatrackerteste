@@ -629,7 +629,7 @@ export default function BonecosPage() {
                 ))}
                 {settings.showQuests && b.quests?.map((q, i) => (
                   <span key={`q-${i}`} className="px-2 py-0.5 rounded border text-[11px] font-medium bg-blue-500/10 text-blue-400 border-blue-500/30 flex items-center gap-1">
-                    <ItemSprite item="quest" className="h-3 w-3" /> {q}
+                    <ItemSprite item="quest" className="h-4 w-4" /> {q}
                   </span>
                 ))}
               </div>
