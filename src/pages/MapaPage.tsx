@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
-import { TIBIA_CITIES } from '@/lib/tibia-cities';
+import { TIBIA_CITIES, TibiaCity } from '@/lib/tibia-cities';
 import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
@@ -12,6 +12,18 @@ import { useMapPins, MapPin } from '@/hooks/useMapPins';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
+
+// Load/save city position overrides from localStorage
+const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
+function loadCityOverrides(): Record<string, { x: number; y: number }> {
+  try {
+    const stored = localStorage.getItem(CITY_OVERRIDES_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch { return {}; }
+}
+function saveCityOverrides(overrides: Record<string, { x: number; y: number }>) {
+  localStorage.setItem(CITY_OVERRIDES_KEY, JSON.stringify(overrides));
+}
 
 interface ClickPopup {
   x: number;
