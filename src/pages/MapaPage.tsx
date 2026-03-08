@@ -99,16 +99,7 @@ export default function MapaPage() {
     };
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.3 : 0.3;
-    setZoom(prev => {
-      const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev + delta));
-      if (next <= 1) setPan({ x: 0, y: 0 });
-      else setPan(p => clampPan(p.x, p.y, next));
-      return next;
-    });
-  }, [clampPan]);
+  // Wheel zoom disabled per user request
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
@@ -248,7 +239,7 @@ export default function MapaPage() {
         ref={mapRef}
         className={`relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
         onClick={handleMapClick}
-        onWheel={handleWheel}
+        
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -316,11 +307,11 @@ export default function MapaPage() {
                 <div className="relative group cursor-pointer" data-pin>
                   <motion.div
                     className="absolute inset-0 rounded-full bg-primary"
-                    animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
+                    animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    style={{ width: 12, height: 12, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
+                    style={{ width: 16, height: 16, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
                   />
-                  <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
+                  <div className="w-4 h-4 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
                   <button
                     data-pin
                     onClick={(e) => handleRemovePin(e, pin.char_name)}
