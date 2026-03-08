@@ -289,9 +289,11 @@ export default function BonecosPage() {
     setSyncAllLoading(true);
     setSyncProgress({ done: 0, total: bonecos.length });
     let updated = 0;
+    const BATCH_SIZE = 3; // Smaller batches to avoid rate limiting
+    const BATCH_DELAY = 800; // 800ms between batches
 
-    for (let i = 0; i < bonecos.length; i += 5) {
-      const batch = bonecos.slice(i, i + 5);
+    for (let i = 0; i < bonecos.length; i += BATCH_SIZE) {
+      const batch = bonecos.slice(i, i + BATCH_SIZE);
       await Promise.allSettled(batch.map(async (b) => {
         try {
           const charData = await fetchCharacter(b.name);
@@ -311,8 +313,8 @@ export default function BonecosPage() {
           }
         } catch { /* skip */ }
       }));
-      setSyncProgress({ done: Math.min(i + 5, bonecos.length), total: bonecos.length });
-      if (i + 5 < bonecos.length) await new Promise(r => setTimeout(r, 400));
+      setSyncProgress({ done: Math.min(i + BATCH_SIZE, bonecos.length), total: bonecos.length });
+      if (i + BATCH_SIZE < bonecos.length) await new Promise(r => setTimeout(r, BATCH_DELAY));
     }
 
     toast({ title: `🔄 Sync concluído!`, description: `${updated} bonecos atualizados de ${bonecos.length}` });

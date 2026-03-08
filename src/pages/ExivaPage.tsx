@@ -77,7 +77,7 @@ export default function ExivaPage() {
       setCategories(savedCats);
       setAnnotationsState(savedAnnots);
       data.forEach(m => {
-        m.annotation = annotations[m.name] || '';
+        m.annotation = savedAnnots[m.name] || '';
       });
       setMembers(data);
       setRefreshCountdown(settings.refreshInterval);
@@ -85,7 +85,7 @@ export default function ExivaPage() {
     } catch (e: any) {
       toast({ title: 'Erro ao buscar membros', description: e.message, variant: 'destructive' });
     } finally { setLoading(false); }
-  }, [members, annotations, settings.refreshInterval, toast]);
+  }, [settings.refreshInterval, toast]);
 
   const fetchDeaths = useCallback(async () => {
     if (members.length === 0) return;
