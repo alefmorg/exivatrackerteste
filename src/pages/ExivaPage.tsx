@@ -185,7 +185,9 @@ export default function ExivaPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
+          <ItemSprite item="search" className="h-3.5 w-3.5" />
+        </div>
         <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
           placeholder="Filtrar jogadores online..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
       </div>
