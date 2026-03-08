@@ -4,8 +4,10 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 import MobileNav from '@/components/MobileNav';
+import { useLoginNotifications } from '@/hooks/useLoginNotifications';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  useLoginNotifications();
   const location = useLocation();
   const { user, role, username, isAdmin, signOut } = useAuth();
 
