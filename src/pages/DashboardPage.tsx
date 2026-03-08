@@ -9,6 +9,9 @@ import { useSettings } from '@/hooks/useSettings';
 import { VocationIcon, getVocationColor, ItemSprite, SPRITE } from '@/components/TibiaIcons';
 import { timeAgo } from '@/lib/utils';
 import { SkeletonPage } from '@/components/SkeletonLoader';
+import PageHeader from '@/components/PageHeader';
+import MetricCard from '@/components/MetricCard';
+import EmptyState from '@/components/EmptyState';
 
 // ============================================================
 // Data fetching & management
