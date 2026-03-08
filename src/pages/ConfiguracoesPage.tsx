@@ -61,9 +61,9 @@ export default function ConfiguracoesPage() {
     setLoading(true);
     try {
       const world = newGuildWorld || await getGuildWorld(newGuildName.trim());
-      const guild: MonitoredGuild = { id: Date.now().toString(36), name: newGuildName.trim(), world, member_count: 0, last_update: new Date().toISOString() };
-      addMonitoredGuild(guild);
-      setGuilds(getMonitoredGuilds());
+      await addMonitoredGuildAsync({ name: newGuildName.trim(), world });
+      const updated = await getMonitoredGuildsAsync();
+      setGuilds(updated);
       setNewGuildName(''); setNewGuildWorld('');
       toast({ title: 'Guild adicionada' });
     } catch (e: any) {
