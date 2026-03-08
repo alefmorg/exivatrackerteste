@@ -89,7 +89,7 @@ export default function HistoricoPage() {
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {[
           { label: 'TOTAL', value: logs.length.toString(), sprite: 'scroll' as const },
           { label: 'PEGOU', value: pegarCount.toString(), sprite: 'login' as const, highlight: true },
