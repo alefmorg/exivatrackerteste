@@ -5,9 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { NavSprite, ItemSprite } from '@/components/TibiaIcons';
 import MobileNav from '@/components/MobileNav';
 import { useLoginNotifications } from '@/hooks/useLoginNotifications';
+import { useGuildMonitor } from '@/hooks/useGuildMonitor';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   useLoginNotifications();
+  useGuildMonitor();
   const location = useLocation();
   const { user, role, username, isAdmin, signOut } = useAuth();
 

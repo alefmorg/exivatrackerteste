@@ -76,11 +76,8 @@ export default function ExivaPage() {
       const [savedCats, savedAnnots] = await Promise.all([loadCategories(), loadAnnotations()]);
       setCategories(savedCats);
       setAnnotationsState(savedAnnots);
-      const prevMembers = members;
       data.forEach(m => {
         m.annotation = annotations[m.name] || '';
-        const prev = prevMembers.find(p => p.name === m.name);
-        if (prev && prev.status !== m.status) recordLoginChange(m.name, m.status);
       });
       setMembers(data);
       setRefreshCountdown(settings.refreshInterval);
