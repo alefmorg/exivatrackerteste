@@ -358,6 +358,7 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
               {mapPin.note && <span className="text-muted-foreground">· {mapPin.note}</span>}
             </span>
           )}
+        </div>
         <select value={category} onChange={e => { e.stopPropagation(); onSetCategory(m.name, e.target.value as MemberCategory); }}
           onClick={e => e.stopPropagation()}
           className="text-[9px] px-1 py-0.5 rounded bg-secondary border border-border text-foreground cursor-pointer">
