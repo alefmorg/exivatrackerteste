@@ -65,7 +65,7 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     const [{ data: bData }, { data: lData }] = await Promise.all([
       supabase.from('bonecos').select('id,name,level,vocation,world,status,activity,used_by,last_access,full_bless,premium_active,tibia_coins').order('created_at', { ascending: false }),
-      supabase.from('boneco_logs').select('id,boneco_name,username,action,notes,created_at').order('created_at', { ascending: false }).limit(20),
+      supabase.from('boneco_logs').select('id,boneco_name,username,action,notes,created_at').order('created_at', { ascending: false }).limit(settings.logLimit),
     ]);
     if (bData) setBonecos(bData as BonecoRow[]);
     if (lData) setRecentLogs(lData as LogRow[]);
