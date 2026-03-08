@@ -365,6 +365,7 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   // Login/Logout
   { key: 'action_login', label: 'Login (Pegar)', group: 'Ações' },
   { key: 'action_logout', label: 'Logout (Devolver)', group: 'Ações' },
+  { key: 'action_signout', label: 'Sair (Menu)', group: 'Ações' },
 ];
 
 // ============================================================
