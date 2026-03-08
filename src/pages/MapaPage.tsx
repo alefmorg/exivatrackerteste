@@ -272,7 +272,8 @@ export default function MapaPage() {
       {/* Map Container */}
       <div
         ref={mapRef}
-        className={`relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
+        className={`relative w-full border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
+        style={{ aspectRatio: mapAspectRatio }}
         onClick={handleMapClick}
         
         onMouseDown={handleMouseDown}
