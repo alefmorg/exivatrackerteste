@@ -376,6 +376,8 @@ export default function ConfiguracoesPage() {
               checked={settings.toastNotifications} onChange={v => updateSetting('toastNotifications', v)} />
             <SettingToggle label="Notificações Sonoras" description="Emitir som ao receber notificações de repasse"
               checked={settings.soundNotifications} onChange={v => updateSetting('soundNotifications', v)} />
+            <SettingToggle label="Push Notifications" description="Receber alertas nativos do sistema mesmo com o navegador minimizado"
+              checked={settings.pushNotifications} onChange={v => updateSetting('pushNotifications', v)} />
           </SettingsSection>
         </div>
       )}

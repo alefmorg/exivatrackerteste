@@ -17,6 +17,7 @@ export interface AppSettings {
   exivaColumns: 2 | 3 | 4;
   soundNotifications: boolean;
   toastNotifications: boolean;
+  pushNotifications: boolean;
   autoClaimReturn: boolean;
   showCredentials: boolean;
   showSkills: boolean;
@@ -41,6 +42,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   exivaColumns: 4,
   soundNotifications: true,
   toastNotifications: true,
+  pushNotifications: true,
   autoClaimReturn: false,
   showCredentials: true,
   showSkills: true,
