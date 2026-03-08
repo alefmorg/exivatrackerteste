@@ -109,8 +109,9 @@ export default function ExivaPage() {
   const onlineCount = members.filter(m => m.status === 'online').length;
   const offlineCount = members.filter(m => m.status === 'offline').length;
 
-  const handleSaveAnnotation = (charName: string) => {
-    saveAnnotation(charName, annotationText);
+  const handleSaveAnnotation = async (charName: string) => {
+    await saveAnnotationAsync(charName, annotationText, user?.id);
+    setAnnotationsState(prev => ({ ...prev, [charName]: annotationText }));
     setMembers(prev => prev.map(m => m.name === charName ? { ...m, annotation: annotationText } : m));
     setEditingAnnotation(null);
     toast({ title: 'Anotação salva' });
