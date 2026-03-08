@@ -175,7 +175,7 @@ export default function HistoricoPage() {
                   {entries.map(log => (
                     <motion.div key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} layout
                       className="flex items-center py-2 px-3 gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 transition-colors">
-                      <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-4 w-4 shrink-0" />
+                      <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-5 w-5 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 text-xs">
                           <span className="font-semibold text-foreground">{log.username || '?'}</span>
