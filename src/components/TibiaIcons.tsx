@@ -291,6 +291,9 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   act_war: 'war_axe',
   act_maker: 'wand_of_vortex',
   act_boss: 'demon_helmet',
+  // Login/Logout actions (separate from status)
+  action_login: 'green_gem',
+  action_logout: 'red_gem',
 };
 
 // Customizable icon slots with labels
@@ -357,6 +360,9 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'act_war', label: 'War', group: 'Atividades' },
   { key: 'act_maker', label: 'Maker', group: 'Atividades' },
   { key: 'act_boss', label: 'Boss', group: 'Atividades' },
+  // Login/Logout
+  { key: 'action_login', label: 'Login (Pegar)', group: 'Ações' },
+  { key: 'action_logout', label: 'Logout (Devolver)', group: 'Ações' },
 ];
 
 // ============================================================
@@ -464,8 +470,8 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
     online: 'status_online',
     offline: 'status_offline',
     afk: 'status_afk',
-    login: 'status_online',
-    logout: 'status_offline',
+    login: 'action_login',
+    logout: 'action_logout',
     email: 'cred_email',
     password: 'cred_password',
     token2fa: 'cred_2fa',
