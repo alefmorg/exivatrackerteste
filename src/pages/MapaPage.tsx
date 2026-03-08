@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
@@ -12,9 +12,9 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 interface ClickPopup {
-  x: number; // percentage on map
+  x: number;
   y: number;
-  screenX: number; // pixel position for popup
+  screenX: number;
   screenY: number;
 }
 
@@ -27,6 +27,16 @@ export default function MapaPage() {
   const mapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const { pins, addPin, removePin, cleanOfflinePins } = useMapPins();
+
+  // Zoom & pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+  const dragMoved = useRef(false);
+
+  const MIN_ZOOM = 1;
+  const MAX_ZOOM = 6;
 
   // Fetch online guild members
   useEffect(() => {
@@ -61,9 +71,7 @@ export default function MapaPage() {
     return map;
   }, [onlineMembers]);
 
-  // Only show online pins
   const visiblePins = useMemo(() => pins.filter(p => onlineNames.has(p.char_name)), [pins, onlineNames]);
-
   const totalOnMap = visiblePins.length;
 
   const pinnedNames = useMemo(() => new Set(pins.map(p => p.char_name)), [pins]);
@@ -75,24 +83,76 @@ export default function MapaPage() {
     });
   }, [onlineMembers, pinnedNames, searchText]);
 
-  const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!mapRef.current) return;
-    // Don't open popup if clicking on an existing pin
+  // Clamp pan to prevent going out of bounds
+  const clampPan = useCallback((px: number, py: number, z: number) => {
+    if (z <= 1) return { x: 0, y: 0 };
+    const container = mapRef.current;
+    if (!container) return { x: px, y: py };
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    const maxX = (w * z - w) / 2;
+    const maxY = (h * z - h) / 2;
+    return {
+      x: Math.max(-maxX, Math.min(maxX, px)),
+      y: Math.max(-maxY, Math.min(maxY, py)),
+    };
+  }, []);
+
+  // Zoom handler (mouse wheel)
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.3 : 0.3;
+    setZoom(prev => {
+      const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev + delta));
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      else setPan(p => clampPan(p.x, p.y, next));
+      return next;
+    });
+  }, [clampPan]);
+
+  // Mouse drag handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    // Don't start drag on pins or popups
     const target = e.target as HTMLElement;
-    if (target.closest('[data-pin]')) return;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+
+    setIsDragging(true);
+    dragMoved.current = false;
+    dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+    e.preventDefault();
+  }, [zoom, pan]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
+    setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
+  }, [isDragging, zoom, clampPan]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Map click → add pin (only if not dragging)
+  const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragMoved.current) return;
+    if (!mapRef.current) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
 
     const rect = mapRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    // Convert screen coords to map percentage accounting for zoom & pan
+    const containerX = e.clientX - rect.left;
+    const containerY = e.clientY - rect.top;
+    const mapX = ((containerX - rect.width / 2 - pan.x) / zoom + rect.width / 2) / rect.width * 100;
+    const mapY = ((containerY - rect.height / 2 - pan.y) / zoom + rect.height / 2) / rect.height * 100;
 
-    // Screen position for popup (relative to map container)
-    const screenX = e.clientX - rect.left;
-    const screenY = e.clientY - rect.top;
-
-    setClickPopup({ x, y, screenX, screenY });
+    setClickPopup({ x: mapX, y: mapY, screenX: containerX, screenY: containerY });
     setSearchText('');
     setTimeout(() => searchRef.current?.focus(), 100);
-  }, []);
+  }, [zoom, pan]);
 
   const handleAddMember = useCallback(async (name: string) => {
     if (!clickPopup) return;
@@ -107,6 +167,23 @@ export default function MapaPage() {
     await removePin(name);
     toast.success(`${name} removido do mapa`);
   }, [removePin]);
+
+  const zoomIn = useCallback(() => {
+    setZoom(prev => Math.min(MAX_ZOOM, prev + 0.5));
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setZoom(prev => {
+      const next = Math.max(MIN_ZOOM, prev - 0.5);
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  }, []);
+
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -124,90 +201,109 @@ export default function MapaPage() {
       {/* Map Container */}
       <div
         ref={mapRef}
-        className="relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none cursor-crosshair"
+        className={`relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none ${zoom > 1 ? 'cursor-grab' : 'cursor-crosshair'} ${isDragging ? 'cursor-grabbing' : ''}`}
         onClick={handleMapClick}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        {/* Real Tibia minimap background */}
-        <img
-          src="/tibia-world-map.png"
-          alt="Tibia World Map"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ imageRendering: 'pixelated' }}
-          draggable={false}
-        />
-        {/* Subtle overlay */}
-        <div className="absolute inset-0 bg-background/15 pointer-events-none" />
+        {/* Zoomable/pannable inner container */}
+        <div
+          className="absolute inset-0 origin-center transition-transform duration-100"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transitionProperty: isDragging ? 'none' : 'transform',
+          }}
+        >
+          {/* Real Tibia minimap background */}
+          <img
+            src="/tibia-world-map.png"
+            alt="Tibia World Map"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            style={{ imageRendering: 'pixelated' }}
+            draggable={false}
+          />
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
-        {/* Placed pins */}
-        {visiblePins.map(pin => {
-          const member = memberMap[pin.char_name];
-          const isHovered = hoveredPin === pin.char_name;
+          {/* Placed pins */}
+          {visiblePins.map(pin => {
+            const member = memberMap[pin.char_name];
+            const isHovered = hoveredPin === pin.char_name;
 
-          return (
-            <div
-              key={pin.id}
-              data-pin
-              className="absolute z-10 flex flex-col items-center"
-              style={{ left: `${pin.pos_x}%`, top: `${pin.pos_y}%`, transform: 'translate(-50%, -100%)' }}
-              onMouseEnter={() => setHoveredPin(pin.char_name)}
-              onMouseLeave={() => setHoveredPin(null)}
-            >
-              {/* Hover card */}
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 4 }}
-                    className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 bg-popover/95 backdrop-blur border border-border rounded px-2 py-1.5 shadow-lg min-w-[120px] pointer-events-none"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <StatusDot status="online" />
-                      {member && <VocationIcon vocation={member.vocation} className="h-3.5 w-3.5" />}
-                      <span className="text-[10px] font-medium text-foreground whitespace-nowrap">{pin.char_name}</span>
-                    </div>
-                    {member && (
-                      <div className="text-[9px] text-muted-foreground font-mono mt-0.5">
-                        Lv {member.level} · {member.vocation}
+            return (
+              <div
+                key={pin.id}
+                data-pin
+                className="absolute z-10 flex flex-col items-center"
+                style={{
+                  left: `${pin.pos_x}%`,
+                  top: `${pin.pos_y}%`,
+                  transform: `translate(-50%, -100%) scale(${1 / zoom})`,
+                }}
+                onMouseEnter={() => setHoveredPin(pin.char_name)}
+                onMouseLeave={() => setHoveredPin(null)}
+              >
+                {/* Hover card */}
+                <AnimatePresence>
+                  {isHovered && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 bg-popover/95 backdrop-blur border border-border rounded px-2 py-1.5 shadow-lg min-w-[120px] pointer-events-none"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <StatusDot status="online" />
+                        {member && <VocationIcon vocation={member.vocation} className="h-3.5 w-3.5" />}
+                        <span className="text-[10px] font-medium text-foreground whitespace-nowrap">{pin.char_name}</span>
                       </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      {member && (
+                        <div className="text-[9px] text-muted-foreground font-mono mt-0.5">
+                          Lv {member.level} · {member.vocation}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              {/* Pin marker */}
-              <div className="relative group cursor-pointer" data-pin>
-                {/* Pulse */}
-                <motion.div
-                  className="absolute inset-0 rounded-full bg-primary"
-                  animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  style={{ width: 12, height: 12, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
-                />
-                {/* Dot */}
-                <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
-                {/* Remove button on hover */}
-                <button
-                  data-pin
-                  onClick={(e) => handleRemovePin(e, pin.char_name)}
-                  className="absolute -top-1 -right-2.5 w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-2 w-2" />
-                </button>
+                {/* Pin marker */}
+                <div className="relative group cursor-pointer" data-pin>
+                  {/* Pulse */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-primary"
+                    animate={{ scale: [1, 2, 1], opacity: [0.4, 0, 0.4] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    style={{ width: 12, height: 12, margin: 'auto', top: 0, left: 0, right: 0, bottom: 0 }}
+                  />
+                  {/* Dot */}
+                  <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-[0_0_6px_hsl(var(--primary)/0.6)]" />
+                  {/* Remove button on hover */}
+                  <button
+                    data-pin
+                    onClick={(e) => handleRemovePin(e, pin.char_name)}
+                    className="absolute -top-1 -right-2.5 w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-2 w-2" />
+                  </button>
+                </div>
+
+                {/* Name label */}
+                <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight">
+                  {pin.char_name}
+                </span>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Name label */}
-              <span className="text-[7px] font-mono text-foreground bg-background/70 px-1 rounded mt-0.5 whitespace-nowrap leading-tight">
-                {pin.char_name}
-              </span>
-            </div>
-          );
-        })}
-
-        {/* Click popup - member search */}
+        {/* Click popup (stays in screen space, not zoomable) */}
         <AnimatePresence>
           {clickPopup && (
             <motion.div
+              data-popup
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -254,7 +350,6 @@ export default function MapaPage() {
                   ))
                 )}
               </div>
-              {/* Pin preview indicator */}
               <div className="px-2 py-1 border-t border-border">
                 <div className="text-[8px] text-muted-foreground font-mono">
                   📍 {clickPopup.x.toFixed(1)}%, {clickPopup.y.toFixed(1)}%
@@ -268,9 +363,42 @@ export default function MapaPage() {
         {clickPopup && (
           <div
             className="absolute z-15 w-2 h-2 rounded-full bg-primary/60 border border-primary animate-pulse pointer-events-none"
-            style={{ left: `${clickPopup.x}%`, top: `${clickPopup.y}%`, transform: 'translate(-50%, -50%)' }}
+            style={{
+              left: `${clickPopup.x}%`,
+              top: `${clickPopup.y}%`,
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) translate(-50%, -50%)`,
+              transformOrigin: 'center',
+            }}
           />
         )}
+
+        {/* Zoom controls */}
+        <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); zoomIn(); }}
+            className="w-7 h-7 rounded bg-card/90 backdrop-blur border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
+            title="Zoom in"
+          >
+            <ZoomIn className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); zoomOut(); }}
+            className="w-7 h-7 rounded bg-card/90 backdrop-blur border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
+            title="Zoom out"
+          >
+            <ZoomOut className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); resetView(); }}
+            className="w-7 h-7 rounded bg-card/90 backdrop-blur border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors"
+            title="Resetar zoom"
+          >
+            <Maximize className="h-3.5 w-3.5" />
+          </button>
+          <div className="text-[8px] font-mono text-center text-muted-foreground bg-card/90 backdrop-blur rounded border border-border px-1 py-0.5">
+            {Math.round(zoom * 100)}%
+          </div>
+        </div>
 
         {/* Loading overlay */}
         {loading && (
