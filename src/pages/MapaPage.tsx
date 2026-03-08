@@ -111,17 +111,17 @@ export default function MapaPage() {
       />
 
       {/* Map Container */}
-      <div className="relative w-full aspect-[16/9] border border-border rounded-lg overflow-hidden select-none">
-        {/* Background map image */}
+      <div className="relative w-full aspect-[5/4] border border-border rounded-lg overflow-hidden select-none">
+        {/* Real Tibia minimap background */}
         <img
           src="/tibia-world-map.png"
           alt="Tibia World Map"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ imageRendering: 'auto' }}
+          style={{ imageRendering: 'pixelated' }}
           draggable={false}
         />
-        {/* Dark overlay for better pin visibility */}
-        <div className="absolute inset-0 bg-background/30" />
+        {/* Subtle overlay for pin readability */}
+        <div className="absolute inset-0 bg-background/20" />
 
         {/* City pins */}
         {TIBIA_CITIES.map(city => {
