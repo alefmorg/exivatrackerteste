@@ -659,7 +659,7 @@ export default function BonecosPage() {
             </div>
 
             {b.observations && (
-              <p className="text-[11px] text-muted-foreground mt-2 italic flex items-center gap-1"><ItemSprite item="note" className="h-3 w-3" /> {b.observations}</p>
+              <p className="text-[11px] text-muted-foreground mt-2 italic flex items-center gap-1"><ItemSprite item="note" className="h-4 w-4" /> {b.observations}</p>
             )}
           </div>
         ))}
