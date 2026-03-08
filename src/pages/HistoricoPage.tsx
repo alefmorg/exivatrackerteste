@@ -131,7 +131,7 @@ export default function HistoricoPage() {
 
       {/* Timeline */}
       {loading ? (
-        <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+        <SkeletonPage />
       ) : (
         <div className="space-y-4">
           {Object.entries(grouped).map(([date, entries]) => (
