@@ -25,6 +25,7 @@ export default function RelatorioPage() {
   const [loginHistory, setLoginHistory] = useState<Array<{ char_name: string; status: string; recorded_at: string }>>([]);
   const [deaths, setDeaths] = useState<CharacterDeath[]>([]);
   const [deathsLoading, setDeathsLoading] = useState(false);
+  const [deathProgress, setDeathProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<string>('levels_today');
@@ -55,12 +56,16 @@ export default function RelatorioPage() {
           .order('recorded_at', { ascending: true });
         setLoginHistory(logins || []);
 
-        // Load deaths in background
+        // Load deaths for ALL members in background
         setDeathsLoading(true);
-        const onlineNames = guildMembers.filter(m => m.status === 'online').map(m => m.name);
-        fetchGuildMemberDeaths(onlineNames.length > 0 ? onlineNames : guildMembers.slice(0, 20).map(m => m.name))
-          .then(d => { setDeaths(d); setDeathsLoading(false); })
-          .catch(() => setDeathsLoading(false));
+        setDeathProgress({ loaded: 0, total: guildMembers.length });
+        const allNames = guildMembers.map(m => m.name);
+        fetchGuildMemberDeaths(allNames, (loaded, total) => {
+          setDeathProgress({ loaded, total });
+          // Stream partial results as they come in
+        })
+          .then(d => { setDeaths(d); setDeathsLoading(false); setDeathProgress(null); })
+          .catch(() => { setDeathsLoading(false); setDeathProgress(null); });
       } catch {
         // ignore
       } finally {
@@ -221,7 +226,7 @@ export default function RelatorioPage() {
       {/* Heatmap + Deaths */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <OnlineHeatmap loginHistory={loginHistory} />
-        <DeathsPanel deaths={deaths} loading={deathsLoading} />
+        <DeathsPanel deaths={deaths} loading={deathsLoading} progress={deathProgress} />
       </div>
 
       {/* Full member table */}

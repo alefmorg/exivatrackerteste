@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Skull, Swords, Bug, ChevronDown, ChevronUp } from 'lucide-react';
 import { CharacterDeath } from '@/lib/tibia-api';
 
-export default function DeathsPanel({ deaths, loading }: { deaths: CharacterDeath[]; loading: boolean }) {
+export default function DeathsPanel({ deaths, loading, progress }: { deaths: CharacterDeath[]; loading: boolean; progress?: { loaded: number; total: number } | null }) {
   const [filter, setFilter] = useState<'all' | 'pvp' | 'pve'>('all');
   const [expanded, setExpanded] = useState(false);
 
@@ -89,7 +89,22 @@ export default function DeathsPanel({ deaths, loading }: { deaths: CharacterDeat
 
       <div className={`divide-y divide-border/30 ${expanded ? 'max-h-[400px]' : 'max-h-[250px]'} overflow-y-auto`}>
         {loading && (
-          <div className="p-4 text-center text-[10px] text-muted-foreground animate-pulse">Buscando mortes...</div>
+          <div className="p-4 text-center space-y-1">
+            <div className="text-[10px] text-muted-foreground animate-pulse">
+              Buscando mortes de todos os membros...
+            </div>
+            {progress && (
+              <div className="space-y-1">
+                <div className="w-full h-1 rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${(progress.loaded / Math.max(1, progress.total)) * 100}%` }}
+                  />
+                </div>
+                <div className="text-[8px] text-muted-foreground/60 font-mono">{progress.loaded}/{progress.total} membros verificados</div>
+              </div>
+            )}
+          </div>
         )}
         {!loading && filtered.length === 0 && (
           <div className="p-4 text-center text-[10px] text-muted-foreground/40">
