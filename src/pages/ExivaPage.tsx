@@ -313,11 +313,20 @@ interface MemberRowProps {
   setEditingAnnotation: (name: string | null) => void; setAnnotationText: (text: string) => void;
   handleSaveAnnotation: (name: string) => void;
   expanded: boolean; onToggleExpand: () => void;
-  getTodayLoginInfo: (name: string) => { entries: LoginEntry[]; loginCount: number };
+  getTodayLoginInfo: (name: string) => Promise<{ entries: LoginEntry[]; loginCount: number }>;
 }
 
 function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo }: MemberRowProps) {
-  const loginInfo = expanded ? getTodayLoginInfo(m.name) : null;
+  const [loginInfo, setLoginInfo] = useState<{ entries: LoginEntry[]; loginCount: number } | null>(null);
+
+  useEffect(() => {
+    if (expanded) {
+      getTodayLoginInfo(m.name).then(setLoginInfo);
+    } else {
+      setLoginInfo(null);
+    }
+  }, [expanded, m.name]);
+
   return (
     <div className="px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
       <div className="flex items-center gap-2 cursor-pointer" onClick={onToggleExpand}>
