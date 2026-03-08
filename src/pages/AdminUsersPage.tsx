@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserPlus, Shield, Users, Trash2, Key, RefreshCw, Search, Crown, User, Mail, Clock, MoreVertical, Edit2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ItemSprite } from '@/components/TibiaIcons';
 
 interface UserRow {
   id: string;
@@ -155,7 +156,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Shield className="h-5 w-5 text-primary" />
+            <ItemSprite item="shield" className="h-6 w-6" />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-foreground">Gerenciar Usuários</h1>
@@ -164,10 +165,10 @@ export default function AdminUsersPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading} className="gap-2">
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
           <Button size="sm" onClick={() => setShowCreate(!showCreate)} className="gap-2">
-            <UserPlus className="h-4 w-4" /> Novo Usuário
+            <ItemSprite item="add" className="h-4 w-4" /> Novo Usuário
           </Button>
         </div>
       </div>
@@ -179,7 +180,7 @@ export default function AdminUsersPage() {
             className="overflow-hidden">
             <div className="glass-card rounded-xl p-5 space-y-4">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-primary" /> Criar Novo Usuário
+                <ItemSprite item="add" className="h-5 w-5" /> Criar Novo Usuário
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -206,7 +207,7 @@ export default function AdminUsersPage() {
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)}>Cancelar</Button>
                 <Button size="sm" onClick={handleCreate} disabled={creating} className="gap-2">
-                  {creating ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                  {creating ? <ItemSprite item="refresh" className="h-4 w-4 animate-spin" /> : <ItemSprite item="add" className="h-4 w-4" />}
                   Criar
                 </Button>
               </div>
@@ -217,7 +218,9 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <ItemSprite item="search" className="h-4 w-4" />
+        </div>
         <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
           placeholder="Buscar por email ou username..." className="pl-9 bg-secondary border-border" />
       </div>
@@ -235,7 +238,7 @@ export default function AdminUsersPage() {
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                   u.role === 'admin' ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
                 }`}>
-                  {u.role === 'admin' ? <Crown className="h-4 w-4 text-primary" /> : <User className="h-4 w-4 text-muted-foreground" />}
+                {u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
                 </div>
 
                 {/* Info */}
@@ -252,7 +255,7 @@ export default function AdminUsersPage() {
                       <>
                         <span className="font-semibold text-foreground truncate">{u.username}</span>
                         <button onClick={() => { setEditingUser(u.id); setEditUsername(u.username); }}
-                          className="text-muted-foreground hover:text-primary"><Edit2 className="h-3 w-3" /></button>
+                          className="text-muted-foreground hover:text-primary"><ItemSprite item="edit" className="h-4 w-4" /></button>
                       </>
                     )}
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
@@ -260,8 +263,8 @@ export default function AdminUsersPage() {
                     }`}>{u.role.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
-                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {u.email}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(u.last_sign_in_at)}</span>
+                    <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
+                    <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(u.last_sign_in_at)}</span>
                   </div>
                 </div>
 
@@ -284,11 +287,11 @@ export default function AdminUsersPage() {
                   </select>
                   <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
                     className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
-                    <Key className="h-3.5 w-3.5" />
+                    <ItemSprite item="key" className="h-4 w-4" />
                   </button>
                   <button onClick={() => handleDelete(u.id, u.email)}
                     className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <ItemSprite item="delete" className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -296,7 +299,7 @@ export default function AdminUsersPage() {
           ))}
           {filtered.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              <Users className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <ItemSprite item="users" className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <p className="text-lg font-medium">Nenhum usuário encontrado</p>
             </div>
           )}

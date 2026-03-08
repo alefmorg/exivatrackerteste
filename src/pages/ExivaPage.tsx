@@ -137,7 +137,7 @@ export default function ExivaPage() {
           <div className="w-1 h-8 rounded-full bg-primary" />
           <div>
             <h1 className="text-lg font-display font-bold text-foreground tracking-wide flex items-center gap-2">
-              <ItemSprite item="exiva" className="h-5 w-5" /> EXIVA LIST
+              <ItemSprite item="exiva" className="h-6 w-6" /> EXIVA LIST
             </h1>
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span className="text-foreground font-semibold">{guildName}</span>
@@ -150,7 +150,7 @@ export default function ExivaPage() {
         </div>
         <button onClick={() => doFetch(guildName)} disabled={loading}
           className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-          <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -159,17 +159,17 @@ export default function ExivaPage() {
         <div className="panel rounded-lg p-3">
           <div className="flex items-center gap-4 mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-muted-foreground" />
+              <ItemSprite item="shield" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-foreground">{members.length}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">TOTAL</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-online" />
+              <ItemSprite item="online" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-online">{onlineCount}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">ONLINE</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-sm bg-offline" />
+              <ItemSprite item="offline" className="h-4 w-4" />
               <span className="text-xs font-bold font-mono text-offline">{offlineCount}</span>
               <span className="text-[9px] text-muted-foreground uppercase tracking-wider">OFFLINE</span>
             </div>
@@ -186,7 +186,7 @@ export default function ExivaPage() {
       {/* Search */}
       <div className="relative">
         <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
-          <ItemSprite item="search" className="h-3.5 w-3.5" />
+          <ItemSprite item="search" className="h-4 w-4" />
         </div>
         <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
           placeholder="Filtrar jogadores online..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
@@ -229,14 +229,14 @@ export default function ExivaPage() {
           <button onClick={() => { setShowDeaths(!showDeaths); if (!showDeaths && deaths.length === 0) fetchDeaths(); }}
             className="w-full px-3 py-2 flex items-center justify-between hover:bg-secondary/30 transition-colors">
             <div className="flex items-center gap-2">
-              <ItemSprite item="skull" className="h-4 w-4" />
+              <ItemSprite item="skull" className="h-5 w-5" />
               <span className="text-[10px] font-display font-semibold text-foreground uppercase tracking-wider">DEATH LOG</span>
               <span className="text-[9px] font-mono text-muted-foreground">{deaths.length}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              {loadingDeaths && <ItemSprite item="refresh" className="h-3 w-3 animate-spin" />}
+              {loadingDeaths && <ItemSprite item="refresh" className="h-4 w-4 animate-spin" />}
               <button className="p-1 hover:text-primary" onClick={(e) => { e.stopPropagation(); fetchDeaths(); }}>
-                <ItemSprite item="refresh" className="h-3.5 w-3.5" />
+                <ItemSprite item="refresh" className="h-4 w-4" />
               </button>
               {showDeaths ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
             </div>
@@ -285,7 +285,7 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
     <div className="px-3 py-1.5 hover:bg-secondary/30 transition-colors group">
       <div className="flex items-center gap-2 cursor-pointer" onClick={onToggleExpand}>
         <StatusDot status={m.status} />
-        <VocationIcon vocation={m.vocation} className={`h-3 w-3 ${getVocationColor(m.vocation)}`} />
+        <VocationIcon vocation={m.vocation} className={`h-4 w-4 ${getVocationColor(m.vocation)}`} />
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>

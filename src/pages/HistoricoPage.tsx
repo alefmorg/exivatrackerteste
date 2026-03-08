@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar } from 'lucide-react';
+import { } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -94,17 +94,17 @@ export default function HistoricoPage() {
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono">
               <span>{logs.length} registros</span>
               <span className="text-primary flex items-center gap-1">
-                <ItemSprite item="live" className="h-3 w-3 animate-pulse" /> REALTIME
+                <ItemSprite item="live" className="h-4 w-4 animate-pulse" /> REALTIME
               </span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={exportCSV} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-            <ItemSprite item="scroll" className="h-4 w-4" />
+            <ItemSprite item="scroll" className="h-5 w-5" />
           </button>
           <button onClick={fetchLogs} disabled={loading} className="p-1.5 rounded border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all">
-            <ItemSprite item="refresh" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <ItemSprite item="refresh" className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -121,7 +121,7 @@ export default function HistoricoPage() {
         ].map(m => (
           <div key={m.label} className="panel-inset rounded-md p-2 text-center">
             <div className="flex items-center justify-center mb-0.5">
-              <ItemSprite item={m.sprite} className="h-4 w-4" />
+              <ItemSprite item={m.sprite} className="h-5 w-5" />
             </div>
             <p className={`text-sm font-bold font-mono ${m.highlight ? 'text-primary' : 'text-foreground'} truncate`}>{m.value}</p>
             <p className="text-[8px] text-muted-foreground uppercase tracking-[0.15em] mt-0.5">{m.label}</p>
@@ -133,7 +133,7 @@ export default function HistoricoPage() {
       <div className="flex gap-2 items-center">
         <div className="flex-1 relative">
           <div className="absolute left-2.5 top-1/2 -translate-y-1/2">
-            <ItemSprite item="search" className="h-3.5 w-3.5" />
+            <ItemSprite item="search" className="h-4 w-4" />
           </div>
           <Input value={searchFilter} onChange={e => setSearchFilter(e.target.value)}
             placeholder="Buscar char ou usuário..." className="pl-8 h-8 text-xs bg-secondary/50 border-border" />
@@ -165,7 +165,7 @@ export default function HistoricoPage() {
             <div key={date}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[10px] font-display font-semibold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                  <Calendar className="h-3 w-3" /> {date}
+                  <ItemSprite item="calendar" className="h-4 w-4" /> {date}
                 </span>
                 <div className="flex-1 glow-divider" />
                 <span className="text-[9px] text-muted-foreground font-mono">{entries.length}</span>
@@ -175,7 +175,7 @@ export default function HistoricoPage() {
                   {entries.map(log => (
                     <motion.div key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} layout
                       className="flex items-center py-2 px-3 gap-3 border-b border-border/50 last:border-0 hover:bg-secondary/30 transition-colors">
-                      <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-4 w-4 shrink-0" />
+                      <ItemSprite item={log.action === 'pegar' ? 'login' : 'logout'} className="h-5 w-5 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1 text-xs">
                           <span className="font-semibold text-foreground">{log.username || '?'}</span>

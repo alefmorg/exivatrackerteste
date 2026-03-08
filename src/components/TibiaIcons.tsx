@@ -276,6 +276,11 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   action_note: 'parchment',
   action_location: 'compass',
   action_clock: 'watch',
+  action_copy: 'parchment',
+  action_calendar: 'watch',
+  action_key: 'parchment',
+  action_shield: 'mastermind_shield',
+  action_user: 'skull',
 };
 
 // Customizable icon slots with labels
@@ -327,6 +332,11 @@ export const ICON_SLOTS: { key: string; label: string; group: string }[] = [
   { key: 'action_note', label: 'Nota', group: 'Ações' },
   { key: 'action_location', label: 'Localização', group: 'Ações' },
   { key: 'action_clock', label: 'Relógio', group: 'Ações' },
+  { key: 'action_copy', label: 'Copiar', group: 'Ações' },
+  { key: 'action_calendar', label: 'Calendário', group: 'Ações' },
+  { key: 'action_key', label: 'Chave', group: 'Ações' },
+  { key: 'action_shield', label: 'Escudo', group: 'Ações' },
+  { key: 'action_user', label: 'Pessoa', group: 'Ações' },
 ];
 
 // ============================================================
@@ -440,8 +450,8 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
     quest: 'action_quest',
     guild: 'action_guild',
     scroll: 'action_scroll',
-    key: 'action_scroll',
-    copy: 'action_scroll',
+    key: 'action_key',
+    copy: 'action_copy',
     refresh: 'action_refresh',
     star: 'action_star',
     filter: 'action_filter',
@@ -452,6 +462,9 @@ export function ItemSprite({ item, className = 'h-5 w-5' }: { item: string; clas
     note: 'action_note',
     location: 'action_location',
     clock: 'action_clock',
+    calendar: 'action_calendar',
+    shield: 'action_shield',
+    user: 'action_user',
     dashboard: 'nav_dashboard',
     history: 'nav_history',
     settings: 'nav_settings',
