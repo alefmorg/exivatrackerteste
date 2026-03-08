@@ -43,9 +43,17 @@ export function useMapPins() {
     await supabase
       .from('map_pins')
       .upsert(
-        { char_name: charName, city_id: '', pos_x: posX, pos_y: posY, updated_by: user.id, updated_at: new Date().toISOString() },
+        { char_name: charName, city_id: '', pos_x: posX, pos_y: posY, note: '', updated_by: user.id, updated_at: new Date().toISOString() },
         { onConflict: 'char_name' }
       );
+  }, [user]);
+
+  const updatePinNote = useCallback(async (charName: string, note: string) => {
+    if (!user) return;
+    await supabase
+      .from('map_pins')
+      .update({ note, updated_by: user.id, updated_at: new Date().toISOString() })
+      .eq('char_name', charName);
   }, [user]);
 
   const removePin = useCallback(async (charName: string) => {
