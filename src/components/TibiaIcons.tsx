@@ -291,6 +291,9 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   act_war: 'war_axe',
   act_maker: 'wand_of_vortex',
   act_boss: 'demon_helmet',
+  // Login/Logout actions (separate from status)
+  action_login: 'green_gem',
+  action_logout: 'red_gem',
 };
 
 // Customizable icon slots with labels
