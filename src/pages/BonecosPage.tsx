@@ -13,6 +13,8 @@ import BonecoFilters from '@/components/bonecos/BonecoFilters';
 import BonecoFormModal, { type BonecoFormData } from '@/components/bonecos/BonecoFormModal';
 import ClaimModal from '@/components/bonecos/ClaimModal';
 import BonecoCard from '@/components/bonecos/BonecoCard';
+import { SkeletonPage } from '@/components/SkeletonLoader';
+import EmptyState from '@/components/EmptyState';
 
 type CharacterStatus = 'online' | 'afk' | 'offline';
 type CharacterActivity = '' | 'hunt' | 'war' | 'maker' | 'boss';
@@ -236,7 +238,7 @@ export default function BonecosPage() {
     return true;
   });
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <SkeletonPage />;
 
   return (
     <div>
@@ -316,11 +318,11 @@ export default function BonecosPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <ItemSprite item="bonecos" className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhum boneco encontrado</p>
-          {bonecos.length > 0 && <p className="text-sm mt-1">Tente ajustar os filtros</p>}
-        </div>
+        <EmptyState
+          icon="bonecos"
+          title="Nenhum boneco encontrado"
+          description={bonecos.length > 0 ? 'Tente ajustar os filtros para encontrar o personagem.' : 'Adicione um personagem para começar.'}
+        />
       )}
 
       <ConfirmDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}

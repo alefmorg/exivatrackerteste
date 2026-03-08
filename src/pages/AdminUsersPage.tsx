@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ItemSprite } from '@/components/TibiaIcons';
 import { useAuth, type AppRole } from '@/hooks/useAuth';
 import { timeAgo } from '@/lib/utils';
+import EmptyState from '@/components/EmptyState';
 
 interface UserRow {
   id: string;
@@ -144,6 +145,15 @@ export default function AdminUsersPage() {
 
   const adminCount = users.filter(u => u.role === 'admin' || u.role === 'master_admin').length;
 
+  // Pagination
+  const USERS_PER_PAGE = 10;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / USERS_PER_PAGE));
+  const paginatedUsers = filtered.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE);
+
+  // Reset page on filter change
+  useEffect(() => { setPage(1); }, [searchFilter]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -222,94 +232,141 @@ export default function AdminUsersPage() {
 
       {/* Users List */}
       {loading ? (
-        <div className="flex justify-center py-12"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
-      ) : (
         <div className="space-y-2">
-          {filtered.map(u => (
-            <motion.div key={u.id} layout
-              className="glass-card rounded-xl p-4 hover:border-primary/20 transition-all">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="glass-card rounded-xl p-4 animate-pulse">
               <div className="flex items-center gap-4">
-                {/* Avatar */}
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                  u.role === 'master_admin' ? 'bg-amber-500/20 border border-amber-500/30' :
-                  u.role === 'admin' ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
-                }`}>
-                {u.role === 'master_admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
+                <div className="w-10 h-10 rounded-lg bg-secondary" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-32 bg-secondary rounded" />
+                  <div className="h-2.5 w-48 bg-secondary/60 rounded" />
                 </div>
+                <div className="h-7 w-20 bg-secondary rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="space-y-2">
+            {paginatedUsers.map(u => (
+              <motion.div key={u.id} layout
+                className="glass-card rounded-xl p-4 hover:border-primary/20 transition-all">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                    u.role === 'master_admin' ? 'bg-amber-500/20 border border-amber-500/30' :
+                    u.role === 'admin' ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
+                  }`}>
+                  {u.role === 'master_admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : u.role === 'admin' ? <ItemSprite item="crown" className="h-5 w-5" /> : <ItemSprite item="user" className="h-5 w-5" />}
+                  </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    {editingUser === u.id ? (
-                      <div className="flex items-center gap-1">
-                        <Input value={editUsername} onChange={e => setEditUsername(e.target.value)}
-                          className="h-7 text-sm bg-secondary w-40" onKeyDown={e => e.key === 'Enter' && handleUpdateUsername(u.id)} />
-                        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => handleUpdateUsername(u.id)}>OK</Button>
-                        <Button variant="ghost" size="sm" className="h-7 px-1" onClick={() => setEditingUser(null)}><X className="h-3 w-3" /></Button>
-                      </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {editingUser === u.id ? (
+                        <div className="flex items-center gap-1">
+                          <Input value={editUsername} onChange={e => setEditUsername(e.target.value)}
+                            className="h-7 text-sm bg-secondary w-40" onKeyDown={e => e.key === 'Enter' && handleUpdateUsername(u.id)} />
+                          <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => handleUpdateUsername(u.id)}>OK</Button>
+                          <Button variant="ghost" size="sm" className="h-7 px-1" onClick={() => setEditingUser(null)}><X className="h-3 w-3" /></Button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="font-semibold text-foreground truncate">{u.username}</span>
+                          <button onClick={() => { setEditingUser(u.id); setEditUsername(u.username); }}
+                            className="text-muted-foreground hover:text-primary"><ItemSprite item="edit" className="h-4 w-4" /></button>
+                        </>
+                      )}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                        u.role === 'master_admin' ? 'bg-amber-500/20 text-amber-400' :
+                        u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
+                      }`}>{u.role === 'master_admin' ? 'MASTER' : u.role.toUpperCase()}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
+                      <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
+                      <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(u.last_sign_in_at)}</span>
+                    </div>
+                  </div>
+
+                  {/* Reset Password inline */}
+                  {resetPwUser === u.id && (
+                    <div className="flex items-center gap-1">
+                      <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
+                        placeholder="Nova senha" className="h-7 text-xs bg-secondary w-32" onKeyDown={e => e.key === 'Enter' && handleResetPw(u.id)} />
+                      <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => handleResetPw(u.id)}>OK</Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-1" onClick={() => setResetPwUser(null)}><X className="h-3 w-3" /></Button>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {isMasterAdmin ? (
+                      <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as AppRole)}
+                        className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
+                        <option value="user">Usuário</option>
+                        <option value="admin">Admin</option>
+                        <option value="master_admin">Master Admin</option>
+                      </select>
                     ) : (
+                      <span className="text-[11px] px-2 py-1 text-muted-foreground">{u.role === 'master_admin' ? 'Master' : u.role === 'admin' ? 'Admin' : 'Usuário'}</span>
+                    )}
+                    {(isMasterAdmin || (u.role !== 'admin' && u.role !== 'master_admin')) && (
                       <>
-                        <span className="font-semibold text-foreground truncate">{u.username}</span>
-                        <button onClick={() => { setEditingUser(u.id); setEditUsername(u.username); }}
-                          className="text-muted-foreground hover:text-primary"><ItemSprite item="edit" className="h-4 w-4" /></button>
+                        <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
+                          className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
+                          <ItemSprite item="key" className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(u.id, u.email)}
+                          className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
+                          <ItemSprite item="delete" className="h-4 w-4" />
+                        </button>
                       </>
                     )}
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
-                      u.role === 'master_admin' ? 'bg-amber-500/20 text-amber-400' :
-                      u.role === 'admin' ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
-                    }`}>{u.role === 'master_admin' ? 'MASTER' : u.role.toUpperCase()}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
-                    <span className="flex items-center gap-1"><ItemSprite item="email" className="h-4 w-4" /> {u.email}</span>
-                    <span className="flex items-center gap-1"><ItemSprite item="clock" className="h-4 w-4" /> {timeAgo(u.last_sign_in_at)}</span>
                   </div>
                 </div>
+              </motion.div>
+            ))}
+            {filtered.length === 0 && (
+              <EmptyState icon="users" title="Nenhum usuário" description="Nenhum usuário encontrado com os filtros atuais." />
+            )}
+          </div>
 
-                {/* Reset Password inline */}
-                {resetPwUser === u.id && (
-                  <div className="flex items-center gap-1">
-                    <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
-                      placeholder="Nova senha" className="h-7 text-xs bg-secondary w-32" onKeyDown={e => e.key === 'Enter' && handleResetPw(u.id)} />
-                    <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => handleResetPw(u.id)}>OK</Button>
-                    <Button variant="ghost" size="sm" className="h-7 px-1" onClick={() => setResetPwUser(null)}><X className="h-3 w-3" /></Button>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  {isMasterAdmin ? (
-                    <select value={u.role} onChange={e => handleChangeRole(u.id, e.target.value as AppRole)}
-                      className="text-[11px] px-2 py-1 rounded-md bg-secondary border border-border text-foreground cursor-pointer">
-                      <option value="user">Usuário</option>
-                      <option value="admin">Admin</option>
-                      <option value="master_admin">Master Admin</option>
-                    </select>
-                  ) : (
-                    <span className="text-[11px] px-2 py-1 text-muted-foreground">{u.role === 'master_admin' ? 'Master' : u.role === 'admin' ? 'Admin' : 'Usuário'}</span>
-                  )}
-                  {(isMasterAdmin || (u.role !== 'admin' && u.role !== 'master_admin')) && (
-                    <>
-                      <button onClick={() => { setResetPwUser(u.id); setNewPw(''); }}
-                        className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors" title="Resetar senha">
-                        <ItemSprite item="key" className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => handleDelete(u.id, u.email)}
-                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Excluir">
-                        <ItemSprite item="delete" className="h-4 w-4" />
-                      </button>
-                    </>
-                  )}
-                </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Anterior
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+                      page === p
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-secondary border border-border text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
               </div>
-            </motion.div>
-          ))}
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              <ItemSprite item="users" className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p className="text-lg font-medium">Nenhum usuário encontrado</p>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Próximo
+              </button>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

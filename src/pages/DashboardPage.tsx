@@ -158,7 +158,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {[
           { label: 'LV MÉD', value: avgLevel.toString(), sprite: 'level' as const },
           { label: 'LV MAX', value: maxLevel.toString(), sprite: 'level' as const },
@@ -183,12 +183,12 @@ export default function DashboardPage() {
       )}
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <ChartPanel title="STATUS" icon={<ItemSprite item="online" className="h-5 w-5" />}>
-          <div className="h-44">
+          <div className="h-44 sm:h-52">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={statusData} cx="50%" cy="50%" innerRadius={40} outerRadius={68} dataKey="value"
+                <Pie data={statusData} cx="50%" cy="50%" innerRadius={35} outerRadius={60} dataKey="value"
                   label={({ name, value }) => value > 0 ? `${name} ${value}` : ''} strokeWidth={0}>
                   {statusData.map((_, i) => <Cell key={i} fill={STATUS_COLORS[i]} />)}
                 </Pie>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
         </ChartPanel>
 
         <ChartPanel title="ATIVIDADES" icon={<ItemSprite item="level" className="h-5 w-5" />}>
-          <div className="h-44">
+          <div className="h-44 sm:h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={activityData}>
                 <XAxis dataKey="name" tick={{ fill: 'hsl(35, 5%, 45%)', fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -214,7 +214,7 @@ export default function DashboardPage() {
         </ChartPanel>
 
         <ChartPanel title="VOCAÇÕES" icon={<ItemSprite item="sword" className="h-5 w-5" />}>
-          <div className="h-44">
+          <div className="h-44 sm:h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vocData} layout="vertical">
                 <XAxis type="number" tick={{ fill: 'hsl(35, 5%, 45%)', fontSize: 10 }} axisLine={false} tickLine={false} />
