@@ -321,7 +321,7 @@ export default function DashboardPage() {
           <SidePanel title="GUILDS" count={guilds.length} icon={<ItemSprite item="guild" className="h-5 w-5" />}>
             {guilds.map((g, i) => (
               <div key={g.id} className="flex items-center gap-2 py-0.5">
-                <ItemSprite item="globe" className="h-3.5 w-3.5" />
+                <ItemSprite item="globe" className="h-4 w-4" />
                 <span className="text-xs font-medium flex-1 truncate">{g.name}</span>
                 <span className="text-[10px] text-muted-foreground font-mono">{g.world}</span>
                 {i === 0 && <span className="tag tag-primary">EXIVA</span>}
