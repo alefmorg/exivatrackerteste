@@ -86,6 +86,7 @@ export default function ConfiguracoesPage() {
     if (!user) return;
     const { error } = await supabase.from('profiles').update({ username: profile.username }).eq('user_id', user.id);
     if (error) { toast({ title: 'Erro ao salvar perfil', variant: 'destructive' }); return; }
+    await refreshProfile();
     toast({ title: '✅ Perfil atualizado!' });
   };
 
