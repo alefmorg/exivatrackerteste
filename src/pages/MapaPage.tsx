@@ -358,7 +358,23 @@ export default function MapaPage() {
           />
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
-          {/* Placed pins */}
+          {/* City/Island labels */}
+          {TIBIA_CITIES.map(city => (
+            <div
+              key={city.id}
+              className="absolute z-[5] pointer-events-none flex flex-col items-center"
+              style={{
+                left: `${city.x}%`,
+                top: `${city.y}%`,
+                transform: `translate(-50%, -50%) scale(${1 / zoom})`,
+              }}
+            >
+              <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-foreground/70 bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight"
+                style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
+                {city.icon} {city.name}
+              </span>
+            </div>
+          ))}
           {visiblePins.map(pin => {
             const member = memberMap[pin.char_name];
             const isHovered = hoveredPin === pin.char_name;
