@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
-import { Pencil, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
+import { Pencil, ChevronDown, ChevronUp, CalendarDays, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +20,8 @@ import StatusDot from '@/components/StatusDot';
 import { SkeletonRow } from '@/components/SkeletonLoader';
 import PageHeader from '@/components/PageHeader';
 import EmptyState from '@/components/EmptyState';
-
+import { useMapPins, MapPin as MapPinType } from '@/hooks/useMapPins';
+import { TIBIA_CITIES } from '@/lib/tibia-cities';
 const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; borderColor: string }> = {
   main: { label: 'Main', emoji: '👑', borderColor: 'border-t-primary' },
   bomba: { label: 'Bomba', emoji: '💣', borderColor: 'border-t-destructive' },
@@ -30,11 +31,23 @@ const CATEGORY_CONFIG: Record<MemberCategory, { label: string; emoji: string; bo
 
 const CATEGORIES: MemberCategory[] = ['main', 'bomba', 'maker', 'outros'];
 
+// Find nearest city name from pin coordinates
+function getNearestCity(posX: number, posY: number): string {
+  let closest = '';
+  let minDist = Infinity;
+  for (const city of TIBIA_CITIES) {
+    const d = Math.hypot(city.x - posX, city.y - posY);
+    if (d < minDist) { minDist = d; closest = city.name; }
+  }
+  return closest;
+}
+
 export default function ExivaPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
+  const { pins } = useMapPins();
   const [loading, setLoading] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
   const [editingAnnotation, setEditingAnnotation] = useState<string | null>(null);
@@ -134,6 +147,12 @@ export default function ExivaPage() {
     Object.keys(result).forEach(k => { result[k as MemberCategory].sort((a, b) => b.level - a.level); });
     return result;
   }, [filtered, categories]);
+
+  const pinMap = useMemo(() => {
+    const map: Record<string, MapPinType> = {};
+    pins.forEach(p => { map[p.char_name] = p; });
+    return map;
+  }, [pins]);
 
   const getTodayLoginInfo = useCallback(async (name: string) => {
     const entries = await getTodayLoginsAsync(name);
@@ -240,13 +259,13 @@ export default function ExivaPage() {
                   <span className="text-[9px] font-mono text-muted-foreground">{list.length}</span>
                 </div>
                 <div className="divide-y divide-border/30 max-h-[500px] overflow-y-auto">
-                  {list.map(m => (
+                   {list.map(m => (
                     <MemberRow key={m.name} member={m} category={categories[m.name] || 'outros'}
                       onSetCategory={handleSetCategory} editingAnnotation={editingAnnotation} annotationText={annotationText}
                       setEditingAnnotation={setEditingAnnotation} setAnnotationText={setAnnotationText}
                       handleSaveAnnotation={handleSaveAnnotation} expanded={expandedPlayer === m.name}
                       onToggleExpand={() => setExpandedPlayer(expandedPlayer === m.name ? null : m.name)}
-                      getTodayLoginInfo={getTodayLoginInfo} />
+                      getTodayLoginInfo={getTodayLoginInfo} mapPin={pinMap[m.name]} />
                   ))}
                   {list.length === 0 && <div className="p-4 text-center text-[10px] text-muted-foreground/40">Vazio</div>}
                 </div>
@@ -310,9 +329,10 @@ interface MemberRowProps {
   handleSaveAnnotation: (name: string) => void;
   expanded: boolean; onToggleExpand: () => void;
   getTodayLoginInfo: (name: string) => Promise<{ entries: LoginEntry[]; loginCount: number }>;
+  mapPin?: MapPinType;
 }
 
-function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo }: MemberRowProps) {
+function MemberRow({ member: m, category, onSetCategory, editingAnnotation, annotationText, setEditingAnnotation, setAnnotationText, handleSaveAnnotation, expanded, onToggleExpand, getTodayLoginInfo, mapPin }: MemberRowProps) {
   const [loginInfo, setLoginInfo] = useState<{ entries: LoginEntry[]; loginCount: number } | null>(null);
 
   useEffect(() => {
@@ -331,6 +351,13 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>
+          {mapPin && (
+            <span className="text-[9px] font-mono text-primary flex items-center gap-0.5">
+              <MapPin className="h-2.5 w-2.5" />
+              {getNearestCity(mapPin.pos_x, mapPin.pos_y)}
+              {mapPin.note && <span className="text-muted-foreground">· {mapPin.note}</span>}
+            </span>
+          )}
         </div>
         <select value={category} onChange={e => { e.stopPropagation(); onSetCategory(m.name, e.target.value as MemberCategory); }}
           onClick={e => e.stopPropagation()}
