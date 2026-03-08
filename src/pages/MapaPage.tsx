@@ -70,7 +70,6 @@ interface BonecoOnMap {
 export default function MapaPage() {
   const settings = useSettings();
   const [members, setMembers] = useState<GuildMember[]>([]);
-  const [bonecos, setBonecos] = useState<BonecoOnMap[]>([]);
   const [guildOnMap, setGuildOnMap] = useState<BonecoOnMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingGuild, setLoadingGuild] = useState(false);
