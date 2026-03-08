@@ -261,6 +261,21 @@ export const DEFAULT_ICON_MAP: Record<string, string> = {
   skill_distance: 'royal_crossbow',
   skill_shielding: 'mastermind_shield',
   skill_fist: 'pair_of_iron_fists',
+  // Actions & UI elements
+  action_globe: 'globe',
+  action_quest: 'old_parchment',
+  action_guild: 'war_horn',
+  action_scroll: 'parchment',
+  action_refresh: 'hourglass',
+  action_star: 'gold_ingot',
+  action_filter: 'small_sapphire',
+  action_add: 'small_emerald',
+  action_delete: 'sudden_death_rune',
+  action_edit: 'quill',
+  action_search: 'crystal_ball',
+  action_note: 'parchment',
+  action_location: 'compass',
+  action_clock: 'watch',
 };
 
 // Customizable icon slots with labels
