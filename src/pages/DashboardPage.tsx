@@ -185,10 +185,10 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <ChartPanel title="STATUS" icon={<ItemSprite item="online" className="h-5 w-5" />}>
-          <div className="h-44">
+          <div className="h-44 sm:h-52">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={statusData} cx="50%" cy="50%" innerRadius={40} outerRadius={68} dataKey="value"
+                <Pie data={statusData} cx="50%" cy="50%" innerRadius={35} outerRadius={60} dataKey="value"
                   label={({ name, value }) => value > 0 ? `${name} ${value}` : ''} strokeWidth={0}>
                   {statusData.map((_, i) => <Cell key={i} fill={STATUS_COLORS[i]} />)}
                 </Pie>
