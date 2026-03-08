@@ -568,6 +568,7 @@ export default function BonecosPage() {
             )}
 
             {/* Credentials */}
+            {settings.showCredentials && (
             <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
@@ -604,6 +605,7 @@ export default function BonecosPage() {
                 <button onClick={() => copyToClipboard(b.totp_secret)} className="text-muted-foreground hover:text-primary"><Copy className="h-3.5 w-3.5" /></button>
               </div>
             </div>
+            )}
 
             {/* Skills bar */}
             {(b.magic_level > 0 || b.sword_skill > 0 || b.axe > 0 || b.distance > 0 || b.shielding > 0) && (
