@@ -53,6 +53,28 @@ export default function MapaPage() {
   const touchStartDistance = useRef(0);
   const touchStartZoom = useRef(1);
 
+  // City label edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [cityOverrides, setCityOverrides] = useState<Record<string, { x: number; y: number }>>(loadCityOverrides);
+  const [draggingCity, setDraggingCity] = useState<string | null>(null);
+  const cityDragStart = useRef({ x: 0, y: 0, cityX: 0, cityY: 0 });
+
+  const getCityPosition = useCallback((city: TibiaCity) => {
+    const override = cityOverrides[city.id];
+    return override || { x: city.x, y: city.y };
+  }, [cityOverrides]);
+
+  const handleSaveCityPositions = useCallback(() => {
+    saveCityOverrides(cityOverrides);
+    toast.success('Posições das cidades salvas!');
+  }, [cityOverrides]);
+
+  const handleResetCityPositions = useCallback(() => {
+    setCityOverrides({});
+    localStorage.removeItem(CITY_OVERRIDES_KEY);
+    toast.success('Posições resetadas para o padrão');
+  }, []);
+
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
 
