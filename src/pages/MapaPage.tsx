@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw, Plus } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw, Plus, Flame } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
+import MapHeatmap from '@/components/map/MapHeatmap';
 
 // Load/save city position overrides from localStorage
 const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
@@ -89,6 +90,9 @@ export default function MapaPage() {
   const [addCityModal, setAddCityModal] = useState<{ x: number; y: number } | null>(null);
   const [newCityName, setNewCityName] = useState('');
   const [newCityIcon, setNewCityIcon] = useState('🏝️');
+
+  // Heatmap toggle
+  const [showHeatmap, setShowHeatmap] = useState(false);
 
   // Merge default cities with custom cities
   const allCities = useMemo(() => {
@@ -202,6 +206,15 @@ export default function MapaPage() {
 
   const visiblePins = useMemo(() => pins.filter(p => onlineNames.has(p.char_name)), [pins, onlineNames]);
   const totalOnMap = visiblePins.length;
+
+  // Heatmap points from current pins
+  const heatmapPoints = useMemo(() => {
+    return visiblePins.map(pin => ({
+      x: pin.pos_x,
+      y: pin.pos_y,
+      intensity: 1,
+    }));
+  }, [visiblePins]);
 
   const pinnedNames = useMemo(() => new Set(pins.map(p => p.char_name)), [pins]);
   const filteredMembers = useMemo(() => {
@@ -483,6 +496,14 @@ export default function MapaPage() {
             {editMode ? 'Sair' : 'Editar Cidades'}
           </button>
           <button
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${showHeatmap ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500' : 'bg-secondary hover:bg-secondary/80 text-foreground'}`}
+            title="Mostrar mapa de calor"
+          >
+            <Flame className="h-3.5 w-3.5" />
+            Heatmap
+          </button>
+          <button
             onClick={handleExportScreenshot}
             disabled={exporting}
             className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
@@ -523,6 +544,19 @@ export default function MapaPage() {
             draggable={false}
           />
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
+
+          {/* Heatmap overlay */}
+          <AnimatePresence>
+            {showHeatmap && (
+              <MapHeatmap
+                points={heatmapPoints}
+                visible={showHeatmap}
+                radius={6}
+                blur={12}
+                opacity={0.55}
+              />
+            )}
+          </AnimatePresence>
 
           {/* City/Island labels */}
           {allCities.map(city => {
