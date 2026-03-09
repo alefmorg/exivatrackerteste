@@ -205,14 +205,6 @@ export default function MapaPage() {
   const visiblePins = useMemo(() => pins.filter(p => onlineNames.has(p.char_name)), [pins, onlineNames]);
   const totalOnMap = visiblePins.length;
 
-  // Heatmap points from current pins
-  const heatmapPoints = useMemo(() => {
-    return visiblePins.map(pin => ({
-      x: pin.pos_x,
-      y: pin.pos_y,
-      intensity: 1,
-    }));
-  }, [visiblePins]);
 
   const pinnedNames = useMemo(() => new Set(pins.map(p => p.char_name)), [pins]);
   const filteredMembers = useMemo(() => {
