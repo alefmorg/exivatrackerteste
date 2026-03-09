@@ -91,8 +91,6 @@ export default function MapaPage() {
   const [newCityName, setNewCityName] = useState('');
   const [newCityIcon, setNewCityIcon] = useState('🏝️');
 
-  // Heatmap toggle
-  const [showHeatmap, setShowHeatmap] = useState(false);
 
   // Merge default cities with custom cities
   const allCities = useMemo(() => {
