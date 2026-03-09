@@ -240,6 +240,7 @@ export default function MapaPage() {
 
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (dragMoved.current) return;
+    if (editMode) return;
     if (!mapRef.current) return;
     const target = e.target as HTMLElement;
     if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
