@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
-import { TIBIA_CITIES } from '@/lib/tibia-cities';
+import { TIBIA_CITIES, TibiaCity } from '@/lib/tibia-cities';
 import { VocationIcon, ItemSprite } from '@/components/TibiaIcons';
 import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
@@ -12,6 +12,18 @@ import { useMapPins, MapPin } from '@/hooks/useMapPins';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
+
+// Load/save city position overrides from localStorage
+const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
+function loadCityOverrides(): Record<string, { x: number; y: number }> {
+  try {
+    const stored = localStorage.getItem(CITY_OVERRIDES_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch { return {}; }
+}
+function saveCityOverrides(overrides: Record<string, { x: number; y: number }>) {
+  localStorage.setItem(CITY_OVERRIDES_KEY, JSON.stringify(overrides));
+}
 
 interface ClickPopup {
   x: number;
@@ -40,6 +52,28 @@ export default function MapaPage() {
   const dragMoved = useRef(false);
   const touchStartDistance = useRef(0);
   const touchStartZoom = useRef(1);
+
+  // City label edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [cityOverrides, setCityOverrides] = useState<Record<string, { x: number; y: number }>>(loadCityOverrides);
+  const [draggingCity, setDraggingCity] = useState<string | null>(null);
+  const cityDragStart = useRef({ x: 0, y: 0, cityX: 0, cityY: 0 });
+
+  const getCityPosition = useCallback((city: TibiaCity) => {
+    const override = cityOverrides[city.id];
+    return override || { x: city.x, y: city.y };
+  }, [cityOverrides]);
+
+  const handleSaveCityPositions = useCallback(() => {
+    saveCityOverrides(cityOverrides);
+    toast.success('Posições das cidades salvas!');
+  }, [cityOverrides]);
+
+  const handleResetCityPositions = useCallback(() => {
+    setCityOverrides({});
+    localStorage.removeItem(CITY_OVERRIDES_KEY);
+    toast.success('Posições resetadas para o padrão');
+  }, []);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
@@ -119,7 +153,7 @@ export default function MapaPage() {
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]') || target.closest('[data-city]')) return;
     setIsDragging(true);
     dragMoved.current = false;
     dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
@@ -127,15 +161,27 @@ export default function MapaPage() {
   }, [zoom, pan]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // Handle city label dragging
+    if (draggingCity && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const dx = (e.clientX - cityDragStart.current.x) / rect.width * 100 / zoom;
+      const dy = (e.clientY - cityDragStart.current.y) / rect.height * 100 / zoom;
+      const newX = Math.max(0, Math.min(100, cityDragStart.current.cityX + dx));
+      const newY = Math.max(0, Math.min(100, cityDragStart.current.cityY + dy));
+      setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      return;
+    }
+    
     if (!isDragging) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
     setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
-  }, [isDragging, zoom, clampPan]);
+  }, [isDragging, zoom, clampPan, draggingCity]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setDraggingCity(null);
   }, []);
 
   // Touch handlers for mobile
@@ -194,6 +240,7 @@ export default function MapaPage() {
 
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (dragMoved.current) return;
+    if (editMode) return;
     if (!mapRef.current) return;
     const target = e.target as HTMLElement;
     if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
@@ -306,25 +353,53 @@ export default function MapaPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <PageHeader
           title="Mapa"
           subtitle={
             <span>
               {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
-              <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>
+              {!editMode && <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>}
+              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste os nomes das cidades)</span>}
             </span>
           }
           icon="compass"
         />
-        <button
-          onClick={handleExportScreenshot}
-          disabled={exporting}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
-        >
-          <Camera className="h-3.5 w-3.5" />
-          {exporting ? 'Exportando...' : 'Screenshot'}
-        </button>
+        <div className="flex items-center gap-1.5">
+          {editMode && (
+            <>
+              <button
+                onClick={handleSaveCityPositions}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium transition-colors"
+              >
+                <Save className="h-3.5 w-3.5" />
+                Salvar
+              </button>
+              <button
+                onClick={handleResetCityPositions}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${editMode ? 'bg-primary/20 text-primary ring-1 ring-primary' : 'bg-secondary hover:bg-secondary/80 text-foreground'}`}
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            {editMode ? 'Sair' : 'Editar Cidades'}
+          </button>
+          <button
+            onClick={handleExportScreenshot}
+            disabled={exporting}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            {exporting ? '...' : 'Screenshot'}
+          </button>
+        </div>
       </div>
 
       {/* Map Container */}
@@ -359,22 +434,33 @@ export default function MapaPage() {
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
           {/* City/Island labels */}
-          {TIBIA_CITIES.map(city => (
-            <div
-              key={city.id}
-              className="absolute z-[5] pointer-events-none flex flex-col items-center"
-              style={{
-                left: `${city.x}%`,
-                top: `${city.y}%`,
-                transform: `translate(-50%, -50%) scale(${1 / zoom})`,
-              }}
-            >
-              <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-foreground/70 bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight"
-                style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
-                {city.icon} {city.name}
-              </span>
-            </div>
-          ))}
+          {TIBIA_CITIES.map(city => {
+            const pos = getCityPosition(city);
+            const isBeingDragged = draggingCity === city.id;
+            return (
+              <div
+                key={city.id}
+                data-city={city.id}
+                className={`absolute z-[5] flex flex-col items-center ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  transform: `translate(-50%, -50%) scale(${1 / zoom})`,
+                }}
+                onMouseDown={(e) => {
+                  if (!editMode) return;
+                  e.stopPropagation();
+                  setDraggingCity(city.id);
+                  cityDragStart.current = { x: e.clientX, y: e.clientY, cityX: pos.x, cityY: pos.y };
+                }}
+              >
+                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''}`}
+                  style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
+                  {city.icon} {city.name}
+                </span>
+              </div>
+            );
+          })}
           {visiblePins.map(pin => {
             const member = memberMap[pin.char_name];
             const isHovered = hoveredPin === pin.char_name;
