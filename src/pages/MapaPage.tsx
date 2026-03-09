@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw, Plus } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
@@ -10,11 +10,16 @@ import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useMapPins, MapPin } from '@/hooks/useMapPins';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 
 // Load/save city position overrides from localStorage
 const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
+const CUSTOM_CITIES_KEY = 'tibia-custom-cities';
+
 function loadCityOverrides(): Record<string, { x: number; y: number }> {
   try {
     const stored = localStorage.getItem(CITY_OVERRIDES_KEY);
@@ -24,6 +29,26 @@ function loadCityOverrides(): Record<string, { x: number; y: number }> {
 function saveCityOverrides(overrides: Record<string, { x: number; y: number }>) {
   localStorage.setItem(CITY_OVERRIDES_KEY, JSON.stringify(overrides));
 }
+
+interface CustomCity {
+  id: string;
+  name: string;
+  icon: string;
+  x: number;
+  y: number;
+}
+
+function loadCustomCities(): CustomCity[] {
+  try {
+    const stored = localStorage.getItem(CUSTOM_CITIES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch { return []; }
+}
+function saveCustomCities(cities: CustomCity[]) {
+  localStorage.setItem(CUSTOM_CITIES_KEY, JSON.stringify(cities));
+}
+
+const CITY_ICONS = ['🏰', '🏛️', '💰', '🌳', '⛏️', '🔮', '🏜️', '🏺', '🌴', '⚓', '❄️', '⚙️', '💀', '👹', '🦁', '🐚', '🔧', '🦋', '🍄', '🏝️', '🌊', '⛵', '🗿', '🌋', '🏔️', '🌙', '☀️', '⭐', '🔥', '💎'];
 
 interface ClickPopup {
   x: number;
@@ -59,21 +84,75 @@ export default function MapaPage() {
   const [draggingCity, setDraggingCity] = useState<string | null>(null);
   const cityDragStart = useRef({ x: 0, y: 0, cityX: 0, cityY: 0 });
 
-  const getCityPosition = useCallback((city: TibiaCity) => {
+  // Custom cities
+  const [customCities, setCustomCities] = useState<CustomCity[]>(loadCustomCities);
+  const [addCityModal, setAddCityModal] = useState<{ x: number; y: number } | null>(null);
+  const [newCityName, setNewCityName] = useState('');
+  const [newCityIcon, setNewCityIcon] = useState('🏝️');
+
+  // Merge default cities with custom cities
+  const allCities = useMemo(() => {
+    const defaultCities: (TibiaCity & { isCustom?: boolean })[] = TIBIA_CITIES.map(c => ({ ...c, isCustom: false }));
+    const custom: (TibiaCity & { isCustom?: boolean })[] = customCities.map(c => ({
+      id: c.id,
+      name: c.name,
+      region: 'Custom',
+      x: c.x,
+      y: c.y,
+      color: 'hsl(var(--primary))',
+      icon: c.icon,
+      isCustom: true,
+    }));
+    return [...defaultCities, ...custom];
+  }, [customCities]);
+
+  const getCityPosition = useCallback((city: TibiaCity & { isCustom?: boolean }) => {
+    if (city.isCustom) return { x: city.x, y: city.y };
     const override = cityOverrides[city.id];
     return override || { x: city.x, y: city.y };
   }, [cityOverrides]);
 
   const handleSaveCityPositions = useCallback(() => {
     saveCityOverrides(cityOverrides);
+    saveCustomCities(customCities);
     toast.success('Posições das cidades salvas!');
-  }, [cityOverrides]);
+  }, [cityOverrides, customCities]);
 
   const handleResetCityPositions = useCallback(() => {
     setCityOverrides({});
     localStorage.removeItem(CITY_OVERRIDES_KEY);
     toast.success('Posições resetadas para o padrão');
   }, []);
+
+  const handleAddCustomCity = useCallback(() => {
+    if (!addCityModal || !newCityName.trim()) return;
+    const newCity: CustomCity = {
+      id: `custom_${Date.now()}`,
+      name: newCityName.trim(),
+      icon: newCityIcon,
+      x: addCityModal.x,
+      y: addCityModal.y,
+    };
+    const updated = [...customCities, newCity];
+    setCustomCities(updated);
+    saveCustomCities(updated);
+    setAddCityModal(null);
+    setNewCityName('');
+    setNewCityIcon('🏝️');
+    toast.success(`${newCity.name} adicionada ao mapa!`);
+  }, [addCityModal, newCityName, newCityIcon, customCities]);
+
+  const handleRemoveCustomCity = useCallback((cityId: string) => {
+    const updated = customCities.filter(c => c.id !== cityId);
+    setCustomCities(updated);
+    saveCustomCities(updated);
+    toast.success('Cidade removida');
+  }, [customCities]);
+
+  const handleUpdateCustomCityPosition = useCallback((cityId: string, x: number, y: number) => {
+    const updated = customCities.map(c => c.id === cityId ? { ...c, x, y } : c);
+    setCustomCities(updated);
+  }, [customCities]);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
