@@ -319,10 +319,9 @@ export default function MapaPage() {
 
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (dragMoved.current) return;
-    if (editMode) return;
     if (!mapRef.current) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]') || target.closest('[data-city]')) return;
 
     const rect = mapRef.current.getBoundingClientRect();
     const containerX = e.clientX - rect.left;
@@ -330,10 +329,16 @@ export default function MapaPage() {
     const mapX = ((containerX - rect.width / 2 - pan.x) / zoom + rect.width / 2) / rect.width * 100;
     const mapY = ((containerY - rect.height / 2 - pan.y) / zoom + rect.height / 2) / rect.height * 100;
 
+    if (editMode) {
+      // In edit mode, clicking opens the add city modal
+      setAddCityModal({ x: mapX, y: mapY });
+      return;
+    }
+
     setClickPopup({ x: mapX, y: mapY, screenX: containerX, screenY: containerY });
     setSearchText('');
     setTimeout(() => searchRef.current?.focus(), 100);
-  }, [zoom, pan]);
+  }, [zoom, pan, editMode]);
 
   const handleAddMember = useCallback(async (name: string) => {
     if (!clickPopup) return;
