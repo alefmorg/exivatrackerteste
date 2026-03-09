@@ -247,7 +247,14 @@ export default function MapaPage() {
       const dy = (e.clientY - cityDragStart.current.y) / rect.height * 100 / zoom;
       const newX = Math.max(0, Math.min(100, cityDragStart.current.cityX + dx));
       const newY = Math.max(0, Math.min(100, cityDragStart.current.cityY + dy));
-      setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      
+      // Check if it's a custom city
+      const isCustomCity = customCities.some(c => c.id === draggingCity);
+      if (isCustomCity) {
+        handleUpdateCustomCityPosition(draggingCity, newX, newY);
+      } else {
+        setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      }
       return;
     }
     
