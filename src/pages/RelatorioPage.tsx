@@ -121,6 +121,8 @@ export default function RelatorioPage() {
   const filtered = useMemo(() => {
     let list = reports.filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()));
     list.sort((a, b) => {
+      if (sortBy === 'xp_today') return b.xpGainedToday - a.xpGainedToday;
+      if (sortBy === 'xp_week') return b.xpGainedWeek - a.xpGainedWeek;
       if (sortBy === 'levels_today') return b.levelsGainedToday - a.levelsGainedToday;
       if (sortBy === 'levels_week') return b.levelsGainedWeek - a.levelsGainedWeek;
       if (sortBy === 'name') return a.name.localeCompare(b.name);
