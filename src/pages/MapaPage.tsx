@@ -263,7 +263,7 @@ export default function MapaPage() {
     const dy = e.clientY - dragStart.current.y;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
     setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
-  }, [isDragging, zoom, clampPan, draggingCity]);
+  }, [isDragging, zoom, clampPan, draggingCity, customCities, handleUpdateCustomCityPosition]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
