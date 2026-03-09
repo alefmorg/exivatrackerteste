@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getAllLevelHistory, LevelRecord, getMonitoredGuildsAsync } from '@/lib/storage';
-import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
+import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath, calculateXpGain, formatXp } from '@/lib/tibia-api';
 import { GuildMember } from '@/types/tibia';
 import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
