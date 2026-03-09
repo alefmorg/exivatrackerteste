@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw } from 'lucide-react';
+import { X, Trash2, Search, ZoomIn, ZoomOut, Maximize, Radar, ChevronDown, ChevronUp, Crosshair, Camera, Settings2, Save, RotateCcw, Plus } from 'lucide-react';
 import { fetchGuildMembers } from '@/lib/tibia-api';
 import { getMonitoredGuildsAsync } from '@/lib/storage';
 import { GuildMember } from '@/types/tibia';
@@ -10,11 +10,16 @@ import StatusDot from '@/components/StatusDot';
 import PageHeader from '@/components/PageHeader';
 import { useMapPins, MapPin } from '@/hooks/useMapPins';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 
 // Load/save city position overrides from localStorage
 const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
+const CUSTOM_CITIES_KEY = 'tibia-custom-cities';
+
 function loadCityOverrides(): Record<string, { x: number; y: number }> {
   try {
     const stored = localStorage.getItem(CITY_OVERRIDES_KEY);
@@ -24,6 +29,26 @@ function loadCityOverrides(): Record<string, { x: number; y: number }> {
 function saveCityOverrides(overrides: Record<string, { x: number; y: number }>) {
   localStorage.setItem(CITY_OVERRIDES_KEY, JSON.stringify(overrides));
 }
+
+interface CustomCity {
+  id: string;
+  name: string;
+  icon: string;
+  x: number;
+  y: number;
+}
+
+function loadCustomCities(): CustomCity[] {
+  try {
+    const stored = localStorage.getItem(CUSTOM_CITIES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch { return []; }
+}
+function saveCustomCities(cities: CustomCity[]) {
+  localStorage.setItem(CUSTOM_CITIES_KEY, JSON.stringify(cities));
+}
+
+const CITY_ICONS = ['🏰', '🏛️', '💰', '🌳', '⛏️', '🔮', '🏜️', '🏺', '🌴', '⚓', '❄️', '⚙️', '💀', '👹', '🦁', '🐚', '🔧', '🦋', '🍄', '🏝️', '🌊', '⛵', '🗿', '🌋', '🏔️', '🌙', '☀️', '⭐', '🔥', '💎'];
 
 interface ClickPopup {
   x: number;
@@ -59,21 +84,75 @@ export default function MapaPage() {
   const [draggingCity, setDraggingCity] = useState<string | null>(null);
   const cityDragStart = useRef({ x: 0, y: 0, cityX: 0, cityY: 0 });
 
-  const getCityPosition = useCallback((city: TibiaCity) => {
+  // Custom cities
+  const [customCities, setCustomCities] = useState<CustomCity[]>(loadCustomCities);
+  const [addCityModal, setAddCityModal] = useState<{ x: number; y: number } | null>(null);
+  const [newCityName, setNewCityName] = useState('');
+  const [newCityIcon, setNewCityIcon] = useState('🏝️');
+
+  // Merge default cities with custom cities
+  const allCities = useMemo(() => {
+    const defaultCities: (TibiaCity & { isCustom?: boolean })[] = TIBIA_CITIES.map(c => ({ ...c, isCustom: false }));
+    const custom: (TibiaCity & { isCustom?: boolean })[] = customCities.map(c => ({
+      id: c.id,
+      name: c.name,
+      region: 'Custom',
+      x: c.x,
+      y: c.y,
+      color: 'hsl(var(--primary))',
+      icon: c.icon,
+      isCustom: true,
+    }));
+    return [...defaultCities, ...custom];
+  }, [customCities]);
+
+  const getCityPosition = useCallback((city: TibiaCity & { isCustom?: boolean }) => {
+    if (city.isCustom) return { x: city.x, y: city.y };
     const override = cityOverrides[city.id];
     return override || { x: city.x, y: city.y };
   }, [cityOverrides]);
 
   const handleSaveCityPositions = useCallback(() => {
     saveCityOverrides(cityOverrides);
+    saveCustomCities(customCities);
     toast.success('Posições das cidades salvas!');
-  }, [cityOverrides]);
+  }, [cityOverrides, customCities]);
 
   const handleResetCityPositions = useCallback(() => {
     setCityOverrides({});
     localStorage.removeItem(CITY_OVERRIDES_KEY);
     toast.success('Posições resetadas para o padrão');
   }, []);
+
+  const handleAddCustomCity = useCallback(() => {
+    if (!addCityModal || !newCityName.trim()) return;
+    const newCity: CustomCity = {
+      id: `custom_${Date.now()}`,
+      name: newCityName.trim(),
+      icon: newCityIcon,
+      x: addCityModal.x,
+      y: addCityModal.y,
+    };
+    const updated = [...customCities, newCity];
+    setCustomCities(updated);
+    saveCustomCities(updated);
+    setAddCityModal(null);
+    setNewCityName('');
+    setNewCityIcon('🏝️');
+    toast.success(`${newCity.name} adicionada ao mapa!`);
+  }, [addCityModal, newCityName, newCityIcon, customCities]);
+
+  const handleRemoveCustomCity = useCallback((cityId: string) => {
+    const updated = customCities.filter(c => c.id !== cityId);
+    setCustomCities(updated);
+    saveCustomCities(updated);
+    toast.success('Cidade removida');
+  }, [customCities]);
+
+  const handleUpdateCustomCityPosition = useCallback((cityId: string, x: number, y: number) => {
+    const updated = customCities.map(c => c.id === cityId ? { ...c, x, y } : c);
+    setCustomCities(updated);
+  }, [customCities]);
 
   const MIN_ZOOM = 1;
   const MAX_ZOOM = 6;
@@ -168,7 +247,14 @@ export default function MapaPage() {
       const dy = (e.clientY - cityDragStart.current.y) / rect.height * 100 / zoom;
       const newX = Math.max(0, Math.min(100, cityDragStart.current.cityX + dx));
       const newY = Math.max(0, Math.min(100, cityDragStart.current.cityY + dy));
-      setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      
+      // Check if it's a custom city
+      const isCustomCity = customCities.some(c => c.id === draggingCity);
+      if (isCustomCity) {
+        handleUpdateCustomCityPosition(draggingCity, newX, newY);
+      } else {
+        setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      }
       return;
     }
     
@@ -177,7 +263,7 @@ export default function MapaPage() {
     const dy = e.clientY - dragStart.current.y;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
     setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
-  }, [isDragging, zoom, clampPan, draggingCity]);
+  }, [isDragging, zoom, clampPan, draggingCity, customCities, handleUpdateCustomCityPosition]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -240,10 +326,9 @@ export default function MapaPage() {
 
   const handleMapClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (dragMoved.current) return;
-    if (editMode) return;
     if (!mapRef.current) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]') || target.closest('[data-city]')) return;
 
     const rect = mapRef.current.getBoundingClientRect();
     const containerX = e.clientX - rect.left;
@@ -251,10 +336,16 @@ export default function MapaPage() {
     const mapX = ((containerX - rect.width / 2 - pan.x) / zoom + rect.width / 2) / rect.width * 100;
     const mapY = ((containerY - rect.height / 2 - pan.y) / zoom + rect.height / 2) / rect.height * 100;
 
+    if (editMode) {
+      // In edit mode, clicking opens the add city modal
+      setAddCityModal({ x: mapX, y: mapY });
+      return;
+    }
+
     setClickPopup({ x: mapX, y: mapY, screenX: containerX, screenY: containerY });
     setSearchText('');
     setTimeout(() => searchRef.current?.focus(), 100);
-  }, [zoom, pan]);
+  }, [zoom, pan, editMode]);
 
   const handleAddMember = useCallback(async (name: string) => {
     if (!clickPopup) return;
@@ -360,7 +451,7 @@ export default function MapaPage() {
             <span>
               {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
               {!editMode && <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>}
-              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste os nomes das cidades)</span>}
+              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste cidades ou clique para adicionar nova)</span>}
             </span>
           }
           icon="compass"
@@ -434,14 +525,15 @@ export default function MapaPage() {
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
           {/* City/Island labels */}
-          {TIBIA_CITIES.map(city => {
+          {allCities.map(city => {
             const pos = getCityPosition(city);
             const isBeingDragged = draggingCity === city.id;
+            const isCustom = city.isCustom;
             return (
               <div
                 key={city.id}
                 data-city={city.id}
-                className={`absolute z-[5] flex flex-col items-center ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
+                className={`absolute z-[5] flex flex-col items-center group ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
                 style={{
                   left: `${pos.x}%`,
                   top: `${pos.y}%`,
@@ -454,10 +546,24 @@ export default function MapaPage() {
                   cityDragStart.current = { x: e.clientX, y: e.clientY, cityX: pos.x, cityY: pos.y };
                 }}
               >
-                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''}`}
-                  style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
-                  {city.icon} {city.name}
-                </span>
+                <div className="relative flex items-center gap-0.5">
+                  <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''} ${isCustom ? 'ring-1 ring-accent/50' : ''}`}
+                    style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
+                    {city.icon} {city.name}
+                  </span>
+                  {editMode && isCustom && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCustomCity(city.id);
+                      }}
+                      className="w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Remover cidade"
+                    >
+                      <X className="h-2 w-2" />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -694,6 +800,58 @@ export default function MapaPage() {
           </div>
         )}
       </div>
+
+      {/* Add City Modal */}
+      <Dialog open={!!addCityModal} onOpenChange={(open) => !open && setAddCityModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Adicionar Cidade/Ilha
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="city-name">Nome</Label>
+              <Input
+                id="city-name"
+                placeholder="Ex: Cobra Bastion, Issavi..."
+                value={newCityName}
+                onChange={(e) => setNewCityName(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Ícone</Label>
+              <div className="grid grid-cols-10 gap-1 p-2 bg-secondary/30 rounded-md max-h-32 overflow-y-auto">
+                {CITY_ICONS.map(icon => (
+                  <button
+                    key={icon}
+                    onClick={() => setNewCityIcon(icon)}
+                    className={`w-7 h-7 rounded flex items-center justify-center text-base transition-colors ${newCityIcon === icon ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'}`}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {addCityModal && (
+              <div className="text-xs text-muted-foreground font-mono bg-secondary/30 px-2 py-1 rounded">
+                📍 Posição: {addCityModal.x.toFixed(1)}%, {addCityModal.y.toFixed(1)}%
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddCityModal(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAddCustomCity} disabled={!newCityName.trim()}>
+              <Plus className="h-4 w-4 mr-1" />
+              Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
