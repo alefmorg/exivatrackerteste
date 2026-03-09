@@ -84,23 +84,34 @@ export default function RelatorioPage() {
       const charHistory = levelHistory.filter(h => h.char_name === m.name);
       const todayHistory = charHistory.filter(h => h.recorded_at >= todayISO);
 
-      const levelUps: Array<{ from: number; to: number; time: string }> = [];
+      const levelUps: Array<{ from: number; to: number; time: string; xpGained: number }> = [];
       for (let i = 1; i < charHistory.length; i++) {
         if (charHistory[i].level > charHistory[i - 1].level) {
-          levelUps.push({ from: charHistory[i - 1].level, to: charHistory[i].level, time: charHistory[i].recorded_at });
+          const from = charHistory[i - 1].level;
+          const to = charHistory[i].level;
+          levelUps.push({
+            from,
+            to,
+            time: charHistory[i].recorded_at,
+            xpGained: calculateXpGain(from, to),
+          });
         }
       }
 
       const firstSeenLevel = charHistory.length > 0 ? charHistory[0].level : m.level;
       const firstTodayLevel = todayHistory.length > 0 ? todayHistory[0].level : m.level;
+      const levelsGainedToday = m.level - firstTodayLevel;
+      const levelsGainedWeek = m.level - firstSeenLevel;
 
       return {
         name: m.name,
         vocation: m.vocation,
         level: m.level,
         status: m.status,
-        levelsGainedToday: m.level - firstTodayLevel,
-        levelsGainedWeek: m.level - firstSeenLevel,
+        levelsGainedToday,
+        levelsGainedWeek,
+        xpGainedToday: calculateXpGain(firstTodayLevel, m.level),
+        xpGainedWeek: calculateXpGain(firstSeenLevel, m.level),
         levelUps,
         firstSeenLevel,
       };
