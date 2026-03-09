@@ -545,6 +545,19 @@ export default function MapaPage() {
           />
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
+          {/* Heatmap overlay */}
+          <AnimatePresence>
+            {showHeatmap && (
+              <MapHeatmap
+                points={heatmapPoints}
+                visible={showHeatmap}
+                radius={6}
+                blur={12}
+                opacity={0.55}
+              />
+            )}
+          </AnimatePresence>
+
           {/* City/Island labels */}
           {allCities.map(city => {
             const pos = getCityPosition(city);
