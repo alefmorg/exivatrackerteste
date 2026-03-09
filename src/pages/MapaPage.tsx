@@ -153,7 +153,7 @@ export default function MapaPage() {
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom <= 1) return;
     const target = e.target as HTMLElement;
-    if (target.closest('[data-pin]') || target.closest('[data-popup]')) return;
+    if (target.closest('[data-pin]') || target.closest('[data-popup]') || target.closest('[data-city]')) return;
     setIsDragging(true);
     dragMoved.current = false;
     dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
@@ -161,15 +161,27 @@ export default function MapaPage() {
   }, [zoom, pan]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // Handle city label dragging
+    if (draggingCity && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const dx = (e.clientX - cityDragStart.current.x) / rect.width * 100 / zoom;
+      const dy = (e.clientY - cityDragStart.current.y) / rect.height * 100 / zoom;
+      const newX = Math.max(0, Math.min(100, cityDragStart.current.cityX + dx));
+      const newY = Math.max(0, Math.min(100, cityDragStart.current.cityY + dy));
+      setCityOverrides(prev => ({ ...prev, [draggingCity]: { x: newX, y: newY } }));
+      return;
+    }
+    
     if (!isDragging) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved.current = true;
     setPan(clampPan(dragStart.current.panX + dx, dragStart.current.panY + dy, zoom));
-  }, [isDragging, zoom, clampPan]);
+  }, [isDragging, zoom, clampPan, draggingCity]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setDraggingCity(null);
   }, []);
 
   // Touch handlers for mobile
