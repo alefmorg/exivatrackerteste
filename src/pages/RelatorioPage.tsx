@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getAllLevelHistory, LevelRecord, getMonitoredGuildsAsync } from '@/lib/storage';
-import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath } from '@/lib/tibia-api';
+import { fetchGuildMembers, fetchGuildMemberDeaths, CharacterDeath, calculateXpGain, formatXp } from '@/lib/tibia-api';
 import { GuildMember } from '@/types/tibia';
 import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
@@ -28,7 +28,7 @@ export default function RelatorioPage() {
   const [deathProgress, setDeathProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState<string>('levels_today');
+  const [sortBy, setSortBy] = useState<string>('xp_today');
 
   useEffect(() => {
     const load = async () => {
@@ -84,23 +84,34 @@ export default function RelatorioPage() {
       const charHistory = levelHistory.filter(h => h.char_name === m.name);
       const todayHistory = charHistory.filter(h => h.recorded_at >= todayISO);
 
-      const levelUps: Array<{ from: number; to: number; time: string }> = [];
+      const levelUps: Array<{ from: number; to: number; time: string; xpGained: number }> = [];
       for (let i = 1; i < charHistory.length; i++) {
         if (charHistory[i].level > charHistory[i - 1].level) {
-          levelUps.push({ from: charHistory[i - 1].level, to: charHistory[i].level, time: charHistory[i].recorded_at });
+          const from = charHistory[i - 1].level;
+          const to = charHistory[i].level;
+          levelUps.push({
+            from,
+            to,
+            time: charHistory[i].recorded_at,
+            xpGained: calculateXpGain(from, to),
+          });
         }
       }
 
       const firstSeenLevel = charHistory.length > 0 ? charHistory[0].level : m.level;
       const firstTodayLevel = todayHistory.length > 0 ? todayHistory[0].level : m.level;
+      const levelsGainedToday = m.level - firstTodayLevel;
+      const levelsGainedWeek = m.level - firstSeenLevel;
 
       return {
         name: m.name,
         vocation: m.vocation,
         level: m.level,
         status: m.status,
-        levelsGainedToday: m.level - firstTodayLevel,
-        levelsGainedWeek: m.level - firstSeenLevel,
+        levelsGainedToday,
+        levelsGainedWeek,
+        xpGainedToday: calculateXpGain(firstTodayLevel, m.level),
+        xpGainedWeek: calculateXpGain(firstSeenLevel, m.level),
         levelUps,
         firstSeenLevel,
       };
@@ -110,6 +121,8 @@ export default function RelatorioPage() {
   const filtered = useMemo(() => {
     let list = reports.filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()));
     list.sort((a, b) => {
+      if (sortBy === 'xp_today') return b.xpGainedToday - a.xpGainedToday;
+      if (sortBy === 'xp_week') return b.xpGainedWeek - a.xpGainedWeek;
       if (sortBy === 'levels_today') return b.levelsGainedToday - a.levelsGainedToday;
       if (sortBy === 'levels_week') return b.levelsGainedWeek - a.levelsGainedWeek;
       if (sortBy === 'name') return a.name.localeCompare(b.name);
@@ -130,8 +143,10 @@ export default function RelatorioPage() {
   const avgLevel = members.length > 0 ? Math.round(members.reduce((s, m) => s + m.level, 0) / members.length) : 0;
 
   const exportCSV = () => {
-    const header = 'Nome,Vocação,Level,Status,Levels Hoje,Levels 7d\n';
-    const rows = reports.map(r => `${r.name},${r.vocation},${r.level},${r.status},${r.levelsGainedToday},${r.levelsGainedWeek}`).join('\n');
+    const header = 'Nome,Vocação,Level,Status,Levels Hoje,Levels 7d,XP Hoje,XP 7d\n';
+    const rows = reports.map(r => 
+      `${r.name},${r.vocation},${r.level},${r.status},${r.levelsGainedToday},${r.levelsGainedWeek},${r.xpGainedToday},${r.xpGainedWeek}`
+    ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
