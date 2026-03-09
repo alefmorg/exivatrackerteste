@@ -487,6 +487,14 @@ export default function MapaPage() {
             {editMode ? 'Sair' : 'Editar Cidades'}
           </button>
           <button
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${showHeatmap ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500' : 'bg-secondary hover:bg-secondary/80 text-foreground'}`}
+            title="Mostrar mapa de calor"
+          >
+            <Flame className="h-3.5 w-3.5" />
+            Heatmap
+          </button>
+          <button
             onClick={handleExportScreenshot}
             disabled={exporting}
             className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
