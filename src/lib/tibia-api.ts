@@ -176,3 +176,21 @@ export function getGuildWorld(guildName: string): Promise<string> {
     .then(r => r.json())
     .then(d => d.guild?.world || 'Unknown');
 }
+
+// XP calculation based on Tibia's official formula
+export function calculateXpForLevel(level: number): number {
+  if (level < 1) return 0;
+  return Math.floor((50 / 3) * (Math.pow(level, 3) - 6 * Math.pow(level, 2) + 17 * level - 12));
+}
+
+export function calculateXpGain(fromLevel: number, toLevel: number): number {
+  if (toLevel <= fromLevel) return 0;
+  return calculateXpForLevel(toLevel) - calculateXpForLevel(fromLevel);
+}
+
+export function formatXp(xp: number): string {
+  if (xp >= 1_000_000_000) return `${(xp / 1_000_000_000).toFixed(1)}B`;
+  if (xp >= 1_000_000) return `${(xp / 1_000_000).toFixed(1)}M`;
+  if (xp >= 1_000) return `${(xp / 1_000).toFixed(0)}K`;
+  return xp.toString();
+}

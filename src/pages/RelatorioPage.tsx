@@ -143,8 +143,10 @@ export default function RelatorioPage() {
   const avgLevel = members.length > 0 ? Math.round(members.reduce((s, m) => s + m.level, 0) / members.length) : 0;
 
   const exportCSV = () => {
-    const header = 'Nome,Vocação,Level,Status,Levels Hoje,Levels 7d\n';
-    const rows = reports.map(r => `${r.name},${r.vocation},${r.level},${r.status},${r.levelsGainedToday},${r.levelsGainedWeek}`).join('\n');
+    const header = 'Nome,Vocação,Level,Status,Levels Hoje,Levels 7d,XP Hoje,XP 7d\n';
+    const rows = reports.map(r => 
+      `${r.name},${r.vocation},${r.level},${r.status},${r.levelsGainedToday},${r.levelsGainedWeek},${r.xpGainedToday},${r.xpGainedWeek}`
+    ).join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
