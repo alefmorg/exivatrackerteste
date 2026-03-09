@@ -393,22 +393,33 @@ export default function MapaPage() {
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
           {/* City/Island labels */}
-          {TIBIA_CITIES.map(city => (
-            <div
-              key={city.id}
-              className="absolute z-[5] pointer-events-none flex flex-col items-center"
-              style={{
-                left: `${city.x}%`,
-                top: `${city.y}%`,
-                transform: `translate(-50%, -50%) scale(${1 / zoom})`,
-              }}
-            >
-              <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-foreground/70 bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight"
-                style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
-                {city.icon} {city.name}
-              </span>
-            </div>
-          ))}
+          {TIBIA_CITIES.map(city => {
+            const pos = getCityPosition(city);
+            const isBeingDragged = draggingCity === city.id;
+            return (
+              <div
+                key={city.id}
+                data-city={city.id}
+                className={`absolute z-[5] flex flex-col items-center ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  transform: `translate(-50%, -50%) scale(${1 / zoom})`,
+                }}
+                onMouseDown={(e) => {
+                  if (!editMode) return;
+                  e.stopPropagation();
+                  setDraggingCity(city.id);
+                  cityDragStart.current = { x: e.clientX, y: e.clientY, cityX: pos.x, cityY: pos.y };
+                }}
+              >
+                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''}`}
+                  style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
+                  {city.icon} {city.name}
+                </span>
+              </div>
+            );
+          })}
           {visiblePins.map(pin => {
             const member = memberMap[pin.char_name];
             const isHovered = hoveredPin === pin.char_name;
