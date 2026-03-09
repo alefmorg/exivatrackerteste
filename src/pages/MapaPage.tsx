@@ -451,7 +451,7 @@ export default function MapaPage() {
             <span>
               {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
               {!editMode && <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>}
-              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste os nomes das cidades)</span>}
+              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste cidades ou clique para adicionar nova)</span>}
             </span>
           }
           icon="compass"
