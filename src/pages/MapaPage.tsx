@@ -726,6 +726,92 @@ export default function MapaPage() {
           />
         )}
 
+        {/* Mini Map - shows when zoomed in */}
+        <AnimatePresence>
+          {zoom > 1 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="absolute bottom-2 left-2 z-20 w-36 md:w-44 border border-border rounded-md overflow-hidden shadow-lg bg-card/95 backdrop-blur-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Mini map header */}
+              <div className="flex items-center justify-between px-1.5 py-0.5 bg-secondary/50 border-b border-border">
+                <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider">Visão Geral</span>
+                <span className="text-[8px] font-mono text-primary">{(zoom * 100).toFixed(0)}%</span>
+              </div>
+              {/* Mini map content */}
+              <div
+                className="relative cursor-pointer"
+                style={{ aspectRatio: mapAspectRatio }}
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+                  const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+                  
+                  // Navigate to clicked position
+                  const container = mapRef.current;
+                  if (!container) return;
+                  const w = container.clientWidth;
+                  const h = container.clientHeight;
+                  const pinPxX = (clickX / 100) * w;
+                  const pinPxY = (clickY / 100) * h;
+                  const centerX = w / 2;
+                  const centerY = h / 2;
+                  const newPanX = (centerX - pinPxX) * zoom;
+                  const newPanY = (centerY - pinPxY) * zoom;
+                  setPan(clampPan(newPanX, newPanY, zoom));
+                }}
+              >
+                <img
+                  src="/tibia-world-map.png"
+                  alt="Mini map"
+                  className="absolute inset-0 w-full h-full object-contain"
+                  style={{ imageRendering: 'pixelated' }}
+                  draggable={false}
+                />
+                <div className="absolute inset-0 bg-background/20" />
+                
+                {/* Pins on mini map */}
+                {visiblePins.map(pin => (
+                  <div
+                    key={`mini-${pin.id}`}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-primary border border-primary-foreground shadow-sm"
+                    style={{
+                      left: `${pin.pos_x}%`,
+                      top: `${pin.pos_y}%`,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                ))}
+                
+                {/* Viewport indicator rectangle */}
+                {(() => {
+                  const container = mapRef.current;
+                  if (!container) return null;
+                  const viewportW = (100 / zoom);
+                  const viewportH = (100 / zoom);
+                  const viewportX = 50 - (pan.x / container.clientWidth / zoom * 100) - (viewportW / 2);
+                  const viewportY = 50 - (pan.y / container.clientHeight / zoom * 100) - (viewportH / 2);
+                  
+                  return (
+                    <div
+                      className="absolute border-2 border-primary bg-primary/10 pointer-events-none transition-all duration-100"
+                      style={{
+                        left: `${Math.max(0, Math.min(100 - viewportW, viewportX))}%`,
+                        top: `${Math.max(0, Math.min(100 - viewportH, viewportY))}%`,
+                        width: `${viewportW}%`,
+                        height: `${viewportH}%`,
+                      }}
+                    />
+                  );
+                })()}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Zoom controls */}
         <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
           <button
