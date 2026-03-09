@@ -550,23 +550,35 @@ export default function MapaPage() {
                   cityDragStart.current = { x: e.clientX, y: e.clientY, cityX: pos.x, cityY: pos.y };
                 }}
               >
-                <div className="relative flex items-center gap-0.5">
-                  <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''} ${isCustom ? 'ring-1 ring-accent/50' : ''}`}
-                    style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
-                    {city.icon} {city.name}
-                  </span>
-                  {editMode && isCustom && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveCustomCity(city.id);
-                      }}
-                      className="w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Remover cidade"
-                    >
-                      <X className="h-2 w-2" />
-                    </button>
-                  )}
+                <div className="flex flex-col items-center gap-1 transition-transform hover:-translate-y-0.5">
+                  <div className="relative flex items-center gap-1">
+                    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border backdrop-blur-md shadow-sm transition-all duration-200 ${
+                      editMode 
+                        ? 'bg-primary/20 border-primary/50 text-primary' 
+                        : isCustom
+                          ? 'bg-accent/15 border-accent/30 text-accent-foreground'
+                          : 'bg-surface-1/80 border-border/60 text-foreground/90'
+                    } ${isBeingDragged ? 'ring-2 ring-primary scale-110 shadow-lg' : ''}`}>
+                      <span className="text-[10px] leading-none drop-shadow-md">{city.icon}</span>
+                      <span className="text-[9px] font-display font-bold tracking-widest uppercase leading-none whitespace-nowrap" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+                        {city.name}
+                      </span>
+                    </div>
+                    {editMode && isCustom && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveCustomCity(city.id);
+                        }}
+                        className="absolute -right-2 -top-2 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90 pointer-events-auto"
+                        title="Remover cidade"
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Ponto indicador no mapa */}
+                  <div className={`w-1 h-1 rounded-full shadow-[0_0_2px_rgba(0,0,0,0.8)] ${editMode ? 'bg-primary' : isCustom ? 'bg-accent' : 'bg-foreground/40'}`} />
                 </div>
               </div>
             );
