@@ -28,7 +28,7 @@ export default function RelatorioPage() {
   const [deathProgress, setDeathProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState<string>('levels_today');
+  const [sortBy, setSortBy] = useState<string>('xp_today');
 
   useEffect(() => {
     const load = async () => {
