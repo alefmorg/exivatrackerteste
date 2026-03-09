@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
-import MapHeatmap from '@/components/map/MapHeatmap';
+
 
 // Load/save city position overrides from localStorage
 const CITY_OVERRIDES_KEY = 'tibia-city-position-overrides';
