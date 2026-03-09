@@ -800,6 +800,58 @@ export default function MapaPage() {
           </div>
         )}
       </div>
+
+      {/* Add City Modal */}
+      <Dialog open={!!addCityModal} onOpenChange={(open) => !open && setAddCityModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Adicionar Cidade/Ilha
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="city-name">Nome</Label>
+              <Input
+                id="city-name"
+                placeholder="Ex: Cobra Bastion, Issavi..."
+                value={newCityName}
+                onChange={(e) => setNewCityName(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Ícone</Label>
+              <div className="grid grid-cols-10 gap-1 p-2 bg-secondary/30 rounded-md max-h-32 overflow-y-auto">
+                {CITY_ICONS.map(icon => (
+                  <button
+                    key={icon}
+                    onClick={() => setNewCityIcon(icon)}
+                    className={`w-7 h-7 rounded flex items-center justify-center text-base transition-colors ${newCityIcon === icon ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'}`}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {addCityModal && (
+              <div className="text-xs text-muted-foreground font-mono bg-secondary/30 px-2 py-1 rounded">
+                📍 Posição: {addCityModal.x.toFixed(1)}%, {addCityModal.y.toFixed(1)}%
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddCityModal(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAddCustomCity} disabled={!newCityName.trim()}>
+              <Plus className="h-4 w-4 mr-1" />
+              Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
