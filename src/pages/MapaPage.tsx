@@ -352,25 +352,53 @@ export default function MapaPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <PageHeader
           title="Mapa"
           subtitle={
             <span>
               {totalOnMap} personagens no mapa · {onlineMembers.length} online na guild
-              <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>
+              {!editMode && <span className="ml-2 text-[10px] text-muted-foreground/60">(clique no mapa para adicionar)</span>}
+              {editMode && <span className="ml-2 text-[10px] text-primary font-semibold">(MODO EDIÇÃO: arraste os nomes das cidades)</span>}
             </span>
           }
           icon="compass"
         />
-        <button
-          onClick={handleExportScreenshot}
-          disabled={exporting}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
-        >
-          <Camera className="h-3.5 w-3.5" />
-          {exporting ? 'Exportando...' : 'Screenshot'}
-        </button>
+        <div className="flex items-center gap-1.5">
+          {editMode && (
+            <>
+              <button
+                onClick={handleSaveCityPositions}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium transition-colors"
+              >
+                <Save className="h-3.5 w-3.5" />
+                Salvar
+              </button>
+              <button
+                onClick={handleResetCityPositions}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${editMode ? 'bg-primary/20 text-primary ring-1 ring-primary' : 'bg-secondary hover:bg-secondary/80 text-foreground'}`}
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            {editMode ? 'Sair' : 'Editar Cidades'}
+          </button>
+          <button
+            onClick={handleExportScreenshot}
+            disabled={exporting}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium transition-colors disabled:opacity-50"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            {exporting ? '...' : 'Screenshot'}
+          </button>
+        </div>
       </div>
 
       {/* Map Container */}
