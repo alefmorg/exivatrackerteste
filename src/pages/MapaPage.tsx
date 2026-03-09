@@ -518,14 +518,15 @@ export default function MapaPage() {
           <div className="absolute inset-0 bg-background/15 pointer-events-none" />
 
           {/* City/Island labels */}
-          {TIBIA_CITIES.map(city => {
+          {allCities.map(city => {
             const pos = getCityPosition(city);
             const isBeingDragged = draggingCity === city.id;
+            const isCustom = city.isCustom;
             return (
               <div
                 key={city.id}
                 data-city={city.id}
-                className={`absolute z-[5] flex flex-col items-center ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
+                className={`absolute z-[5] flex flex-col items-center group ${editMode ? 'pointer-events-auto cursor-move' : 'pointer-events-none'} ${isBeingDragged ? 'z-20' : ''}`}
                 style={{
                   left: `${pos.x}%`,
                   top: `${pos.y}%`,
@@ -538,10 +539,24 @@ export default function MapaPage() {
                   cityDragStart.current = { x: e.clientX, y: e.clientY, cityX: pos.x, cityY: pos.y };
                 }}
               >
-                <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''}`}
-                  style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
-                  {city.icon} {city.name}
-                </span>
+                <div className="relative flex items-center gap-0.5">
+                  <span className={`text-[8px] font-mono font-bold uppercase tracking-wider bg-background/60 px-1 py-0.5 rounded whitespace-nowrap leading-tight ${editMode ? 'ring-1 ring-primary/50 text-primary' : 'text-foreground/70'} ${isBeingDragged ? 'ring-2 ring-primary' : ''} ${isCustom ? 'ring-1 ring-accent/50' : ''}`}
+                    style={{ textShadow: '0 1px 3px hsl(var(--background))' }}>
+                    {city.icon} {city.name}
+                  </span>
+                  {editMode && isCustom && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCustomCity(city.id);
+                      }}
+                      className="w-3.5 h-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Remover cidade"
+                    >
+                      <X className="h-2 w-2" />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
