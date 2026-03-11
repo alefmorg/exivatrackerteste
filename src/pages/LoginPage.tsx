@@ -50,7 +50,7 @@ export default function LoginPage() {
             </motion.div>
             <div className="text-left">
               <h1 className="text-xl font-display font-bold text-primary tracking-wider neon-text">EXIVA</h1>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-[0.3em] font-mono">TRACKER PRO</p>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-[0.3em] font-mono"></p>
             </div>
           </div>
         </motion.div>
