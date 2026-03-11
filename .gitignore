@@ -7,6 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Lock files - allow npm to generate fresh ones
+pnpm-lock.yaml
+bun.lock
+bun.lockb
+
 node_modules
 dist
 dist-ssr
