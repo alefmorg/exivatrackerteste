@@ -73,7 +73,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="email"
+              placeholder="exiva@email.com"
               className="bg-secondary/50 border-border h-9 text-sm"
               required
             />
