@@ -38,22 +38,10 @@ interface BonecoRow {
 }
 
 const activityConfig: Record<string, { emoji: string; color: string }> = {
-  hunt: {
-    emoji: '⚔',
-    color: 'bg-primary/15 text-primary border-primary/30'
-  },
-  war: {
-    emoji: '🔥',
-    color: 'bg-offline/15 text-offline border-offline/30'
-  },
-  maker: {
-    emoji: '🔨',
-    color: 'bg-afk/15 text-afk border-afk/30'
-  },
-  boss: {
-    emoji: '💀',
-    color: 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-  }
+  hunt: { emoji: '⚔', color: 'bg-primary/15 text-primary border-primary/30' },
+  war: { emoji: '🔥', color: 'bg-offline/15 text-offline border-offline/30' },
+  maker: { emoji: '🔨', color: 'bg-afk/15 text-afk border-afk/30' },
+  boss: { emoji: '💀', color: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
 };
 
 function getVocShort(voc: string) {
@@ -66,12 +54,10 @@ function getVocShort(voc: string) {
 
 function getVocBorderColor(voc: string) {
   const v = voc.toLowerCase();
-
   if (v.includes('knight')) return 'border-l-red-500';
   if (v.includes('paladin')) return 'border-l-yellow-500';
   if (v.includes('druid')) return 'border-l-emerald-500';
   if (v.includes('sorcerer')) return 'border-l-blue-500';
-
   return 'border-l-primary';
 }
 
@@ -104,29 +90,23 @@ export default function BonecoCard({
   onSync,
   onClaim,
   onEdit,
-  onDelete
+  onDelete,
 }: BonecoCardProps) {
-
   return (
     <div
-      className={`panel rounded-lg border-l-2 ${getVocBorderColor(b.vocation)} ${
-        settings.compactMode ? 'p-2.5' : 'p-4'
-      } hover:border-primary/30 transition-all`}
+      className={`panel rounded-lg border-l-2 ${getVocBorderColor(
+        b.vocation
+      )} ${settings.compactMode ? 'p-2.5' : 'p-4'} hover:border-primary/30 transition-all`}
     >
-
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
-
         <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center">
           <VocationIcon vocation={b.vocation} className="h-6 w-6" />
         </div>
 
         <div className="flex-1 min-w-0">
-
           <div className="flex items-center gap-2">
-            <span className="font-bold text-foreground truncate">
-              {b.name}
-            </span>
+            <span className="font-bold text-foreground truncate">{b.name}</span>
 
             <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
               {getVocShort(b.vocation)}
@@ -157,7 +137,6 @@ export default function BonecoCard({
 
       {/* Tags */}
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
-
         {b.activity && (
           <span
             className={`px-2 py-0.5 rounded border text-[11px] font-medium ${
@@ -205,9 +184,141 @@ export default function BonecoCard({
         )}
       </div>
 
+      {/* Credentials */}
+      {settings.showCredentials && (
+        <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Credenciais
+            </span>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                let totpCode = '';
+
+                if (b.totp_secret?.trim()) {
+                  try {
+                    const totp = new OTPAuth.TOTP({
+                      secret: OTPAuth.Secret.fromBase32(b.totp_secret.trim()),
+                      digits: 6,
+                      period: 30,
+                      algorithm: 'SHA1',
+                    });
+
+                    totpCode = totp.generate();
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }
+
+                const message =
+                  `[b]${b.name}[/b] | ${b.email} | ${b.password}` +
+                  (totpCode ? ` | 2FA: ${totpCode}` : '');
+
+                navigator.clipboard.writeText(message);
+                onCopy(message);
+              }}
+            >
+              TS3
+            </Button>
+          </div>
+
+          {/* Email */}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <ItemSprite item="email" className="h-5 w-5 shrink-0" />
+            <span className="font-mono text-xs flex-1 truncate">
+              {b.email || '—'}
+            </span>
+
+            {b.email && (
+              <button
+                onClick={() => onCopy(b.email)}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <ItemSprite item="password" className="h-5 w-5 shrink-0" />
+
+            <span className="font-mono text-xs flex-1">
+              {visiblePasswords.has(b.id) ? b.password : '••••••••'}
+            </span>
+
+            <button
+              onClick={() => onTogglePassword(b.id)}
+              className="text-muted-foreground hover:text-primary"
+            >
+              {visiblePasswords.has(b.id) ? (
+                <EyeOff className="h-3.5 w-3.5" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            <button
+              onClick={() => onCopy(b.password)}
+              className="text-muted-foreground hover:text-primary"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Token */}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <ItemSprite item="token2fa" className="h-5 w-5 shrink-0" />
+
+            {visibleTokens.has(b.id) ? (
+              <div className="flex-1 flex items-center gap-2">
+                <TotpDisplay secret={b.totp_secret} />
+              </div>
+            ) : (
+              <span className="font-mono text-xs flex-1">••••••••••••</span>
+            )}
+
+            <button
+              onClick={() => onToggleToken(b.id)}
+              className="text-muted-foreground hover:text-primary"
+            >
+              {visibleTokens.has(b.id) ? (
+                <EyeOff className="h-3.5 w-3.5" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                if (b.totp_secret) {
+                  try {
+                    const totp = new OTPAuth.TOTP({
+                      secret: OTPAuth.Secret.fromBase32(b.totp_secret),
+                      digits: 6,
+                      period: 30,
+                      algorithm: 'SHA1',
+                    });
+
+                    onCopy(totp.generate());
+                  } catch {
+                    onCopy('ERRO');
+                  }
+                }
+              }}
+              className="text-muted-foreground hover:text-primary"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-border text-xs text-muted-foreground">
-
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <ItemSprite item="clock" className="h-4 w-4" />
@@ -216,7 +327,6 @@ export default function BonecoCard({
         </div>
 
         <div className="flex items-center gap-2">
-
           <button
             onClick={() => onSync(b)}
             disabled={syncing}
@@ -270,7 +380,6 @@ export default function BonecoCard({
               </button>
             </>
           )}
-
         </div>
       </div>
 
@@ -280,7 +389,6 @@ export default function BonecoCard({
           {b.observations}
         </p>
       )}
-
     </div>
   );
 }
