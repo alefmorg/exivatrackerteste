@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe } from 'lucide-react';
+import { Globe, AlertTriangle, TrendingDown, Shield, Crown } from 'lucide-react';
 import { getMonitoredGuildsAsync, MonitoredGuild } from '@/lib/storage';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,18 @@ interface BonecoRow {
 
 interface LogRow {
   id: string; boneco_name: string; username: string; action: string; notes: string; created_at: string;
+}
+
+interface LevelHistoryRow {
+  id: string; char_name: string; level: number; recorded_at: string;
+}
+
+interface LevelLoss {
+  name: string;
+  previousLevel: number;
+  currentLevel: number;
+  lostLevels: number;
+  date: string;
 }
 
 // timeAgo imported from utils
@@ -57,16 +69,51 @@ export default function DashboardPage() {
   const [bonecos, setBonecos] = useState<BonecoRow[]>([]);
   const [guilds, setGuilds] = useState<MonitoredGuild[]>([]);
   const [recentLogs, setRecentLogs] = useState<LogRow[]>([]);
+  const [levelLosses, setLevelLosses] = useState<LevelLoss[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState('');
 
   const fetchData = useCallback(async () => {
-    const [{ data: bData }, { data: lData }] = await Promise.all([
+    const [{ data: bData }, { data: lData }, { data: hData }] = await Promise.all([
       supabase.from('bonecos').select('id,name,level,vocation,world,status,activity,used_by,last_access,full_bless,premium_active,tibia_coins').order('created_at', { ascending: false }),
       supabase.from('boneco_logs').select('id,boneco_name,username,action,notes,created_at').order('created_at', { ascending: false }).limit(settings.logLimit),
+      supabase.from('level_history').select('id,char_name,level,recorded_at').order('recorded_at', { ascending: false }).limit(500),
     ]);
     if (bData) setBonecos(bData as BonecoRow[]);
     if (lData) setRecentLogs(lData as LogRow[]);
+    
+    // Calculate level losses from history
+    if (hData && bData) {
+      const historyByChar: Record<string, LevelHistoryRow[]> = {};
+      (hData as LevelHistoryRow[]).forEach(h => {
+        if (!historyByChar[h.char_name]) historyByChar[h.char_name] = [];
+        historyByChar[h.char_name].push(h);
+      });
+      
+      const losses: LevelLoss[] = [];
+      Object.entries(historyByChar).forEach(([charName, history]) => {
+        // Sort by date descending
+        history.sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+        // Check for level drops between consecutive records
+        for (let i = 0; i < history.length - 1; i++) {
+          const current = history[i];
+          const previous = history[i + 1];
+          if (previous.level > current.level) {
+            losses.push({
+              name: charName,
+              previousLevel: previous.level,
+              currentLevel: current.level,
+              lostLevels: previous.level - current.level,
+              date: current.recorded_at,
+            });
+          }
+        }
+      });
+      // Sort by date descending and take recent
+      losses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      setLevelLosses(losses.slice(0, 20));
+    }
+    
     setLastRefresh(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     setLoading(false);
   }, [settings.logLimit]);
@@ -181,6 +228,15 @@ export default function DashboardPage() {
           </span>
         </div>
       )}
+
+      {/* Alerts & Level Losses */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Alerts Panel */}
+        <AlertsPanel bonecos={bonecos} />
+        
+        {/* Level Losses Panel */}
+        <LevelLossesPanel losses={levelLosses} />
+      </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -351,6 +407,132 @@ function SidePanel({ title, count, icon, children }: { title: string; count: num
         <span className="ml-auto text-[9px] font-mono text-muted-foreground">{count}</span>
       </div>
       <div className="px-3 py-2 space-y-0.5">{children}</div>
+    </motion.div>
+  );
+}
+
+function AlertsPanel({ bonecos }: { bonecos: BonecoRow[] }) {
+  const noBless = bonecos.filter(b => !b.full_bless);
+  const noPremium = bonecos.filter(b => !b.premium_active);
+  const lowTC = bonecos.filter(b => b.tibia_coins < 250);
+  
+  const alerts = [
+    { type: 'bless', items: noBless, label: 'Sem Bless', icon: <Shield className="h-3.5 w-3.5" />, color: 'text-destructive', bgColor: 'bg-destructive/10' },
+    { type: 'premium', items: noPremium, label: 'Sem Premium', icon: <Crown className="h-3.5 w-3.5" />, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+    { type: 'tc', items: lowTC, label: 'TC Baixo (<250)', icon: <ItemSprite item="tibiaCoin" className="h-3.5 w-3.5" />, color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' },
+  ];
+
+  const totalAlerts = noBless.length + noPremium.length + lowTC.length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+      className="panel rounded-lg overflow-hidden"
+    >
+      <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-500" />
+        <span className="text-[11px] font-display font-semibold text-foreground uppercase tracking-wider">Alertas</span>
+        {totalAlerts > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 text-[9px] font-mono font-bold bg-amber-500/20 text-amber-500 rounded">
+            {totalAlerts}
+          </span>
+        )}
+      </div>
+      <div className="p-3 space-y-2 max-h-[280px] overflow-y-auto">
+        {totalAlerts === 0 ? (
+          <div className="text-center py-4">
+            <ItemSprite item="online" className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-[10px] text-muted-foreground">Tudo em ordem!</p>
+          </div>
+        ) : (
+          alerts.map(alert => alert.items.length > 0 && (
+            <div key={alert.type} className="space-y-1.5">
+              <div className={`flex items-center gap-2 px-2 py-1.5 rounded ${alert.bgColor}`}>
+                <span className={alert.color}>{alert.icon}</span>
+                <span className={`text-[10px] font-semibold ${alert.color}`}>{alert.label}</span>
+                <span className="ml-auto text-[9px] font-mono text-muted-foreground">{alert.items.length}</span>
+              </div>
+              <div className="pl-2 space-y-0.5">
+                {alert.items.slice(0, 5).map(b => (
+                  <div key={b.id} className="flex items-center gap-2 py-0.5">
+                    <StatusDot status={b.status as any} size="sm" />
+                    <span className="text-[10px] text-foreground truncate flex-1">{b.name}</span>
+                    <span className="text-[8px] text-muted-foreground font-mono">{b.world}</span>
+                  </div>
+                ))}
+                {alert.items.length > 5 && (
+                  <span className="text-[9px] text-muted-foreground pl-4">+{alert.items.length - 5} mais...</span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function LevelLossesPanel({ losses }: { losses: LevelLoss[] }) {
+  const totalLost = losses.reduce((sum, l) => sum + l.lostLevels, 0);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="panel rounded-lg overflow-hidden"
+    >
+      <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
+        <TrendingDown className="h-4 w-4 text-destructive" />
+        <span className="text-[11px] font-display font-semibold text-foreground uppercase tracking-wider">Perdas de Level</span>
+        {losses.length > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 text-[9px] font-mono font-bold bg-destructive/20 text-destructive rounded">
+            -{totalLost} lvls
+          </span>
+        )}
+      </div>
+      <div className="p-3 max-h-[280px] overflow-y-auto">
+        {losses.length === 0 ? (
+          <div className="text-center py-4">
+            <ItemSprite item="level" className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-[10px] text-muted-foreground">Nenhuma perda de level registrada</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {losses.map((loss, i) => (
+              <motion.div
+                key={`${loss.name}-${loss.date}-${i}`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-secondary/30 transition-colors"
+              >
+                <div className="p-1 rounded bg-destructive/10">
+                  <TrendingDown className="h-3 w-3 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-semibold text-foreground truncate">{loss.name}</span>
+                    <span className="text-[9px] px-1 py-0.5 rounded bg-destructive/10 text-destructive font-mono font-bold">
+                      -{loss.lostLevels}
+                    </span>
+                  </div>
+                  <div className="text-[9px] text-muted-foreground">
+                    <span className="line-through">{loss.previousLevel}</span>
+                    <span className="mx-1">→</span>
+                    <span className="text-foreground font-medium">{loss.currentLevel}</span>
+                  </div>
+                </div>
+                <span className="text-[8px] text-muted-foreground font-mono shrink-0">
+                  {timeAgo(loss.date)}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
