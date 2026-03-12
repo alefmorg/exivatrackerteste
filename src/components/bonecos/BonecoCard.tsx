@@ -1,4 +1,3 @@
-```tsx
 import { Eye, EyeOff, Copy, RefreshCw } from 'lucide-react';
 import * as OTPAuth from 'otpauth';
 import { Button } from '@/components/ui/button';
@@ -201,4 +200,3 @@ export default function BonecoCard({
     </div>
   );
 }
-```
