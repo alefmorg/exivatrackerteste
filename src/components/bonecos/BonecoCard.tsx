@@ -127,20 +127,38 @@ export default function BonecoCard({
         <div className="space-y-1.5 text-sm bg-secondary/50 rounded-lg p-3 mb-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Credenciais</span>
-            <Button variant="outline" size="sm" className="h-6 text-[10px] gap-1 border-border text-muted-foreground hover:text-foreground" onClick={() => {
-              let totpCode = '';
-              if (b.totp_secret) {
-                try {
-                  const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(b.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
-                  totpCode = totp.generate();
-                } catch { totpCode = ''; }
-              }
-              const ts3Text = `[b]${b.name}[/b] | ${b.email} | ${b.password}${totpCode ? ` | 2FA: ${totpCode}` : ''}`;
-              navigator.clipboard.writeText(ts3Text);
-              onCopy('📋 Copiado para TS3!');
-            }}>
-              🎧 TS3
-            </Button>
+<Button
+  size="sm"
+  variant="outline"
+  onClick={() => {
+    let totpCode = '';
+
+    if (b.totp_secret?.trim()) {
+      try {
+        const totp = new OTPAuth.TOTP({
+          secret: OTPAuth.Secret.fromBase32(b.totp_secret.trim()),
+          digits: 6,
+          period: 30,
+          algorithm: 'SHA1',
+        });
+
+        totpCode = totp.generate();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const message =
+      `[b]${b.name}[/b] | ${b.email} | ${b.password}` +
+      (totpCode ? ` | 2FA: ${totpCode}` : '');
+
+    navigator.clipboard.writeText(message);
+
+    onCopy(message);
+  }}
+>
+  TS3
+</Button>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <ItemSprite item="email" className="h-5 w-5 shrink-0" />
