@@ -63,36 +63,6 @@ export default function BonecoCard({
   onTogglePassword, onToggleToken, onCopy, onSync, onClaim, onEdit, onDelete,
 }: BonecoCardProps) {
 
-  const copyTS3 = async () => {
-    let totpCode = '';
-
-    if (b.totp_secret?.trim()) {
-      try {
-        const totp = new OTPAuth.TOTP({
-          secret: OTPAuth.Secret.fromBase32(b.totp_secret.trim()),
-          digits: 6,
-          period: 30,
-          algorithm: 'SHA1',
-        });
-
-        totpCode = totp.generate();
-      } catch (err) {
-        console.error('Erro TOTP:', err);
-      }
-    }
-
-    const message =
-      `[b]${b.name}[/b] | ${b.email} | ${b.password}` +
-      (totpCode ? ` | 2FA: ${totpCode}` : '');
-
-    try {
-      await navigator.clipboard.writeText(message);
-      onCopy('📋 Copiado para TS3!');
-    } catch {
-      prompt('Copie manualmente:', message);
-    }
-  };
-
   return (
     <div className={`panel rounded-lg border-l-2 ${getVocBorderColor(b.vocation)} ${settings.compactMode ? 'p-2.5' : 'p-4'} hover:border-primary/30 transition-all`}>
 
@@ -134,24 +104,12 @@ export default function BonecoCard({
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               Credenciais
             </span>
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={copyTS3}
-            >
-              TS3
-            </Button>
           </div>
 
           <div className="flex items-center gap-2 text-muted-foreground">
             <ItemSprite item="email" className="h-5 w-5 shrink-0" />
             <span className="font-mono text-xs flex-1 truncate">{b.email || '—'}</span>
-            {b.email && (
-              <button onClick={() => onCopy(b.email)}>
-                <Copy className="h-3.5 w-3.5" />
-              </button>
-            )}
+            {b.email && <button onClick={() => onCopy(b.email)}><Copy className="h-3.5 w-3.5" /></button>}
           </div>
 
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -217,11 +175,7 @@ export default function BonecoCard({
 
         <div className="flex items-center gap-2">
 
-          <button
-            onClick={() => onSync(b)}
-            disabled={syncing}
-            className="disabled:opacity-50"
-          >
+          <button onClick={() => onSync(b)} disabled={syncing}>
             <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
           </button>
 
