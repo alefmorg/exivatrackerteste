@@ -123,42 +123,78 @@ export default function BonecosPage() {
   };
 
   const confirmClaim = async () => {
-    if (!showClaimModal || !user) return;
-    setClaimingId(showClaimModal.id);
-    const isPegar = showClaimModal.action === 'pegar';
+  if (!showClaimModal || !user) return;
 
-    const { error: updateError } = await supabase.from('bonecos').update({
+  setClaimingId(showClaimModal.id);
+  const isPegar = showClaimModal.action === 'pegar';
+
+  const { data: updatedBoneco, error: updateError } = await supabase
+    .from('bonecos')
+    .update({
       used_by: isPegar ? username : '',
       last_access: new Date().toISOString(),
-    }).eq('id', showClaimModal.id);
+    })
+    .eq('id', showClaimModal.id)
+    .select()
+    .single();
 
-    if (updateError) { toast({ title: updateError.message, variant: 'destructive' }); setClaimingId(null); return; }
+  if (updateError) {
+    toast({ title: updateError.message, variant: 'destructive' });
+    setClaimingId(null);
+    return;
+  }
 
-    await supabase.from('boneco_logs').insert({
-      boneco_id: showClaimModal.id, boneco_name: showClaimModal.name,
-      user_id: user.id, username, action: showClaimModal.action, notes: claimNotes,
-    });
+  await supabase.from('boneco_logs').insert({
+    boneco_id: showClaimModal.id,
+    boneco_name: showClaimModal.name,
+    user_id: user.id,
+    username,
+    action: showClaimModal.action,
+    notes: claimNotes,
+  });
 
-    if (isPegar) {
-      const boneco = bonecos.find(b => b.id === showClaimModal.id);
-      if (boneco) {
-        let totpCode = '';
-        if (boneco.totp_secret) {
-          try {
-            const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(boneco.totp_secret), digits: 6, period: 30, algorithm: 'SHA1' });
-            totpCode = totp.generate();
-          } catch { /* skip */ }
-        }
-        navigator.clipboard.writeText(`[b]${boneco.name}[/b] | ${boneco.email} | ${boneco.password}${totpCode ? ` | 2FA: ${totpCode}` : ''}`);
+  if (isPegar && updatedBoneco) {
+    let totpCode = '';
+
+    if (updatedBoneco.totp_secret?.trim()) {
+      try {
+        const totp = new OTPAuth.TOTP({
+          secret: OTPAuth.Secret.fromBase32(updatedBoneco.totp_secret.trim()),
+          digits: 6,
+          period: 30,
+          algorithm: 'SHA1',
+        });
+
+        totpCode = totp.generate();
+      } catch (err) {
+        console.error('Erro TOTP:', err);
       }
     }
 
-    toast({
-      title: isPegar ? '📥 Boneco pego!' : '📤 Boneco devolvido!',
-      description: isPegar ? `${showClaimModal.name} está com você — credenciais copiadas! 📋` : `${showClaimModal.name} foi liberado`,
-    });
-    setClaimingId(null); setShowClaimModal(null); setClaimNotes(''); fetchBonecos();
-  };
+    const message =
+      `[b]${updatedBoneco.name}[/b] | ${updatedBoneco.email} | ${updatedBoneco.password}` +
+      (totpCode ? ` | 2FA: ${totpCode}` : '');
+
+    try {
+      await navigator.clipboard.writeText(message);
+    } catch {
+      prompt('Copie manualmente:', message);
+    }
+  }
+
+  toast({
+    title: isPegar ? '📥 Boneco pego!' : '📤 Boneco devolvido!',
+    description: isPegar
+      ? `${showClaimModal.name} está com você — credenciais copiadas! 📋`
+      : `${showClaimModal.name} foi liberado`,
+  });
+
+  setClaimingId(null);
+  setShowClaimModal(null);
+  setClaimNotes('');
+
+  fetchBonecos();
+};
 
   const togglePassword = (id: string) => setVisiblePasswords(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const toggleToken = (id: string) => setVisibleTokens(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
