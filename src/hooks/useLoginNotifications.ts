@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSettings } from '@/hooks/useSettings';
 import { toast } from 'sonner';
@@ -54,14 +54,12 @@ function sendNativeNotification(charName: string, isOnline: boolean) {
     const notification = new Notification(title, {
       body: time,
       icon: '/favicon.ico',
-      tag: `login-${charName}`, // Replace previous notification for same char
-      silent: true, // We handle sound ourselves
+      tag: `login-${charName}`,
+      silent: true,
     });
 
-    // Auto-close after 5 seconds
     setTimeout(() => notification.close(), 5000);
 
-    // Focus window on click
     notification.onclick = () => {
       window.focus();
       notification.close();
@@ -73,8 +71,15 @@ function sendNativeNotification(charName: string, isOnline: boolean) {
 
 export function useLoginNotifications() {
   const settings = useSettings();
+  const settingsRef = useRef(settings);
   const initializedRef = useRef(false);
   const permissionRequestedRef = useRef(false);
+  const processedIdsRef = useRef(new Set<string>());
+
+  // Keep settings ref fresh without causing re-subscribes
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   // Request permission on mount if push notifications enabled
   useEffect(() => {
@@ -91,40 +96,17 @@ export function useLoginNotifications() {
     }
   }, [settings.pushNotifications]);
 
-  const handleInsert = useCallback((payload: any) => {
-    const { char_name, status } = payload.new as { char_name: string; status: string };
-    const isOnline = status === 'online';
-
-    // In-app toast
-    if (settings.toastNotifications) {
-      toast(
-        isOnline ? `🟢 ${char_name} logou` : `🔴 ${char_name} deslogou`,
-        {
-          description: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-          duration: 4000,
-          position: 'top-right',
-          style: {
-            borderLeft: `3px solid ${isOnline ? 'hsl(var(--online))' : 'hsl(var(--offline))'}`,
-          },
-        }
-      );
-    }
-
-    // Native OS notification (works in background)
-    if (settings.pushNotifications) {
-      sendNativeNotification(char_name, isOnline);
-    }
-
-    // Sound
-    if (settings.soundNotifications) {
-      playNotificationSound(isOnline ? 'online' : 'offline');
-    }
-  }, [settings.soundNotifications, settings.toastNotifications, settings.pushNotifications]);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       initializedRef.current = true;
     }, 5000);
+
+    // Clean old processed IDs periodically to avoid memory leak
+    const cleanupInterval = setInterval(() => {
+      if (processedIdsRef.current.size > 500) {
+        processedIdsRef.current.clear();
+      }
+    }, 60000);
 
     const channel = supabase
       .channel('login-notifications')
@@ -136,8 +118,40 @@ export function useLoginNotifications() {
           table: 'login_history',
         },
         (payload) => {
-          if (initializedRef.current) {
-            handleInsert(payload);
+          if (!initializedRef.current) return;
+
+          const record = payload.new as { id: string; char_name: string; status: string };
+
+          // Deduplicate by record ID
+          if (processedIdsRef.current.has(record.id)) return;
+          processedIdsRef.current.add(record.id);
+
+          const isOnline = record.status === 'online';
+          const s = settingsRef.current;
+
+          // In-app toast
+          if (s.toastNotifications) {
+            toast(
+              isOnline ? `🟢 ${record.char_name} logou` : `🔴 ${record.char_name} deslogou`,
+              {
+                description: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                duration: 4000,
+                position: 'top-right',
+                style: {
+                  borderLeft: `3px solid ${isOnline ? 'hsl(var(--online))' : 'hsl(var(--offline))'}`,
+                },
+              }
+            );
+          }
+
+          // Native OS notification
+          if (s.pushNotifications) {
+            sendNativeNotification(record.char_name, isOnline);
+          }
+
+          // Sound
+          if (s.soundNotifications) {
+            playNotificationSound(isOnline ? 'online' : 'offline');
           }
         }
       )
@@ -145,7 +159,8 @@ export function useLoginNotifications() {
 
     return () => {
       clearTimeout(timer);
+      clearInterval(cleanupInterval);
       supabase.removeChannel(channel);
     };
-  }, [handleInsert]);
+  }, []); // Stable — never re-subscribes
 }
