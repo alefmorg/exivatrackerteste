@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { motion } from 'framer-motion';
-import { Pencil, ChevronDown, ChevronUp, CalendarDays, MapPin } from 'lucide-react';
+import { Pencil, ChevronDown, ChevronUp, CalendarDays, MapPin, Copy } from 'lucide-react';
+import { useToast as useToastOriginal } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -351,7 +352,21 @@ function MemberRow({ member: m, category, onSetCategory, editingAnnotation, anno
         <StatusDot status={m.status} />
         <VocationIcon vocation={m.vocation} className={`h-4 w-4 ${getVocationColor(m.vocation)}`} />
         <div className="flex-1 min-w-0">
-          <span className="text-xs font-semibold text-foreground truncate block">{m.name}</span>
+          <span
+            className="text-xs font-semibold text-foreground truncate block cursor-copy hover:text-primary transition-colors"
+            title={`Clique para copiar: exiva "${m.name}"`}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigator.clipboard.writeText(`exiva "${m.name}"`);
+              const toast = document.createElement('div');
+              toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-lg shadow-lg z-[100] animate-in fade-in slide-in-from-bottom-2';
+              toast.textContent = `Copiado: exiva "${m.name}"`;
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 1500);
+            }}
+          >
+            {m.name} <Copy className="inline h-3 w-3 ml-0.5 opacity-0 group-hover:opacity-50" />
+          </span>
           <span className="text-[9px] text-muted-foreground font-mono">Lv{m.level} • {m.vocation}</span>
           {mapPin && (
             <span className="text-[9px] font-mono text-primary flex items-center gap-0.5 bg-primary/10 px-1 py-0.5 rounded">
