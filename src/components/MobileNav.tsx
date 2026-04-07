@@ -8,14 +8,14 @@ export default function MobileNav() {
   const { isAdminOrAbove } = useAuth();
 
   const items = [
-    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const },
+    ...(isAdminOrAbove ? [{ path: '/', label: 'Dashboard', sprite: 'dashboard' as const }] : []),
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const },
     { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const },
-    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const },
+    ...(isAdminOrAbove ? [{ path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const }] : []),
     { path: '/mapa', label: 'Mapa', sprite: 'mapa' as const },
     
     ...(isAdminOrAbove ? [{ path: '/admin/usuarios', label: 'Users', sprite: 'users' as const }] : []),
-    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const },
+    ...(isAdminOrAbove ? [{ path: '/configuracoes', label: 'Config', sprite: 'settings' as const }] : []),
   ];
 
   return (

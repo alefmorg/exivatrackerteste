@@ -14,14 +14,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, role, username, isAdminOrAbove, signOut } = useAuth();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: false },
+    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: true },
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const, adminOnly: false },
     { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const, adminOnly: false },
-    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: false },
+    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: true },
     { path: '/mapa', label: 'Mapa', sprite: 'mapa' as const, adminOnly: false },
     
     { path: '/admin/usuarios', label: 'Usuários', sprite: 'users' as const, adminOnly: true },
-    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
+    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: true },
   ];
 
   const visibleItems = navItems.filter(item => !item.adminOnly || isAdminOrAbove);

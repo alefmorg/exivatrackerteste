@@ -39,14 +39,14 @@ function ProtectedRoutes() {
   return (
     <AppLayout>
       <Routes>
-        <Route path="/" element={<DashboardPage />} />
+        <Route path="/" element={<AdminRoute><DashboardPage /></AdminRoute>} />
         <Route path="/exiva" element={<ExivaPage />} />
         <Route path="/relatorio" element={<RelatorioPage />} />
-        <Route path="/bonecos" element={<BonecosPage />} />
+        <Route path="/bonecos" element={<AdminRoute><BonecosPage /></AdminRoute>} />
         <Route path="/mapa" element={<MapaPage />} />
         
         <Route path="/admin/usuarios" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
-        <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+        <Route path="/configuracoes" element={<AdminRoute><ConfiguracoesPage /></AdminRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AppLayout>
