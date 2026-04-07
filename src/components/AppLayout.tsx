@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
         <div className="max-w-[1600px] mx-auto flex items-center h-11 px-3 gap-1">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group mr-3">
+          <Link to={isAdminOrAbove ? "/" : "/exiva"} className="flex items-center gap-2 shrink-0 group mr-3">
             <div className="w-8 h-8 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
               <ItemSprite item="exiva" className="h-7 w-7" />
             </div>
