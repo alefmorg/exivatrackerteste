@@ -14,14 +14,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, role, username, isAdminOrAbove, signOut } = useAuth();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: false },
+    { path: '/', label: 'Dashboard', sprite: 'dashboard' as const, adminOnly: true },
     { path: '/exiva', label: 'Exiva', sprite: 'exiva' as const, adminOnly: false },
     { path: '/relatorio', label: 'Relatório', sprite: 'relatorio' as const, adminOnly: false },
-    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: false },
+    { path: '/bonecos', label: 'Bonecos', sprite: 'bonecos' as const, adminOnly: true },
     { path: '/mapa', label: 'Mapa', sprite: 'mapa' as const, adminOnly: false },
     
     { path: '/admin/usuarios', label: 'Usuários', sprite: 'users' as const, adminOnly: true },
-    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: false },
+    { path: '/configuracoes', label: 'Config', sprite: 'settings' as const, adminOnly: true },
   ];
 
   const visibleItems = navItems.filter(item => !item.adminOnly || isAdminOrAbove);
@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
         <div className="max-w-[1600px] mx-auto flex items-center h-11 px-3 gap-1">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group mr-3">
+          <Link to={isAdminOrAbove ? "/" : "/exiva"} className="flex items-center gap-2 shrink-0 group mr-3">
             <div className="w-8 h-8 rounded bg-primary/15 border border-primary/30 flex items-center justify-center group-hover:bg-primary/25 transition-all">
               <ItemSprite item="exiva" className="h-7 w-7" />
             </div>

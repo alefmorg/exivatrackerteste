@@ -81,7 +81,7 @@ export default function DashboardPage() {
       )
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => { supabase.removeChannel(channel); };
   }, [fetchData]);
 
   if (loading) return <SkeletonPage />;
